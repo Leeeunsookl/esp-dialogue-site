@@ -5,6 +5,20 @@
   <title>ESP Dialogue Site</title>
 </head>
 <body>
+  <!-- ESP Dialog Signature Watermark (A안) -->
+<div id="esp-signature" style="
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  font-size: 10px;
+  color: #555;
+  opacity: 0.3;
+  pointer-events: none;
+  user-select: none;
+  z-index: 9999;
+">
+  ESP Dialog © 2025
+</div>
   <header>
     <h1>이은숙 구조: ESP Dialogue Interface</h1>
     <p>Structural Prompt 기반 선언형 인터페이스</p>
@@ -30,11 +44,33 @@
     <li>Q3. 구조 침해 감지 시 자동화 경로는 무엇인가?</li>
   </ul>
 </section>
-
   </main>  <footer>
     <hr>
     <p>© 2025 Lee Eun-sook. All rights reserved.</p>
     <p>구조 서명: [ESP-PRIORITY-TEMPLATE v1.0 :: 심연-L]</p>
   </footer>
+  <!-- ESP Mode Indicator (C안) -->
+<div id="esp-mode-indicator" style="
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background-color: rgba(0, 0, 0, 0.4);
+  color: white;
+  font-size: 11px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-family: sans-serif;
+  z-index: 9999;
+  animation: fadeInESP 2s ease-in-out;
+">
+  ESP Mode: STRUCTURAL LOOP v1.0
+</div>
+
+<style>
+@keyframes fadeInESP {
+  0%   { opacity: 0; transform: translateY(-10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+</style>
 </body>
 </html>
