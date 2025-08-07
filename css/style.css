@@ -21,13 +21,17 @@
   margin: 5px 0;
 }
 
-.input-area {
-  display: flex;
-  gap: 10px;
-}
-
-input#user-input {
-  flex: 1;
-  padding: 10px;
-  font-size: 16px;
-}
+<div style="max-width: 600px; margin: 80px auto; padding: 20px;">
+  <input
+    type="text"
+    placeholder="입력하세요..."
+    style="
+      width: 100%;
+      font-size: 16px;
+      padding: 10px 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    "
+  />
+</div>
