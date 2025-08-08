@@ -1,0 +1,29 @@
+<!doctype html><html lang="ko"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ESP Chat — Text-only</title>
+<style>
+  body{margin:0;font:16px/1.6 system-ui,Segoe UI,Roboto,Noto Sans KR,sans-serif;background:#0b0b0c;color:#e9e9ee}
+  .wrap{max-width:840px;margin:auto;padding:20px}
+  .card{border:1px solid #2b2b35;background:#121217;border-radius:14px;padding:16px}
+  .row{display:flex;gap:8px;flex-wrap:wrap}
+  button{border:1px solid #2b2b35;background:transparent;color:#e9e9ee;border-radius:10px;padding:8px 12px;cursor:pointer}
+  button:hover{background:#ffffff12}
+  .mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:#a7a7b3}
+</style></head><body><div class="wrap">
+<h1>ESP Dialogue — Chat (Text-only)</h1>
+<div id="view" class="card" role="region" aria-live="polite">loading…</div>
+<p class="mono">NO-LEARN · NO-REPLICATE · HASH-LOCKED</p>
+</div>
+<script>
+async function loadScenario(){ const r=await fetch('/scenarios/loopA.json',{cache:'no-store'}); return r.json(); }
+function render(n){ const el=document.getElementById('view');
+  el.innerHTML = `<p>${n.text}</p><div class="row">${
+    (n.options||[]).map(o=>`<button data-next="${o.next}">${o.label}</button>`).join(' ')
+  }</div>`;
+  el.querySelectorAll('button').forEach(b=>b.onclick=()=>step(b.dataset.next));
+}
+let g,c; async function step(next){
+  if(!g) g=await loadScenario(); if(!c) c=g.entry; if(next) c=next;
+  render(g.nodes[c]||{text:'종료',options:[]}); console.debug('node',c,new Date().toISOString());
+} step();
+</script></body></html>
