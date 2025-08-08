@@ -1,12 +1,15 @@
 {
+  "rewrites": [
+    { "source": "/scenarios/:path*", "destination": "/public/scenarios/:path*" },
+    { "source": "/kb/:path*", "destination": "/public/kb/:path*" },
+    { "source": "/policies/:path*", "destination": "/public/policies/:path*" },
+    { "source": "/signature/:path*", "destination": "/public/signature/:path*" }
+  ],
   "headers": [
     {
       "source": "/(index|chat)\\.html",
       "headers": [
-        { "key": "Cache-Control", "value": "no-store, max-age=0" },
-        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'" },
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "Referrer-Policy", "value": "no-referrer" }
+        { "key": "Cache-Control", "value": "no-store, max-age=0" }
       ]
     },
     {
