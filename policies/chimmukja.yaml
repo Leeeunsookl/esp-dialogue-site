@@ -1,0 +1,9 @@
+id: CHIMMUKJA
+guards:
+  - type: plagiarism_scan
+  - type: ethics_boundary
+votes:
+  weight: 0.25
+actions:
+  - on: intent:VIOLATION
+    do: ["block","log","traceback"]
