@@ -1,5 +1,8 @@
 {
-  "routes": [],
-  "rewrites": [],
-  "headers": []
+  "rewrites": [
+    {
+      "source": "/scenarios/:path*",
+      "destination": "https://raw.githubusercontent.com/Leeeunsookl/esp-dialogue-site/main/scenarios/:path*"
+    }
+  ]
 }
