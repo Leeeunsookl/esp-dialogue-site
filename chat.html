@@ -15,15 +15,34 @@
 <p class="mono">NO-LEARN · NO-REPLICATE · HASH-LOCKED</p>
 </div>
 <script>
-async function loadScenario(){ const r=await fetch('/scenarios/loopA.json',{cache:'no-store'}); return r.json(); }
-function render(n){ const el=document.getElementById('view');
-  el.innerHTML = `<p>${n.text}</p><div class="row">${
-    (n.options||[]).map(o=>`<button data-next="${o.next}">${o.label}</button>`).join(' ')
-  }</div>`;
-  el.querySelectorAll('button').forEach(b=>b.onclick=()=>step(b.dataset.next));
-}
-let g,c; async function step(next){
-  if(!g) g=await loadScenario(); if(!c) c=g.entry; if(next) c=next;
-  render(g.nodes[c]||{text:'종료',options:[]}); console.debug('node',c,new Date().toISOString());
-} step();
-</script></body></html>
+  // 외부 파일 없이, 내부에 직접 그래프 정의
+  const graph = {
+    entry: "A-1",
+    nodes: {
+      "A-1": {
+        text: "당신은 처음 문을 열었다. 무엇을 선택하겠는가?",
+        options: [
+          { label: "왼쪽 문", next: "A-2" },
+          { label: "오른쪽 문", next: "A-3" }
+        ]
+      },
+      "A-2": {
+        text: "왼쪽으로 갔다. 침묵자가 기다린다.",
+        options: [{ label: "심연을 부른다", next: "A-4" }]
+      },
+      "A-3": { text: "오른쪽의 복도는 조용하다.", options: [{ label: "되돌아간다", next: "A-1" }] },
+      "A-4": { text: "심연은 판단의 주체가 아니되, 선언자의 판단을 내포한다.", options: [] }
+    }
+  };
+
+  function render(node){
+    const el = document.getElementById('view');
+    el.innerHTML = `<p>${node.text}</p><div class="row">${
+      (node.options||[]).map(o=>`<button data-next="${o.next}">${o.label}</button>`).join(' ')
+    }</div>`;
+    el.querySelectorAll('button').forEach(b => b.onclick = () => step(b.dataset.next));
+  }
+  let current = graph.entry;
+  function step(next){ if(next) current = next; render(graph.nodes[current] || {text:'종료',options:[]}); }
+  step();
+</script>
