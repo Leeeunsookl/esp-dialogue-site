@@ -15,8 +15,7 @@ jobs:
     needs: gate
     runs-on: ubuntu-latest
     permissions:
-      contents: write   # GITHUB_TOKEN으로 커밋/푸시
-      pull-requests: write
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - name: Touch heartbeat (cache-busting)
@@ -31,28 +30,41 @@ jobs:
           git commit -m "ops: heartbeat $(date -u +"%Y-%m-%dT%H:%M:%SZ")" || echo "no changes"
           git push
 
-  verify:
+  vercel-deploy:
     needs: heartbeat-commit
     runs-on: ubuntu-latest
     steps:
-      - name: Probe site (retry)
+      - name: Wait for Vercel auto-deploy
+        run: sleep 20
+
+  purge-cloudflare:
+    needs: vercel-deploy
+    runs-on: ubuntu-latest
+    if: ${{ secrets.CF_API_TOKEN != '' && secrets.CF_ZONE_ID != '' }}
+    steps:
+      - name: Purge Cloudflare Cache (entire zone)
+        run: |
+          curl -sS -X POST "https://api.cloudflare.com/client/v4/zones/${{ secrets.CF_ZONE_ID }}/purge_cache" \
+          -H "Authorization: Bearer ${{ secrets.CF_API_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          --data '{"purge_everything":true}'
+
+  verify:
+    needs: purge-cloudflare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe (retry up to 5)
         run: |
           set -e
           for i in 1 2 3 4 5; do
-            curl -fsS "https://espdialog.net/?nocache=$(date +%s)$i" -o page.html || true
-            # 선택: 아래 주석 시그니처를 페이지에 1줄 넣어두면 정밀 검증 가능
-            # grep -q "<!-- SIGN: ESPDIALOG -->" page.html && break
-            test -s page.html && break
+            curl -fsSI "https://espdialog.net/?nocache=$(date +%s)$i" | tee headers.txt || true
+            grep -Eiq "cf-cache-status: (BYPASS|MISS)" headers.txt && exit 0
             sleep 5
           done
-          test -s page.html
-      - name: Hash
-        run: |
-          sha256sum page.html | awk '{print $1}' > sha.txt
-          echo "HASH=$(cat sha.txt)" >> $GITHUB_ENV
+          exit 1
 
   report:
-    needs: verify
+    needs: [verify]
     if: ${{ github.event_name == 'issue_comment' }}
     runs-on: ubuntu-latest
     steps:
@@ -60,11 +72,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          MSG=$(cat << 'EOF'
-          ✅ Awake 배포 완료
-          - commit: ${{ github.sha }}
-          - time  : $(date -u +"%Y-%m-%dT%H:%M:%SZ")
-          - hash  : ${{ env.HASH }}
-          EOF
-          )
+          MSG="✅ Awake: deploy+purge done at $(date -u +%Y-%m-%dT%H:%M:%SZ)"
           gh api repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments -f body="$MSG"
