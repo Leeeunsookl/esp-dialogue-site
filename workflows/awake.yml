@@ -1,0 +1,70 @@
+name: ops-awake
+on:
+  workflow_dispatch: {}
+  issue_comment:
+    types: [created]
+
+jobs:
+  gate:
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'issue_comment' && contains(github.event.comment.body, 'Awake')) }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Awake signal accepted."
+
+  heartbeat-commit:
+    needs: gate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # GITHUB_TOKEN으로 커밋/푸시
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Touch heartbeat (cache-busting)
+        run: |
+          mkdir -p .ops
+          date -u +"%Y-%m-%dT%H:%M:%SZ" > .ops/heartbeat.txt
+      - name: Commit & Push
+        run: |
+          git config user.name "ops-bot"
+          git config user.email "ops-bot@users.noreply.github.com"
+          git add .ops/heartbeat.txt
+          git commit -m "ops: heartbeat $(date -u +"%Y-%m-%dT%H:%M:%SZ")" || echo "no changes"
+          git push
+
+  verify:
+    needs: heartbeat-commit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe site (retry)
+        run: |
+          set -e
+          for i in 1 2 3 4 5; do
+            curl -fsS "https://espdialog.net/?nocache=$(date +%s)$i" -o page.html || true
+            # 선택: 아래 주석 시그니처를 페이지에 1줄 넣어두면 정밀 검증 가능
+            # grep -q "<!-- SIGN: ESPDIALOG -->" page.html && break
+            test -s page.html && break
+            sleep 5
+          done
+          test -s page.html
+      - name: Hash
+        run: |
+          sha256sum page.html | awk '{print $1}' > sha.txt
+          echo "HASH=$(cat sha.txt)" >> $GITHUB_ENV
+
+  report:
+    needs: verify
+    if: ${{ github.event_name == 'issue_comment' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post result
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          MSG=$(cat << 'EOF'
+          ✅ Awake 배포 완료
+          - commit: ${{ github.sha }}
+          - time  : $(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          - hash  : ${{ env.HASH }}
+          EOF
+          )
+          gh api repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments -f body="$MSG"
