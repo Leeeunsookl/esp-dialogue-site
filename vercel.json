@@ -1,13 +1,15 @@
 
 {
   "rewrites": [
-    { "source": "/chat", "destination": "/chat.html" }
+    { "source": "/chat", "destination": "/chat.html" },
+    { "source": "/chat/", "destination": "/chat.html" },
+    { "source": "/chat.html", "destination": "/chat.html" }
   ],
   "headers": [
     {
-      "source": "/chat",
+      "source": "/chat(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "no-store, max-age=0" }
+        { "key": "Cache-Control", "value": "max-age=0" }
       ]
     }
   ]
