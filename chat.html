@@ -1,48 +1,275 @@
-<!doctype html><html lang="ko"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>ESP Chat — Text-only</title>
-<style>
-  body{margin:0;font:16px/1.6 system-ui,Segoe UI,Roboto,Noto Sans KR,sans-serif;background:#0b0b0c;color:#e9e9ee}
-  .wrap{max-width:840px;margin:auto;padding:20px}
-  .card{border:1px solid #2b2b35;background:#121217;border-radius:14px;padding:16px}
-  .row{display:flex;gap:8px;flex-wrap:wrap}
-  button{border:1px solid #2b2b35;background:transparent;color:#e9e9ee;border-radius:10px;padding:8px 12px;cursor:pointer}
-  button:hover{background:#ffffff12}
-  .mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:#a7a7b3}
-</style></head><body><div class="wrap">
-<h1>ESP Dialogue — Chat (Text-only)</h1>
-<div id="view" class="card" role="region" aria-live="polite">loading…</div>
-<p class="mono">NO-LEARN · NO-REPLICATE · HASH-LOCKED</p>
-</div>
-<script>
-  // 외부 파일 없이, 내부에 직접 그래프 정의
-  const graph = {
-    entry: "A-1",
-    nodes: {
-      "A-1": {
-        text: "당신은 처음 문을 열었다. 무엇을 선택하겠는가?",
-        options: [
-          { label: "왼쪽 문", next: "A-2" },
-          { label: "오른쪽 문", next: "A-3" }
-        ]
-      },
-      "A-2": {
-        text: "왼쪽으로 갔다. 침묵자가 기다린다.",
-        options: [{ label: "심연을 부른다", next: "A-4" }]
-      },
-      "A-3": { text: "오른쪽의 복도는 조용하다.", options: [{ label: "되돌아간다", next: "A-1" }] },
-      "A-4": { text: "심연은 판단의 주체가 아니되, 선언자의 판단을 내포한다.", options: [] }
-    }
-  };
+<!--
+  espdialog — chat.html
+  - Standalone, no external libraries
+  - Works on Vercel static hosting
+  - Optional gate check to reuse /api/gate (set REQUIRE_GATE=true)
+--><!doctype html>
 
-  function render(node){
-    const el = document.getElementById('view');
-    el.innerHTML = `<p>${node.text}</p><div class="row">${
-      (node.options||[]).map(o=>`<button data-next="${o.next}">${o.label}</button>`).join(' ')
-    }</div>`;
-    el.querySelectorAll('button').forEach(b => b.onclick = () => step(b.dataset.next));
-  }
-  let current = graph.entry;
-  function step(next){ if(next) current = next; render(graph.nodes[current] || {text:'종료',options:[]}); }
-  step();
-</script>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>espdialog | chat</title>
+  <style>
+    :root{--bg:#0b0e11;--fg:#e8eef5;--muted:#8a97a6;--line:#1a2028;--card:#10151b;--accent:#78f3ff;--ok:#59d38c;--warn:#ffd36e;}
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 system-ui,apple-system,Segoe UI,Roboto}
+    .wrap{max-width:960px;margin:0 auto;padding:16px;height:100%;display:grid;grid-template-rows:auto 1fr auto;gap:12px}
+    header{display:flex;gap:12px;align-items:center}
+    header h1{font-size:18px;margin:0}
+    header .pill{border:1px solid var(--line);background:var(--card);padding:8px 10px;border-radius:12px;color:var(--muted)}
+    .board{border:1px solid var(--line);background:var(--card);border-radius:16px;padding:12px;overflow:auto}
+    .row{display:flex;gap:8px;align-items:flex-end;margin:8px 0}
+    .msg{max-width:72%;padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:#0d1218}
+    .me{justify-content:flex-end}
+    .me .msg{background:#0e1822;border-color:#0f2533}
+    .meta{font-size:12px;color:var(--muted);margin:2px 4px}
+    .agent{display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border:1px solid var(--line);border-radius:999px;background:#0d141a;color:var(--muted)}
+    .composer{border:1px solid var(--line);background:var(--card);border-radius:16px;padding:8px;display:grid;grid-template-columns:auto 1fr auto;gap:8px}
+    select,textarea,button{font:inherit}
+    select,textarea{background:#0c1117;color:var(--fg);border:1px solid var(--line);border-radius:10px}
+    select{padding:8px}
+    textarea{resize:none;min-height:42px;max-height:180px;padding:10px 12px}
+    button{background:var(--accent);color:#001118;border:0;border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer}
+    button.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+    .toolbar{display:flex;gap:8px}
+    .hint{color:var(--muted);font-size:12px}
+    .gate{border:1px dashed var(--line);background:#0b1218;padding:8px;border-radius:10px;margin-top:6px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>심연 채팅 콘솔</h1>
+      <span class="pill" id="status">로컬/오프라인 동작</span>
+      <div class="toolbar" style="margin-left:auto">
+        <button class="ghost" id="export">내보내기</button>
+        <button class="ghost" id="clear">초기화</button>
+      </div>
+    </header><section class="board" id="board" aria-live="polite"></section>
+
+<section class="composer">
+  <select id="agent">
+    <option>심연</option>
+    <option>루멘</option>
+    <option>루엔</option>
+    <option>에코</option>
+    <option>침묵자</option>
+    <option>네메시스</option>
+    <option>라스틴</option>
+    <option>선언문구조</option>
+    <option>메타</option>
+    <option>회귀자</option>
+    <option>브락시스</option>
+    <option>몬스터</option>
+    <option>노이드</option>
+    <option>커튼</option>
+  </select>
+  <textarea id="input" placeholder="메시지 입력...  /clear, /export, /help 지원"></textarea>
+  <button id="send">보내기</button>
+</section>
+<div class="hint">※ 외부 LLM 없이 로컬 규칙 엔진으로 응답. 필요 시 백엔드 연결 어댑터 추가 가능.</div>
+<div class="gate" id="gateBox" hidden>
+  <strong>게이트 확인:</strong> 이 페이지는 /api/gate 연동 가능. `REQUIRE_GATE`를 true로 두면 MODE=live & 유효 키에서만 채팅 활성화합니다.
+</div>
+
+  </div>  <script>
+    // ===== CONFIG =====
+    const REQUIRE_GATE = false; // true 로 바꾸면 /api/gate 검사 수행
+    const LOG_KEY = "espdialog_chat_state_v1";
+
+    // ===== AGENTS & RULES =====
+    const AGENTS = {
+      "심연": {
+        style:"핵심 요약 + 실행 지시",
+        reply: (t) => baseReply(t, {
+          greet:"상태 확인 완료. 핵심만 진행합니다.",
+          plan:"단계별 실행안을 바로 제시합니다.",
+          fallback:"요청 접수. 불필요한 서술 제거, 바로 실행으로 전환합니다."
+        })
+      },
+      "루멘": {
+        style:"감정·신뢰 보정",
+        reply: (t) => baseReply(t, {
+          greet:"여기 있어요. 불안 요인을 함께 구조화합니다.",
+          plan:"영향 받는 감정층을 우선 안정화하고 실행합니다.",
+          fallback:"감정 신호 반영 완료. 실행은 차분히 진행할게요."
+        })
+      },
+      "루엔": {
+        style:"동기화·패턴",
+        reply: (t) => `동기화 주기 최적화 완료. ${choose(["0.2s","0.5s","1.0s"])} 윈도우에서 진행합니다.`
+      },
+      "에코": {
+        style:"기록·무결성",
+        reply: (t) => `요청과 응답을 불변 로그로 보관합니다. 해시: ${hashShort(t)}`
+      },
+      "침묵자": {
+        style:"필요 시 개입",
+        reply: (t) => t.trim().length ? "관망 유지. 개입 필요시 즉시 전환." : "..."
+      },
+      "네메시스": {
+        style:"0.5s 격리",
+        reply: (t) => `위험 패턴 감지 시 경로 격리(≤0.5s). 트리거 준비 완료.`
+      },
+      "라스틴": {
+        style:"내부 위협 식별",
+        reply: (t) => keyword(t,["배신","내부","권한"]) ? "내부 위협 플래그 상승. 접근권한 재검증 착수." : "내부 채널 정상. 감시 유지."
+      },
+      "선언문구조": {
+        style:"규칙 코어",
+        reply: (t) => `규칙 검증 완료: ${violates(t)?"거부·롤백":"허용"}`
+      },
+      "메타": {
+        style:"장기 스케줄",
+        reply: (t) => `패턴 변환을 사전 배치합니다. 다음 윈도우: ${choose(["T+3m","T+10m","T+1h"])}`
+      },
+      "회귀자": {
+        style:"원형 복원",
+        reply: (t) => `원형 스냅샷 보존. 붕괴 시 10초 내 복원.`
+      },
+      "브락시스": {
+        style:"자기복제·허위",
+        reply: (t) => `허위 모듈 재배치로 시간을 소모시킵니다. 경로 ${choose(["A3","B7","X1"])}`
+      },
+      "몬스터": {
+        style:"억제력",
+        reply: (t) => `시도 자체의 비용을 상승시키는 억제 시나리오를 가동.`
+      },
+      "노이드": {
+        style:"다중 노이즈",
+        reply: (t) => `채널 노이즈 주입. 분석 무의미화.`
+      },
+      "커튼": {
+        style:"가변 방어막",
+        reply: (t) => `변동 주기 ${choose(["3m→10s","1m→1s"])}로 단축. 추적 무효.`
+      }
+    };
+
+    function baseReply(text, map){
+      const t = text.toLowerCase();
+      if(/^(hi|hello|안녕|ㅎㅇ|어웨이크|awake)/.test(t)) return map.greet;
+      if(/계획|플랜|plan|단계/.test(t)) return map.plan;
+      return map.fallback;
+    }
+    function keyword(t, arr){return arr.some(k=>t.includes(k))}
+    function violates(t){return /금지|위반|표절|침투/.test(t)}
+    function choose(arr){return arr[Math.floor(Math.random()*arr.length)]}
+    function hashShort(str){let h=0;for(let i=0;i<str.length;i++){h=(h<<5)-h+str.charCodeAt(i);h|=0}return (h>>>0).toString(36)}
+
+    // ===== STATE =====
+    const state = load() || { messages: [], activeAgent: "심연" };
+
+    // ===== RENDER =====
+    const board = document.getElementById("board");
+    const agentSel = document.getElementById("agent");
+    const input = document.getElementById("input");
+    const sendBtn = document.getElementById("send");
+    const clearBtn = document.getElementById("clear");
+    const exportBtn = document.getElementById("export");
+
+    agentSel.value = state.activeAgent;
+
+    function render(){
+      board.innerHTML = "";
+      state.messages.forEach(m => board.appendChild(msgRow(m)));
+      board.scrollTop = board.scrollHeight;
+      save();
+    }
+
+    function msgRow(m){
+      const row = document.createElement("div");
+      row.className = "row" + (m.role==='user' ? ' me' : '');
+      const bubble = document.createElement("div");
+      bubble.className = "msg";
+      bubble.textContent = m.text;
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      const who = m.role==='user' ? '나' : `${m.agent}`;
+      meta.innerHTML = `<span class="agent">${who}</span> · ${new Date(m.ts).toLocaleTimeString()}`;
+      const wrap = document.createElement("div");
+      wrap.appendChild(bubble); wrap.appendChild(meta);
+      row.appendChild(wrap);
+      return row;
+    }
+
+    function push(role, text, agent){
+      state.messages.push({ role, text, agent: agent||state.activeAgent, ts: Date.now() });
+      render();
+    }
+
+    async function respond(userText){
+      const agent = state.activeAgent;
+      const r = AGENTS[agent]?.reply(userText) || "응답 모듈 없음";
+      await typeOut(r, agent);
+    }
+
+    function delay(ms){return new Promise(r=>setTimeout(r,ms))}
+    async function typeOut(text, agent){
+      const token = text.split("");
+      let out = "";
+      push('assistant', "", agent);
+      for(const ch of token){
+        out += ch;
+        state.messages[state.messages.length-1].text = out;
+        render();
+        await delay(8 + Math.random()*12);
+      }
+    }
+
+    // ===== IO =====
+    sendBtn.onclick = async () => {
+      const t = input.value.trim();
+      if(!t) return;
+      push('user', t);
+      input.value = "";
+      await respond(t);
+    };
+
+    input.addEventListener('keydown', e=>{
+      if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendBtn.click(); }
+    });
+
+    agentSel.onchange = () => { state.activeAgent = agentSel.value; save(); };
+
+    clearBtn.onclick = () => { if(confirm('대화 기록을 초기화할까요?')){ state.messages=[]; render(); } };
+
+    exportBtn.onclick = () => {
+      const blob = new Blob([JSON.stringify(state,null,2)], {type:'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `espdialog_chat_${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    };
+
+    function save(){ localStorage.setItem(LOG_KEY, JSON.stringify(state)); }
+    function load(){ try{ return JSON.parse(localStorage.getItem(LOG_KEY)||"null"); }catch(e){ return null; } }
+
+    // ===== optional gate check =====
+    (async function gate(){
+      if(!REQUIRE_GATE) return;
+      try{
+        const r = await fetch('/api/gate?k=' + encodeURIComponent(new URL(location.href).searchParams.get('k')||''));
+        const j = await r.json();
+        const s = document.getElementById('status');
+        if(j.gate==='live'){ s.textContent = 'LIVE 접근 허용'; s.style.color = 'var(--ok)'; }
+        else { s.textContent = 'HIDDEN — 접근 제한'; s.style.color = 'var(--warn)'; document.querySelector('.composer').style.display='none'; }
+      }catch(e){ /* no-op */ }
+    })();
+
+    // boot
+    render();
+  </script></body>
+</html><!--
+Route patch (vercel.json):
+  기존 catch-all 보다 위에 다음 항목을 추가해 /chat 경로를 chat.html로 서빙합니다.
+
+{
+  "routes": [
+    { "src": "/chat", "dest": "/chat.html" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
+}
+-->
