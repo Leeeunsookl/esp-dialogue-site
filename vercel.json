@@ -1,7 +1,13 @@
-
 {
   "rewrites": [
-    { "source": "/chat", "destination": "/chat.html" },
-    { "source": "/scenarios/:path*", "destination": "https://rav..." }
+    { "source": "/chat", "destination": "/chat.html" }
+  ],
+  "headers": [
+    {
+      "source": "/chat",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, max-age=0" }
+      ]
+    }
   ]
 }
