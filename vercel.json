@@ -1,8 +1,7 @@
+
 {
   "rewrites": [
-    {
-      "source": "/scenarios/:path*",
-      "destination": "https://raw.githubusercontent.com/Leeeunsookl/esp-dialogue-site/main/scenarios/:path*"
-    }
+    { "source": "/chat", "destination": "/chat.html" },
+    { "source": "/scenarios/:path*", "destination": "https://rav..." }
   ]
 }
