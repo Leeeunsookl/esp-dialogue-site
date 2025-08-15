@@ -1,4 +1,4 @@
-{ "source": "/chat/", "destination": "/chat.html" }
+
 
 {
   "rewrites": [
