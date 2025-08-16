@@ -1,10 +1,7 @@
 
-
 {
-  "rewrites": [
-    { "source": "/chat", "destination": "/chat.html" }
-  ],
-  "redirects": [
-    { "source": "/scenarios/(.*)", "destination": "/404", "permanent": false }
+  "routes": [
+    { "src": "/chat", "dest": "/chat.html" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
