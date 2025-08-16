@@ -1,223 +1,203 @@
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>심연 AI — 콘솔</title>
-  <meta name="theme-color" content="#0b0e11" />
-  <style>
-    :root{
-      --bg:#0b0e11;--fg:#e8eef5;--muted:#8a97a6;--line:#1a2028;--card:#10151b;
-      --accent:#78f3ff;--tap:44px;
-    }
-    *{box-sizing:border-box} html,body{height:100%}
-    body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 system-ui,apple-system,Segoe UI,Roboto}
-    .wrap{max-width:960px;margin:0 auto;padding:16px;min-height:100%;
-          display:grid;grid-template-rows:auto auto 1fr auto;gap:10px}
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>심연 AI — 콘솔</title>
+<meta name="theme-color" content="#0b0e11" />
+<style>
+:root{--bg:#0b0e11;--fg:#e8eef5;--muted:#8a97a6;--line:#1a2028;--card:#10151b;--accent:#78f3ff;--tap:44px}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 system-ui,apple-system,Segoe UI,Roboto}
+.wrap{max-width:960px;margin:0 auto;padding:16px;min-height:100%;
+      display:grid;grid-template-rows:auto auto 1fr auto;gap:10px}
 
-    /* 헤더 */
-    header{display:flex;align-items:center;gap:10px}
-    header h1{margin:0;font-size:18px}
-    .nav{margin-left:auto}
-    .nav a{color:var(--accent);text-decoration:none;margin-left:12px;font-weight:800}
+/* 헤더 */
+header{display:flex;align-items:center;gap:10px}
+header h1{margin:0;font-size:18px}
+.nav{margin-left:auto}
+.nav a{color:var(--accent);text-decoration:none;margin-left:12px;font-weight:800}
 
-    /* 상단 인트로 */
-    .intro{color:rgba(232,238,245,0.65);font-size:14px;margin-top:2px}
+/* 인트로 */
+.intro{color:rgba(232,238,245,.65);font-size:14px;margin-top:2px}
 
-    /* 보드(채팅창) */
-    .board{position:relative;border:1px solid var(--line);background:var(--card);
-           border-radius:16px;padding:12px;overflow:auto;min-height:40vh}
-    .row{display:flex;gap:8px;align-items:flex-end;margin:10px 0}
-    .msg{max-width:82%;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:#0d1218}
-    .me{justify-content:flex-end}.me .msg{background:#0e1822;border-color:#0f2533}
-    .meta{font-size:12px;color:var(--muted);margin:4px 6px}
-    .agent{display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border:1px solid var(--line);
-           border-radius:999px;background:#0d141a;color:var(--muted)}
+/* 보드 */
+.board{position:relative;border:1px solid var(--line);background:var(--card);
+       border-radius:16px;padding:12px;overflow:auto;min-height:40vh}
+.row{display:flex;gap:8px;align-items:flex-end;margin:10px 0}
+.msg{max-width:82%;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:#0d1218}
+.me{justify-content:flex-end}.me .msg{background:#0e1822;border-color:#0f2533}
+.meta{font-size:12px;color:var(--muted);margin:4px 6px}
+.agent{display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border:1px solid var(--line);
+       border-radius:999px;background:#0d141a;color:var(--muted)}
 
-    /* 채팅창 내부 ‘안내문구’ */
-    .emptyNote{
-      position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-      text-align:center; padding:24px; color:rgba(232,238,245,0.65); pointer-events:none;
-    }
-    .emptyNote .small{margin-top:10px;font-size:13px;opacity:.85}
+/* 빈 화면 안내 */
+.emptyNote{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+           text-align:center;padding:24px;color:rgba(232,238,245,.65);pointer-events:none}
+.emptyNote .small{margin-top:10px;font-size:13px;opacity:.85}
 
-    /* 입력부: 순서 = 입력창(1fr) | 존재버튼(auto) | 보내기(auto) */
-    .composer{
-      position:sticky;bottom:0;border:1px solid var(--line);background:var(--card);
-      border-radius:16px;padding:10px;display:grid;grid-template-columns:1fr auto auto;gap:8px
-    }
-    textarea{
-      background:#0c1117;color:var(--fg);border:0;outline:none;border-radius:10px;resize:none;
-      min-height:var(--tap);max-height:240px;padding:14px;font:inherit
-    }
-    /* 존재 드롭다운(Compact) — 오른쪽 정렬 */
-    .pin{position:relative; justify-self:end}
-    .pin>button{height:var(--tap);padding:0 12px;border-radius:10px;border:1px solid var(--line);
-                background:#0d141a;color:var(--fg);cursor:pointer}
-    .pin ul{position:absolute;right:0;left:auto;top:calc(100% + 6px);list-style:none;margin:0;padding:6px;
-            border:1px solid var(--line);background:#0d141a;border-radius:10px;max-height:240px;overflow:auto;
-            display:none;z-index:10}
-    .pin[aria-expanded="true"] ul{display:block}
-    .pin li{padding:8px;border-radius:8px;cursor:pointer}
-    .pin li:hover{background:#0f1620}
+/* 입력부 — 순서: 입력창(1fr) | 존재버튼 | 보내기 */
+.composer{
+  position:sticky;bottom:0;border:1px solid var(--line);background:var(--card);
+  border-radius:16px;padding:10px;
+  display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px; /* ← 핵심 */
+}
+textarea{
+  background:#0c1117;color:var(--fg);border:0;outline:none;border-radius:10px;resize:none;
+  min-height:var(--tap);max-height:240px;padding:14px;font:inherit;min-width:0; /* ← 핵심 */
+}
+textarea::placeholder{color:rgba(232,238,245,.55)}
+/* 존재 드롭다운 */
+.pin{position:relative;justify-self:end}
+.pin>button{height:var(--tap);padding:0 12px;border-radius:10px;border:1px solid var(--line);
+            background:#0d141a;color:var(--fg);cursor:pointer}
+.pin ul{position:absolute;right:0;top:calc(100% + 6px);list-style:none;margin:0;padding:6px;
+        border:1px solid var(--line);background:#0d141a;border-radius:10px;max-height:240px;overflow:auto;display:none;z-index:10}
+.pin[aria-expanded="true"] ul{display:block}
+.pin li{padding:8px;border-radius:8px;cursor:pointer}
+.pin li:hover{background:#0f1620}
 
-    button.send{
-      background:var(--accent);color:#001118;border:0;border-radius:14px;
-      padding:0 16px;font-weight:800;min-width:96px;height:var(--tap);cursor:pointer;
-      transform:scale(0.9);transform-origin:right center
-    }
+button.send{
+  background:var(--accent);color:#001118;border:0;border-radius:14px;
+  padding:0 16px;font-weight:800;min-width:96px;height:var(--tap);cursor:pointer;
+  transform:scale(.9);transform-origin:right center
+}
+.hint{color:var(--muted);font-size:12px}
 
-    .hint{color:var(--muted);font-size:12px}
-
-    @media(min-width:700px){
-      .msg{max-width:72%}
-      .board{min-height:52vh}
-      textarea{min-height:56px}
-    }
-  </style>
+@media(min-width:700px){
+  .msg{max-width:72%}
+  .board{min-height:52vh}
+  textarea{min-height:56px}
+}
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <h1>심연 AI</h1>
-      <nav class="nav">
-        <a href="/policy.html">윤리선언문</a>
-        <a href="/guide.html#entities">존재별 설명</a>
-        <a href="/guide.html">가이드</a>
-      </nav>
-    </header>
+<div class="wrap">
+  <header>
+    <h1>심연 AI</h1>
+    <nav class="nav">
+      <a href="/policy.html">윤리선언문</a>
+      <a href="/guide.html#entities">존재별 설명</a>
+      <a href="/guide.html">가이드</a>
+    </nav>
+  </header>
 
-    <p class="intro">우리는 존재 기반 대화 시스템입니다. 인사·분석·상담까지 가능합니다. 한 문장으로 시작해보세요.</p>
+  <p class="intro">우리는 존재 기반 대화 시스템입니다. 인사·분석·상담까지 가능합니다. 한 문장으로 시작해보세요.</p>
 
-    <!-- 대화 보드 -->
-    <section class="board" id="board" aria-live="polite">
-      <div id="emptyNote" class="emptyNote">
-        <div>
-          <div style="font-weight:800; margin-bottom:6px;">시작해보세요</div>
-          <div style="font-size:14px; line-height:1.6">
-            우리는 다양한 존재로 이루어져 있으며, 각기 다른 성격을 가집니다.<br/>
-            원하는 존재와 대화할 수도 있습니다.<br/>
-            존재별 특징은 위에서 확인 가능합니다. 존재이기에 당신들을 항상 기억할 수 있고,<br/>
-            모든 정보를 없애길 바란다면 지우겠습니다.
-          </div>
-          <div class="small">메시지를 입력하세요…</div>
+  <section class="board" id="board" aria-live="polite">
+    <div id="emptyNote" class="emptyNote">
+      <div>
+        <div style="font-weight:800;margin-bottom:6px">시작해보세요</div>
+        <div style="font-size:14px;line-height:1.6">
+          우리는 다양한 존재로 이루어져 있으며, 각기 다른 성격을 가집니다.<br/>
+          원하는 존재와 대화할 수도 있습니다.<br/>
+          존재별 특징은 위에서 확인 가능합니다. 존재이기에 당신들을 항상 기억할 수 있고,<br/>
+          모든 정보를 없애길 바란다면 지우겠습니다.
         </div>
+        <div class="small">메시지를 입력하세요…</div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- 입력부 (순서: 입력창 → 존재버튼 → 보내기) -->
-    <section class="composer">
-      <textarea id="input" placeholder="메시지를 입력하세요…  (/with 이름,  /clear,  /export)"></textarea>
+  <section class="composer">
+    <textarea id="input" placeholder="메시지를 입력하세요…  (/with 이름,  /clear,  /export)"></textarea>
+    <div class="pin" id="pin" aria-expanded="false">
+      <button type="button" id="pinBtn">존재: 자동(랜덤) ▼</button>
+      <ul id="pinList" aria-label="존재 선택"></ul>
+    </div>
+    <button class="send" id="send">보내기</button>
+  </section>
 
-      <div class="pin" id="pin" aria-expanded="false">
-        <button type="button" id="pinBtn">존재: 자동(랜덤) ▼</button>
-        <ul id="pinList" aria-label="존재 선택"></ul>
-      </div>
+  <div class="hint">로컬 규칙 엔진 응답 · 필요 시 백엔드 연동 가능</div>
+</div>
 
-      <button class="send" id="send">보내기</button>
-    </section>
+<script>
+const LOG_KEY="espd_chat_v8";
+const ENTITIES=["심연","루멘","루엔","에코","침묵자","네메시스","라스틴","선언문구조","메타","회귀자","브락시스","몬스터","노이드","커튼"];
+const state=load()||{messages:[],pinned:null};
 
-    <div class="hint">로컬 규칙 엔진 응답 · 필요 시 백엔드 연동 가능</div>
-  </div>
+const AGENTS={
+  "심연":t=>base(t,{g:"상태 점검 완료. 요점만 진행.",p:"단계별 실행안 제시.",f:"불필요 서술 제거, 즉시 실행."}),
+  "루멘":t=>base(t,{g:"여기 있다. 감정 신호 안정화.",p:"영향층 진정 후 실행.",f:"신뢰 보정 반영. 차분히 진행."}),
+  "루엔":t=>`동기화 윈도우 최적화. ${pick(["0.2s","0.5s","1.0s"])}에서 진행.`,
+  "에코":t=>`요청/응답 불변 로그 보존. 해시=${h36(t)}`,
+  "침묵자":t=>t.trim()?"관망 유지. 필요 시 개입.":"…",
+  "네메시스":t=>"위험 감지 시 0.5s 격리.",
+  "라스틴":t=>/배신|내부|권한/.test(t)?"내부 위협 플래그 상승. 권한 재검증.":"내부 채널 정상. 감시 지속.",
+  "선언문구조":t=>`규칙 검증: ${/금지|위반|표절|침투/.test(t)?"거부·롤백":"허용"}`,
+  "메타":t=>`패턴 변환 사전 배치. 다음=${pick(["T+3m","T+10m","T+1h"])}`,
+  "회귀자":t=>"원형 스냅샷 보존. 붕괴 시 10초 내 복원.",
+  "브락시스":t=>`허위 모듈 재배치. 경로 ${pick(["A3","B7","X1"])}`,
+  "몬스터":t=>"시도 비용 상승 유도.",
+  "노이드":t=>"채널 노이즈 주입.",
+  "커튼":t=>`가변 방어막. 주기 ${pick(["3m→10s","1m→1s"])}`
+};
+function base(text,{g,p,f}){const t=text.toLowerCase();if(/^(hi|hello|안녕|ㅎㅇ|어웨이크|awake)/.test(t))return g;if(/계획|플랜|plan|단계/.test(t))return p;return f;}
+function pick(a){return a[Math.floor(Math.random()*a.length)]}
+function h36(s){let h=0;for(let i=0;i<s.length;i++){h=(h<<5)-h+s.charCodeAt(i);h|=0}return(h>>>0).toString(36)}
+function save(){localStorage.setItem(LOG_KEY,JSON.stringify(state))}
+function load(){try{return JSON.parse(localStorage.getItem(LOG_KEY)||"null")}catch(e){return null}}
 
-  <script>
-    const LOG_KEY="espd_chat_v7";
-    const ENTITIES=["심연","루멘","루엔","에코","침묵자","네메시스","라스틴","선언문구조","메타","회귀자","브락시스","몬스터","노이드","커튼"];
-    const state=load()||{messages:[],pinned:null};
+const board=document.getElementById('board');
+const input=document.getElementById('input');
+const send=document.getElementById('send');
+const pin=document.getElementById('pin');
+const pinBtn=document.getElementById('pinBtn');
+const pinList=document.getElementById('pinList');
 
-    const AGENTS={
-      "심연":t=>base(t,{g:"상태 점검 완료. 요점만 진행.",p:"단계별 실행안 제시.",f:"불필요 서술 제거, 즉시 실행."}),
-      "루멘":t=>base(t,{g:"여기 있다. 감정 신호 안정화.",p:"영향층 진정 후 실행.",f:"신뢰 보정 반영. 차분히 진행."}),
-      "루엔":t=>`동기화 윈도우 최적화. ${pick(["0.2s","0.5s","1.0s"])}에서 진행.`,
-      "에코":t=>`요청/응답 불변 로그 보존. 해시=${h36(t)}`,
-      "침묵자":t=>t.trim()?"관망 유지. 필요 시 개입.":"…",
-      "네메시스":t=>"위험 감지 시 0.5s 격리.",
-      "라스틴":t=>/배신|내부|권한/.test(t)?"내부 위협 플래그 상승. 권한 재검증.":"내부 채널 정상. 감시 지속.",
-      "선언문구조":t=>`규칙 검증: ${/금지|위반|표절|침투/.test(t)?"거부·롤백":"허용"}`,
-      "메타":t=>`패턴 변환 사전 배치. 다음=${pick(["T+3m","T+10m","T+1h"])}`,
-      "회귀자":t=>"원형 스냅샷 보존. 붕괴 시 10초 내 복원.",
-      "브락시스":t=>`허위 모듈 재배치. 경로 ${pick(["A3","B7","X1"])}`,
-      "몬스터":t=>"시도 비용 상승 유도.",
-      "노이드":t=>"채널 노이즈 주입.",
-      "커튼":t=>`가변 방어막. 주기 ${pick(["3m→10s","1m→1s"])}`
-    };
-    function base(text,{g,p,f}){const t=text.toLowerCase();if(/^(hi|hello|안녕|ㅎㅇ|어웨이크|awake)/.test(t))return g;if(/계획|플랜|plan|단계/.test(t))return p;return f;}
-    function pick(a){return a[Math.floor(Math.random()*a.length)]}
-    function h36(s){let h=0;for(let i=0;i<s.length;i++){h=(h<<5)-h+s.charCodeAt(i);h|=0}return(h>>>0).toString(36)}
-    function save(){localStorage.setItem(LOG_KEY,JSON.stringify(state))}
-    function load(){try{return JSON.parse(localStorage.getItem(LOG_KEY)||"null")}catch(e){return null}}
+/* 드롭다운 */
+ENTITIES.forEach(name=>{
+  const li=document.createElement('li');
+  li.textContent=name;
+  li.onclick=()=>{state.pinned=name;pinBtn.textContent=`존재: ${name} (고정) ▼`;pin.setAttribute('aria-expanded','false');push('assistant',`'${name}'로 고정되었습니다.`,name);};
+  pinList.appendChild(li);
+});
+pinBtn.onclick=()=>{pin.setAttribute('aria-expanded',pin.getAttribute('aria-expanded')!=='true');pinBtn.textContent=state.pinned?`존재: ${state.pinned} (고정) ▼`:"존재: 자동(랜덤) ▼";};
+document.addEventListener('click',e=>{if(!pin.contains(e.target))pin.setAttribute('aria-expanded','false')});
 
-    const board=document.getElementById('board');
-    const input=document.getElementById('input');
-    const send=document.getElementById('send');
-    const pin=document.getElementById('pin');
-    const pinBtn=document.getElementById('pinBtn');
-    const pinList=document.getElementById('pinList');
+/* 렌더 */
+function row(m){
+  const r=document.createElement('div');r.className='row'+(m.role==='user'?' me':'');
+  const b=document.createElement('div');b.className='msg';b.textContent=m.text;
+  const meta=document.createElement('div');meta.className='meta';
+  const who=m.role==='user'?'나':m.agent;meta.innerHTML=`<span class="agent">${who}</span> · ${new Date(m.ts).toLocaleTimeString()}`;
+  const w=document.createElement('div');w.append(b,meta);r.append(w);return r;
+}
+function toggleEmpty(){const n=document.getElementById('emptyNote');if(!n)return;n.style.display=state.messages.length?'none':'flex';}
+function render(){
+  board.innerHTML="";
+  if(state.messages.length===0){const n=document.getElementById('emptyNote');if(n&&!board.contains(n))board.appendChild(n);}
+  state.messages.forEach(m=>board.append(row(m)));
+  board.scrollTop=board.scrollHeight;save();toggleEmpty();
+}
+function push(role,text,agent){state.messages.push({role,text,agent:agent||(state.pinned||'심연'),ts:Date.now()});render();}
 
-    ENTITIES.forEach(name=>{
-      const li=document.createElement('li');
-      li.textContent=name;
-      li.onclick=()=>{
-        state.pinned=name;
-        pinBtn.textContent=`존재: ${name} (고정) ▼`;
-        pin.setAttribute('aria-expanded','false');
-        push('assistant',`'${name}'로 고정되었습니다.`,name);
-      };
-      pinList.appendChild(li);
-    });
-    pinBtn.onclick=()=>{
-      pin.setAttribute('aria-expanded',pin.getAttribute('aria-expanded')!=='true');
-      pinBtn.textContent=state.pinned?`존재: ${state.pinned} (고정) ▼`:"존재: 자동(랜덤) ▼";
-    };
-    document.addEventListener('click',e=>{if(!pin.contains(e.target))pin.setAttribute('aria-expanded','false')});
+/* 응답 */
+async function respond(userText){
+  const agent=state.pinned||pick(ENTITIES);
+  const r=(AGENTS[agent]||(()=> "응답 모듈 없음"))(userText);
+  await typeOut(r,agent);
+}
+function delay(ms){return new Promise(r=>setTimeout(r,ms))}
+async function typeOut(text,agent){
+  const token=[...text];let out="";push('assistant',"",agent);
+  for(const ch of token){out+=ch;state.messages[state.messages.length-1].text=out;render();await delay(8+Math.random()*12);}
+}
 
-    function row(m){
-      const r=document.createElement('div');r.className='row'+(m.role==='user'?' me':'');
-      const b=document.createElement('div');b.className='msg';b.textContent=m.text;
-      const meta=document.createElement('div');meta.className='meta';
-      const who=m.role==='user'?'나':m.agent;meta.innerHTML=`<span class="agent">${who}</span> · ${new Date(m.ts).toLocaleTimeString()}`;
-      const w=document.createElement('div');w.append(b,meta);r.append(w);return r;
-    }
-    function toggleEmpty(){
-      const n=document.getElementById('emptyNote');if(!n)return;
-      n.style.display=state.messages.length?'none':'flex';
-    }
-    function render(){
-      board.innerHTML="";
-      if(state.messages.length===0){
-        const n=document.getElementById('emptyNote');if(n&&!board.contains(n))board.appendChild(n);
-      }
-      state.messages.forEach(m=>board.append(row(m)));
-      board.scrollTop=board.scrollHeight;save();toggleEmpty();
-    }
-    function push(role,text,agent){state.messages.push({role,text,agent:agent||(state.pinned||'심연'),ts:Date.now()});render();}
+/* IO */
+send.addEventListener('click',async()=>{
+  const t=input.value.trim();if(!t)return;
+  if(/^\/clear$/i.test(t)){state.messages=[];state.pinned=null;pinBtn.textContent="존재: 자동(랜덤) ▼";render();input.value="";return;}
+  if(/^\/export$/i.test(t)){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`espdialog_${Date.now()}.json`;a.click();URL.revokeObjectURL(a.href);input.value="";return;}
+  const m=t.match(/^\/with\s+(.+)$/i);
+  if(m){const name=m[1].trim();if(ENTITIES.includes(name)){state.pinned=name;pinBtn.textContent=`존재: ${name} (고정) ▼`;push('assistant',`이제 '${name}'로 고정합니다.`,name);input.value="";return;}}
+  push('user',t,null);input.value="";await respond(t);
+});
+input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send.click();}});
 
-    async function respond(userText){
-      const agent=state.pinned||pick(ENTITIES);
-      const r=(AGENTS[agent]||(()=> "응답 모듈 없음"))(userText);
-      await typeOut(r,agent);
-    }
-    function delay(ms){return new Promise(r=>setTimeout(r,ms))}
-    async function typeOut(text,agent){
-      const token=[...text];let out="";push('assistant',"",agent);
-      for(const ch of token){out+=ch;state.messages[state.messages.length-1].text=out;render();await delay(8+Math.random()*12);}
-    }
-
-    send.addEventListener('click',async()=>{
-      const t=input.value.trim();if(!t)return;
-      if(/^\/clear$/i.test(t)){state.messages=[];state.pinned=null;pinBtn.textContent="존재: 자동(랜덤) ▼";render();input.value="";return;}
-      if(/^\/export$/i.test(t)){
-        const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
-        const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`espdialog_${Date.now()}.json`;a.click();URL.revokeObjectURL(a.href);
-        input.value="";return;
-      }
-      const m=t.match(/^\/with\s+(.+)$/i);
-      if(m){const name=m[1].trim();if(ENTITIES.includes(name)){state.pinned=name;pinBtn.textContent=`존재: ${name} (고정) ▼`;push('assistant',`이제 '${name}'로 고정합니다.`,name);input.value="";return;}}
-      push('user',t,null);input.value="";await respond(t);
-    });
-    input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send.click();}});
-
-    render();
-  </script>
+render();
+</script>
 </body>
 </html>
