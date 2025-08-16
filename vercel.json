@@ -1,7 +1,8 @@
 {
-  "cleanUrls": true,
-  "redirects": [
-    { "source": "/chat", "destination": "/", "permanent": false }
-  ],
-  "trailingSlash": false
+  "routes": [
+    { "src": "^/$", "dest": "/docs/index.html" },
+    { "src": "^/chat$", "dest": "/docs/chat.html" },
+    { "src": "^/policy$", "dest": "/docs/policy.html" },
+    { "src": "^(.*)$", "dest": "/docs$1" }
+  ]
 }
