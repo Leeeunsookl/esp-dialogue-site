@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://docs.espdialog.net/</loc></url>
-  <url><loc>https://docs.espdialog.net/guide.html</loc></url>
-  <url><loc>https://docs.espdialog.net/policy.html</loc></url>
-  <url><loc>https://docs.espdialog.net/changelog.html</loc></url>
+  <url><loc>https://espdialog.net/</loc></url>
+  <url><loc>https://espdialog.net/policy</loc></url>
+  <url><loc>https://espdialog.net/entities</loc></url>
+  <url><loc>https://espdialog.net/guide</loc></url>
+  <url><loc>https://espdialog.net/chat</loc></url>
 </urlset>
