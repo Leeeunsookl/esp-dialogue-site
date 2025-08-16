@@ -2,17 +2,21 @@
   "cleanUrls": true,
   "routes": [
     { "src": "^/$", "dest": "/index.html" },
-    { "src": "^/chat$", "dest": "/chat.html" },
     { "src": "^/policy$", "dest": "/policy.html" },
     { "src": "^/entities$", "dest": "/entities.html" },
-    { "src": "^/guide$", "dest": "/guide.html" }
+    { "src": "^/guide$", "dest": "/guide.html" },
+    { "src": "^/chat$", "dest": "/chat.html" },
+    { "src": "^(.*)$", "dest": "$1" }
   ],
   "headers": [
     {
       "source": "/(index.html|policy.html|entities.html|guide.html|chat.html)",
       "headers": [
-        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
+        { "key": "Pragma", "value": "no-cache" },
+        { "key": "Expires", "value": "0" }
       ]
-    }
-  ]
-}
+    },
+    {
+      "source": "/(style\\.css|app\\.js)",
+      "headers": [
