@@ -2,23 +2,9 @@
   "cleanUrls": true,
   "routes": [
     { "src": "^/$", "dest": "/index.html" },
-    { "src": "^/chat/?$", "dest": "/chat.html" },
-
-    { "src": "^/(policy|entities|guide)(?:\\.html)?/?$", "dest": "/$1.html" },
-    { "src": "^/docs/(policy|entities|guide)(?:\\.html)?/?$", "dest": "/$1.html" },
-
-    { "src": "^/docs/(.*)$", "dest": "/$1" },
-
-    { "src": "^/([^.]+)/$", "dest": "/$1" }
-  ],
-  "headers": [
-    {
-      "source": "/(index|policy|entities|guide).html",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-store, no-cache, must-revalidate, max-age=0" },
-        { "key": "Pragma", "value": "no-cache" },
-        { "key": "Expires", "value": "0" }
-      ]
-    }
+    { "src": "^/chat$", "dest": "/chat.html" },
+    { "src": "^/policy$", "dest": "/policy.html" },
+    { "src": "^/entities$", "dest": "/entities.html" },
+    { "src": "^/guide$", "dest": "/guide.html" }
   ]
 }
