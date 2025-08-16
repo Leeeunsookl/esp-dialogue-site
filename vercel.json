@@ -14,6 +14,8 @@
     { "src": "^/guide$", "dest": "/guide.html" },
 
     { "src": "^(.*)$", "dest": "$1" }
+    { "src": "^/docs/(policy|entities|guide)(?:\\.html)?$", "dest": "/$1.html" },
+{ "src": "^/docs/(.*)$", "dest": "/$1" }
   ],
   "headers": [
     {
