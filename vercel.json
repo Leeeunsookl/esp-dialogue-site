@@ -3,9 +3,16 @@
   "routes": [
     { "src": "^/$", "dest": "/index.html" },
     { "src": "^/chat$", "dest": "/chat.html" },
+
+    /* ✅ /docs/... → 루트 HTML로 매핑 */
+    { "src": "^/docs/(policy|entities|guide)(?:\\.html)?$", "dest": "/$1.html" },
+    /* ✅ /docs 내 기타 자산(css/js)도 루트로 매핑(있을 때) */
+    { "src": "^/docs/(.*)$", "dest": "/$1" },
+
     { "src": "^/policy$", "dest": "/policy.html" },
     { "src": "^/entities$", "dest": "/entities.html" },
     { "src": "^/guide$", "dest": "/guide.html" },
+
     { "src": "^(.*)$", "dest": "$1" }
   ],
   "headers": [
