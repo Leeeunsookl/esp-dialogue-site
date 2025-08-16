@@ -1,7 +1,7 @@
 
 {
-  "routes": [
-    { "src": "/chat", "dest": "/chat.html" },
-    { "src": "/(.*)", "dest": "/index.html" }
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/chat", "destination": "/chat.html" }
   ]
 }
