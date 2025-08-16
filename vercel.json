@@ -2,14 +2,14 @@
   "cleanUrls": true,
   "routes": [
     { "src": "^/$", "dest": "/index.html" },
-    { "src": "^/chat$", "dest": "/chat.html" },
+    { "src": "^/chat/?$", "dest": "/chat.html" },
 
-    { "src": "^/policy$", "dest": "/policy.html" },
-    { "src": "^/entities$", "dest": "/entities.html" },
-    { "src": "^/guide$", "dest": "/guide.html" },
+    { "src": "^/(policy|entities|guide)(?:\\.html)?/?$", "dest": "/$1.html" },
+    { "src": "^/docs/(policy|entities|guide)(?:\\.html)?/?$", "dest": "/$1.html" },
 
-    { "src": "^/docs/(policy|entities|guide)(?:\\.html)?$", "dest": "/$1.html" },
-    { "src": "^/docs/(.*)$", "dest": "/$1" }
+    { "src": "^/docs/(.*)$", "dest": "/$1" },
+
+    { "src": "^/([^.]+)/$", "dest": "/$1" }
   ],
   "headers": [
     {
