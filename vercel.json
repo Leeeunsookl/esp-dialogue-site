@@ -1,17 +1,16 @@
-
 {
   "cleanUrls": true,
   "routes": [
-    { "src": "^/$", "dest": "/docs/index.html" },
-    { "src": "^/chat$", "dest": "/docs/chat.html" },
-    { "src": "^/policy$", "dest": "/docs/policy.html" },
-    { "src": "^/entities$", "dest": "/docs/entities.html" },
-    { "src": "^/guide$", "dest": "/docs/guide.html" },
-    { "src": "^(.*)$", "dest": "/docs$1" }
+    { "src": "^/$", "dest": "/index.html" },
+    { "src": "^/chat$", "dest": "/chat.html" },
+    { "src": "^/policy$", "dest": "/policy.html" },
+    { "src": "^/entities$", "dest": "/entities.html" },
+    { "src": "^/guide$", "dest": "/guide.html" },
+    { "src": "^(.*)$", "dest": "$1" }
   ],
   "headers": [
     {
-      "source": "/docs/index.html",
+      "source": "/(index.html|policy.html|entities.html|guide.html)",
       "headers": [
         { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
         { "key": "Pragma", "value": "no-cache" },
