@@ -6,5 +6,13 @@
     { "src": "^/policy$", "dest": "/policy.html" },
     { "src": "^/entities$", "dest": "/entities.html" },
     { "src": "^/guide$", "dest": "/guide.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(index.html|policy.html|entities.html|guide.html|chat.html)",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
+    }
   ]
 }
