@@ -1,3 +1,4 @@
+
 {
   "cleanUrls": true,
   "trailingSlash": false,
@@ -6,17 +7,6 @@
     { "source": "/chat",     "destination": "/chat.html" },
     { "source": "/policy",   "destination": "/policy.html" },
     { "source": "/entities", "destination": "/entities.html" },
-    { "source": "/guide",    "destination": "/guide.html" },
-    { "source": "/(.*)",     "destination": "/index.html" }
-  ],
-  "headers": [
-    {
-      "source": "/(index|chat|policy|entities|guide).html",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
-        { "key": "Pragma",        "value": "no-cache" },
-        { "key": "Expires",       "value": "0" }
-      ]
-    }
+    { "source": "/guide",    "destination": "/guide.html" }
   ]
 }
