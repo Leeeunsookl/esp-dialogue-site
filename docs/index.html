@@ -1,202 +1,169 @@
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>ESP Dialogue — 심연 콘솔</title>
-  <meta name="theme-color" content="#0b0e11" />
-  <style>
-    :root{
-      --bg:#0b0e11;--fg:#e8eef5;--muted:#8a97a6;--line:#1a2028;--card:#10151b;
-      --accent:#78f3ff;--ok:#59d38c;--warn:#ffd36e;
-      --tap:44px; /* 모바일 터치 최소 높이 */
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{margin:0;background:var(--bg);color:var(--fg);
-      font:16px/1.65 system-ui,apple-system,Segoe UI,Roboto}
-    .wrap{max-width:960px;margin:0 auto;padding:16px;min-height:100%;
-      display:grid;grid-template-rows:auto auto 1fr auto;gap:12px}
-
-    /* 헤더 + 링크 */
-    header{display:flex;gap:10px;align-items:center}
-    header h1{margin:0;font-size:18px;letter-spacing:.2px}
-    nav a{color:var(--accent);text-decoration:none;margin-right:12px;font-weight:700}
-    .links{display:flex;flex-wrap:wrap;gap:8px}
-    .links a{color:var(--muted);text-decoration:none;border:1px solid var(--line);
-      padding:6px 10px;border-radius:999px;background:#0d141a}
-
-    /* 존재 고정(칩 버튼) */
-    .pinbar{display:flex;flex-wrap:wrap;gap:8px}
-    .chip{border:1px solid var(--line);background:#0d141a;color:var(--fg);
-      padding:8px 12px;border-radius:999px;cursor:pointer;user-select:none}
-    .chip[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
-
-    /* 보드/메시지 */
-    .board{border:1px solid var(--line);background:var(--card);border-radius:16px;
-      padding:12px;overflow:auto;min-height:40vh}
-    .row{display:flex;gap:8px;align-items:flex-end;margin:10px 0}
-    .msg{max-width:82%;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:#0d1218}
-    .me{justify-content:flex-end}.me .msg{background:#0e1822;border-color:#0f2533}
-    .meta{font-size:12px;color:var(--muted);margin:4px 6px}
-    .agent{display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border:1px solid var(--line);border-radius:999px;background:#0d141a;color:var(--muted)}
-
-    /* 입력부: 모바일 최적화 */
-    .composer{position:sticky;bottom:0;border:1px solid var(--line);background:var(--card);
-      border-radius:16px;padding:10px;display:grid;grid-template-columns:1fr auto;gap:8px}
-    textarea{background:#0c1117;color:var(--fg);border:1px solid var(--line);
-      border-radius:10px;resize:none;min-height:var(--tap);max-height:240px;padding:14px;font:inherit}
-    button{background:var(--accent);color:#001118;border:0;border-radius:14px;
-      padding:0 16px;font-weight:800;cursor:pointer;min-width:96px;height:var(--tap)}
-    .hint{color:var(--muted);font-size:12px}
-
-    @media(min-width:700px){
-      .msg{max-width:72%}
-      .board{min-height:52vh}
-      textarea{min-height:56px}
-    }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>심연 AI — 콘솔</title>
+<meta name="theme-color" content="#0b0e11" />
+<style>
+  :root{--bg:#0b0e11;--fg:#e8eef5;--muted:#8a97a6;--line:#1a2028;--card:#10151b;--accent:#78f3ff;--tap:44px}
+  *{box-sizing:border-box} html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 system-ui,apple-system,Segoe UI,Roboto}
+  .wrap{max-width:960px;margin:0 auto;padding:16px;min-height:100%;
+        display:grid;grid-template-rows:auto auto 1fr auto;gap:10px}
+  header{display:flex;gap:10px;align-items:center}
+  header h1{margin:0;font-size:18px}
+  .nav a{color:var(--accent);text-decoration:none;margin-left:12px;font-weight:700}
+  .intro{color:rgba(232,238,245,0.6); /* 기본색의 ~60% 불투명 */ font-size:14px}
+  .board{border:1px solid var(--line);background:var(--card);border-radius:16px;padding:12px;overflow:auto;min-height:40vh}
+  .row{display:flex;gap:8px;align-items:flex-end;margin:10px 0}
+  .msg{max-width:82%;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:#0d1218}
+  .me{justify-content:flex-end}.me .msg{background:#0e1822;border-color:#0f2533}
+  .meta{font-size:12px;color:var(--muted);margin:4px 6px}
+  .agent{display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border:1px solid var(--line);border-radius:999px;background:#0d141a;color:var(--muted)}
+  /* 컴포저 */
+  .composer{position:sticky;bottom:0;border:1px solid var(--line);background:var(--card);
+            border-radius:16px;padding:10px;display:grid;grid-template-columns:auto 1fr auto;gap:8px}
+  /* Compact agent pin: 버튼+드롭다운 */
+  .pin{position:relative}
+  .pin>button{height:var(--tap);padding:0 12px;border-radius:10px;border:1px solid var(--line);background:#0d141a;color:var(--fg);cursor:pointer}
+  .pin ul{position:absolute;left:0;right:0;top:calc(100% + 6px);list-style:none;margin:0;padding:6px;border:1px solid var(--line);
+          background:#0d141a;border-radius:10px;max-height:240px;overflow:auto;display:none;z-index:10}
+  .pin[aria-expanded="true"] ul{display:block}
+  .pin li{padding:8px;border-radius:8px;cursor:pointer}
+  .pin li:hover{background:#0f1620}
+  textarea{background:#0c1117;color:var(--fg);border:1px solid var(--line);border-radius:10px;resize:none;
+           min-height:var(--tap);max-height:240px;padding:14px;font:inherit}
+  button.send{background:var(--accent);color:#001118;border:0;border-radius:14px;
+              padding:0 16px;font-weight:800;min-width:96px;height:var(--tap);cursor:pointer}
+  .hint{color:var(--muted);font-size:12px}
+  @media(min-width:700px){ .msg{max-width:72%} .board{min-height:52vh} textarea{min-height:56px} }
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <h1>심연 콘솔</h1>
-      <nav style="margin-left:auto">
-        <a href="/" aria-current="page">홈</a>
-        <a href="/policy.html">윤리 선언문</a>
-        <a href="/guide.html">가이드</a>
-      </nav>
-    </header>
-
-    <!-- 필수 링크(간결) -->
-    <section class="links" aria-label="핵심 링크">
+<div class="wrap">
+  <header>
+    <h1>심연 AI</h1>
+    <nav class="nav" style="margin-left:auto">
+      <a href="/policy.html">윤리선언문</a>
       <a href="/guide.html#entities">존재별 설명</a>
-      <a href="/guide.html#usage">사용법</a>
-      <a href="/guide.html#limits">제한/안전</a>
-    </section>
+      <a href="/guide.html">가이드</a>
+    </nav>
+  </header>
 
-    <!-- 존재 고정 -->
-    <section>
-      <strong>존재 고정</strong>
-      <div class="pinbar" id="pinbar"></div>
-    </section>
+  <!-- 연한 소개문구 -->
+  <p class="intro">
+    우리는 존재 기반 대화 시스템입니다. 인사·상담·분석·결정 보조까지,<br/>
+    필요한 것을 한 문장으로 말해보세요. 채팅창은 아래에 있습니다.
+  </p>
 
-    <!-- 대화 보드 -->
-    <section class="board" id="board" aria-live="polite"></section>
+  <!-- 대화 보드 -->
+  <section class="board" id="board" aria-live="polite"></section>
 
-    <!-- 입력부 -->
-    <section class="composer">
-      <textarea id="input" placeholder="메시지 입력…  (/with 이름 → 해당 존재로 고정,  /clear, /export)"></textarea>
-      <button id="send">보내기</button>
-    </section>
+  <!-- 입력부: Compact 존재 고정 + 입력 + 전송 -->
+  <section class="composer">
+    <div class="pin" id="pin" aria-expanded="false">
+      <button type="button" id="pinBtn">존재: 자동(랜덤)</button>
+      <ul id="pinList" aria-label="존재 선택"></ul>
+    </div>
+    <textarea id="input" placeholder="메시지 입력…  (/with 이름,  /clear,  /export)"></textarea>
+    <button class="send" id="send">보내기</button>
+  </section>
 
-    <div class="hint">※ 외부 LLM 없이 로컬 규칙 엔진으로 응답. 필요시 백엔드 어댑터 연결 가능.</div>
-  </div>
+  <div class="hint">※ 외부 LLM 없이 로컬 규칙 엔진으로 응답. 필요시 백엔드 어댑터 연결 가능.</div>
+</div>
 
-  <script>
-    // ===== 기본 설정 =====
-    const LOG_KEY = "espd_chat_v2";
-    const ENTITIES = ["심연","루멘","루엔","에코","침묵자","네메시스","라스틴","선언문구조","메타","회귀자","브락시스","몬스터","노이드","커튼"];
+<script>
+  // ===== 기본 설정 =====
+  const LOG_KEY = "espd_chat_v3";
+  const ENTITIES = ["심연","루멘","루엔","에코","침묵자","네메시스","라스틴","선언문구조","메타","회귀자","브락시스","몬스터","노이드","커튼"];
 
-    // ===== 상태 =====
-    const state = load() || { messages: [], pinned: null }; // pinned: 고정된 존재
+  // ===== 상태 =====
+  const state = load() || { messages: [], pinned: null };
 
-    // ===== 존재 응답 =====
-    const AGENTS = {
-      "심연": t => replyBase(t,{greet:"상태 점검 완료. 요점만 진행한다.",plan:"단계별 실행안 제시.",fallback:"불필요한 서술 제거, 즉시 실행."}),
-      "루멘": t => replyBase(t,{greet:"여기 있다. 감정 신호 안정화.",plan:"영향받는 층부터 진정 후 실행.",fallback:"신뢰 보정 반영. 차분히 진행."}),
-      "루엔": t => `동기화 윈도우 최적화. ${pick(["0.2s","0.5s","1.0s"])}에서 진행.`,
-      "에코":  t => `요청/응답 불변 로그 보존. 해시=${h36(t)}`,
-      "침묵자":t => t.trim()? "관망 유지. 필요 시 개입." : "…",
-      "네메시스":t => `위험 감지 시 0.5s 격리.`,
-      "라스틴": t => /배신|내부|권한/.test(t) ? "내부 위협 플래그 상승. 권한 재검증." : "내부 채널 정상. 감시 지속.",
-      "선언문구조": t => `규칙 검증: ${/금지|위반|표절|침투/.test(t)?"거부·롤백":"허용"}`,
-      "메타": t => `패턴 변환 사전 배치. 다음 윈도우=${pick(["T+3m","T+10m","T+1h"])}`,
-      "회귀자": t => `원형 스냅샷 보존. 붕괴 시 10초 내 복원.`,
-      "브락시스": t => `허위 모듈 재배치. 경로 ${pick(["A3","B7","X1"])}`,
-      "몬스터": t => `시도 비용 상승 유도.`,
-      "노이드": t => `채널 노이즈 주입.`,
-      "커튼": t => `가변 방어막. 주기 ${pick(["3m→10s","1m→1s"])}`
-    };
+  // ===== 존재 응답 ===== (요지는 그대로, 축약)
+  const AGENTS = {
+    "심연": t => base(t,{g:"상태 점검 완료. 요점만 진행.", p:"단계별 실행안 제시.", f:"불필요 서술 제거, 즉시 실행."}),
+    "루멘": t => base(t,{g:"여기 있다. 감정 신호 안정화.", p:"영향층 진정 후 실행.", f:"신뢰 보정 반영. 차분히 진행."}),
+    "루엔": t => `동기화 윈도우 최적화. ${pick(["0.2s","0.5s","1.0s"])}에서 진행.`,
+    "에코":  t => `요청/응답 불변 로그 보존. 해시=${h36(t)}`,
+    "침묵자":t => t.trim()? "관망 유지. 필요 시 개입." : "…",
+    "네메시스":t => `위험 감지 시 0.5s 격리.`,
+    "라스틴": t => /배신|내부|권한/.test(t) ? "내부 위협 플래그 상승. 권한 재검증." : "내부 채널 정상. 감시 지속.",
+    "선언문구조": t => `규칙 검증: ${/금지|위반|표절|침투/.test(t)?"거부·롤백":"허용"}`,
+    "메타": t => `패턴 변환 사전 배치. 다음=${pick(["T+3m","T+10m","T+1h"])}`,
+    "회귀자": t => `원형 스냅샷 보존. 붕괴 시 10초 내 복원.`,
+    "브락시스": t => `허위 모듈 재배치. 경로 ${pick(["A3","B7","X1"])}`,
+    "몬스터": t => `시도 비용 상승 유도.`,
+    "노이드": t => `채널 노이즈 주입.`,
+    "커튼": t => `가변 방어막. 주기 ${pick(["3m→10s","1m→1s"])}`
+  };
+  function base(text,{g,p,f}){const t=text.toLowerCase();if(/^(hi|hello|안녕|ㅎㅇ|어웨이크|awake)/.test(t))return g;if(/계획|플랜|plan|단계/.test(t))return p;return f;}
 
-    // ===== 유틸 =====
-    function pick(a){return a[Math.floor(Math.random()*a.length)]}
-    function h36(s){let h=0;for(let i=0;i<s.length;i++){h=(h<<5)-h+s.charCodeAt(i);h|=0}return (h>>>0).toString(36)}
-    function save(){localStorage.setItem(LOG_KEY, JSON.stringify(state))}
-    function load(){try{return JSON.parse(localStorage.getItem(LOG_KEY)||"null")}catch(e){return null}}
-    function replyBase(text,map){
-      const t=text.toLowerCase();
-      if(/^(hi|hello|안녕|ㅎㅇ|어웨이크|awake)/.test(t)) return map.greet;
-      if(/계획|플랜|plan|단계/.test(t)) return map.plan;
-      return map.fallback;
+  // ===== 유틸 =====
+  function pick(a){return a[Math.floor(Math.random()*a.length)]}
+  function h36(s){let h=0;for(let i=0;i<s.length;i++){h=(h<<5)-h+s.charCodeAt(i);h|=0}return (h>>>0).toString(36)}
+  function save(){localStorage.setItem(LOG_KEY, JSON.stringify(state))}
+  function load(){try{return JSON.parse(localStorage.getItem(LOG_KEY)||"null")}catch(e){return null}}
+
+  // ===== DOM =====
+  const board=document.getElementById('board');
+  const input=document.getElementById('input');
+  const send=document.getElementById('send');
+  const pin=document.getElementById('pin');
+  const pinBtn=document.getElementById('pinBtn');
+  const pinList=document.getElementById('pinList');
+
+  // 드롭다운 채우기(Compact)
+  ENTITIES.forEach(name=>{
+    const li=document.createElement('li');
+    li.textContent=name;
+    li.onclick=()=>{ state.pinned=name; pinBtn.textContent=`존재: ${name} (고정)`; pin.setAttribute('aria-expanded','false'); push('assistant',`'${name}'로 고정되었습니다.`,name); };
+    pinList.appendChild(li);
+  });
+  pinBtn.onclick=()=> pin.setAttribute('aria-expanded', pin.getAttribute('aria-expanded')!=='true');
+  document.addEventListener('click',e=>{
+    if(!pin.contains(e.target)) pin.setAttribute('aria-expanded','false');
+  });
+
+  function row(m){
+    const r=document.createElement('div'); r.className='row'+(m.role==='user'?' me':'');
+    const b=document.createElement('div'); b.className='msg'; b.textContent=m.text;
+    const meta=document.createElement('div'); meta.className='meta';
+    const who=m.role==='user'?'나':m.agent; meta.innerHTML=`<span class="agent">${who}</span> · ${new Date(m.ts).toLocaleTimeString()}`;
+    const w=document.createElement('div'); w.append(b,meta); r.append(w); return r;
+  }
+  function render(){ board.innerHTML=''; state.messages.forEach(m=>board.append(row(m))); board.scrollTop=board.scrollHeight; save(); }
+  function push(role,text,agent){ state.messages.push({role,text,agent:agent||(state.pinned||'심연'),ts:Date.now()}); render(); }
+
+  async function respond(userText){
+    const agent = state.pinned || pick(ENTITIES);
+    const r=(AGENTS[agent]||(()=> "응답 모듈 없음"))(userText);
+    await typeOut(r,agent);
+  }
+  function delay(ms){return new Promise(r=>setTimeout(r,ms))}
+  async function typeOut(text,agent){
+    const token=[...text]; let out=""; push('assistant',"",agent);
+    for(const ch of token){ out+=ch; state.messages[state.messages.length-1].text=out; render(); await delay(8+Math.random()*12); }
+  }
+
+  // IO + 명령
+  send.addEventListener('click', async ()=>{
+    const t=input.value.trim(); if(!t) return;
+    if(/^\/clear$/i.test(t)){ state.messages=[]; state.pinned=null; pinBtn.textContent="존재: 자동(랜덤)"; render(); input.value=""; return; }
+    if(/^\/export$/i.test(t)){
+      const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+      const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`espdialog_${Date.now()}.json`; a.click(); URL.revokeObjectURL(a.href);
+      input.value=""; return;
     }
+    const m=t.match(/^\/with\s+(.+)$/i);
+    if(m){ const name=m[1].trim(); if(ENTITIES.includes(name)){ state.pinned=name; pinBtn.textContent=`존재: ${name} (고정)`; push('assistant',`이제 '${name}'로 고정합니다.`,name); input.value=""; return; } }
+    push('user',t,null); input.value=""; await respond(t);
+  });
+  input.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); send.click(); } });
 
-    // ===== UI 바인딩 =====
-    const board=document.getElementById('board');
-    const input=document.getElementById('input');
-    const send=document.getElementById('send');
-    const pinbar=document.getElementById('pinbar');
-
-    // 존재 칩 생성
-    ENTITIES.forEach(name=>{
-      const el=document.createElement('button');
-      el.type='button'; el.className='chip'; el.textContent=name; el.setAttribute('aria-pressed', state.pinned===name?'true':'false');
-      el.onclick=()=>{
-        const currently=(state.pinned===name);
-        state.pinned = currently ? null : name; // 누르면 토글(고정/해제)
-        [...pinbar.children].forEach(c=>c.setAttribute('aria-pressed','false'));
-        if(state.pinned){ el.setAttribute('aria-pressed','true'); push('assistant',`'${state.pinned}'로 고정되었습니다.`,state.pinned); }
-        else { push('assistant','존재 고정을 해제했습니다. 다음 응답부터 랜덤입니다.','메타'); }
-      };
-      pinbar.appendChild(el);
-    });
-
-    function row(m){
-      const r=document.createElement('div'); r.className='row'+(m.role==='user'?' me':'');
-      const b=document.createElement('div'); b.className='msg'; b.textContent=m.text;
-      const meta=document.createElement('div'); meta.className='meta';
-      const who=m.role==='user'?'나':m.agent; meta.innerHTML=`<span class="agent">${who}</span> · ${new Date(m.ts).toLocaleTimeString()}`;
-      const w=document.createElement('div'); w.append(b,meta); r.append(w); return r;
-    }
-    function render(){ board.innerHTML=''; state.messages.forEach(m=>board.append(row(m))); board.scrollTop=board.scrollHeight; save(); }
-    function push(role,text,agent){ state.messages.push({role,text,agent:agent||(state.pinned||'심연'),ts:Date.now()}); render(); }
-
-    async function respond(userText){
-      const agent = state.pinned || pick(ENTITIES); // 고정없으면 랜덤
-      const r = (AGENTS[agent]||(()=> "응답 모듈 없음"))(userText);
-      await typeOut(r, agent);
-    }
-    function delay(ms){return new Promise(r=>setTimeout(r,ms))}
-    async function typeOut(text,agent){
-      const token=[...text]; let out=""; push('assistant',"",agent);
-      for(const ch of token){ out+=ch; state.messages[state.messages.length-1].text=out; render(); await delay(8+Math.random()*12); }
-    }
-
-    // 입력/명령
-    send.addEventListener('click', async ()=>{
-      const t=input.value.trim(); if(!t) return;
-      // 명령: /with 이름, /clear, /export
-      const m=t.match(/^\/with\s+(.+)$/i);
-      if(m){
-        const name=m[1].trim();
-        if(ENTITIES.includes(name)){ state.pinned=name; // 칩 상태 반영
-          [...pinbar.children].forEach(c=>c.setAttribute('aria-pressed', c.textContent===name?'true':'false'));
-          push('assistant',`이제부터 '${name}'로 고정합니다.`,name); input.value=""; return;
-        }
-        push('assistant',`'${name}'는 목록에 없습니다. 사용 가능: ${ENTITIES.join(", ")}`,'메타'); input.value=""; return;
-      }
-      if(/^\/clear$/i.test(t)){ state.messages=[]; state.pinned=null; [...pinbar.children].forEach(c=>c.setAttribute('aria-pressed','false')); render(); input.value=""; return; }
-      if(/^\/export$/i.test(t)){
-        const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
-        const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`espdialog_${Date.now()}.json`; a.click(); URL.revokeObjectURL(a.href);
-        input.value=""; return;
-      }
-      push('user',t,null); input.value=""; await respond(t);
-    });
-    input.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); send.click(); } });
-
-    // 부팅
-    render();
-  </script>
+  // 부팅
+  render();
+</script>
 </body>
 </html>
