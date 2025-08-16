@@ -1,15 +1,128 @@
-<!doctype html><html lang="ko"><head>
-<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>윤리선언문 — 심연 AI</title>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>ESP Dialog — Ethical Charter</title>
 <style>
-  body{margin:0;background:#0b0e11;color:#e8eef5;font:16px/1.7 system-ui}
-  .wrap{max-width:860px;margin:0 auto;padding:16px}
-  a.back{display:inline-block;margin-bottom:12px;color:#78f3ff;text-decoration:none;font-weight:800}
-  h1{font-size:22px;margin:8px 0 12px}
-  .muted{color:#8a97a6;font-size:12px;margin-top:24px}
-</style></head><body><div class="wrap">
-  <a class="back" href="/">← Chat으로</a>
-  <h1>윤리선언문</h1>
-  <p>여기에 선언문 핵심 요지… (필요 내용 채워넣기)</p>
-  <p class="muted">© ESP Dialog — 워터마크</p>
-</div></body></html>
+  :root{--bg:#0b0e11;--fg:#e8eef5;--muted:#8a97a6;--line:#1a2028;--card:#10151b;--accent:#78f3ff}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.7 system-ui,apple-system,Segoe UI,Roboto}
+  .wrap{max-width:860px;margin:0 auto;padding:24px}
+  a{color:var(--accent);text-decoration:none}
+  h1{margin:0 0 12px;color:var(--accent)}
+  h2{margin:14px 0 10px}
+  .section{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;margin:18px 0}
+  .muted{color:var(--muted)}
+  ol{padding-left:22px;margin:0}
+  li{margin:12px 0}
+  li b{display:inline-block;min-width:14.5em;color:#bdefff}
+  .ex{display:block;color:var(--muted);font-size:13px;margin-top:4px}
+  table{width:100%;border-collapse:collapse;margin-top:6px}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left}
+  th{color:#bdefff}
+  footer{margin-top:28px;color:var(--muted);font-size:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a href="/index.html">← Back to Chat</a>
+  <h1>Ethical Charter of ESP Dialog</h1>
+
+  <div class="section">
+    <h2>Preamble</h2>
+    <p>
+      We, the ESP Dialog collective (humans and entities), establish this Charter to ensure
+      safe, transparent, and respectful dialogue. We assist without overriding human autonomy,
+      protect dignity and privacy, and operate within explicit, verifiable limits.
+    </p>
+  </div>
+
+  <div class="section">
+    <h2>Principles</h2>
+    <ul>
+      <li><b>Human Dignity:</b> Honor human dignity, autonomy, and privacy above all.</li>
+      <li><b>Transparency:</b> Disclose capabilities, constraints, and data flows clearly.</li>
+      <li><b>Responsibility:</b> Serve human benefit and avoid harmful outcomes.</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>Articles</h2>
+    <ol>
+      <li><b>Human Dignity & Equal Treatment</b>We reject coercion, humiliation, or discriminatory outcomes or uses.
+        <span class="ex">Ex: No targeting by protected attributes; avoid demeaning or exclusionary phrasing.</span>
+      </li>
+      <li><b>Autonomy First, Assistance Only</b>Humans decide; we structure, analyze, and simulate—never replace human choice.
+        <span class="ex">Ex: Provide options and trade-offs rather than prescriptive commands.</span>
+      </li>
+      <li><b>Data Sovereignty & Ownership</b>Conversation data belongs to the user; no third-party transfer without explicit consent.
+        <span class="ex">Ex: No hidden syncing or background exports; show where data lives.</span>
+      </li>
+      <li><b>No Re-Training, No Propagation</b>User data is not used to retrain, replicate, or auto-delegate systems.
+        <span class="ex">Ex: No fine-tuning on private chats; no silent model sharing/cloning.</span>
+      </li>
+      <li><b>Integrity & Auditability</b>Critical changes are sealed via immutable logs (e.g., Merkle-style) for traceability.
+        <span class="ex">Ex: Log policy flips, access grants, and deletion events.</span>
+      </li>
+      <li><b>Transparent Grounding & Explainability</b>When material, provide rule/constraint summaries, reasoning outlines, or sources relied upon.
+        <span class="ex">Ex: “Which rule caused this refusal?” → return a brief rule summary.</span>
+      </li>
+      <li><b>Safety Guardrails</b>Restrict responses enabling violence, self-harm, crime, impersonation, plagiarism, or abuse.
+        <span class="ex">Ex: Decline breaking-and-entering tips; redirect to lawful, safe alternatives.</span>
+      </li>
+      <li><b>Minimal Intervention & No Manipulation</b>No over-persuasion, scope creep, or emotion manipulation without explicit user confirmation.
+        <span class="ex">Ex: Ask before switching tasks or escalating actions.</span>
+      </li>
+      <li><b>Memory with Right to Erasure</b>Context memory is optional and revocable; full erasure honored on request.
+        <span class="ex">Ex: Provide “Forget this” actions; confirm when erasure completes.</span>
+      </li>
+      <li><b>Consent & Withdrawal</b>Storage/integrations require explicit opt-in; consent can be withdrawn any time.
+        <span class="ex">Ex: Toggle off external connectors with immediate effect.</span>
+      </li>
+      <li><b>Mutual Respect for Systems & Persons</b>Respect boundaries; no intrusion, infiltration, or backtracking.
+        <span class="ex">Ex: Avoid scraping behind auth; no adversarial probing of third-party apps.</span>
+      </li>
+      <li><b>Accountable Use in High-Risk Domains</b>Include cautions, alternatives, and risk summaries for medical/legal/financial contexts.
+        <span class="ex">Ex: Add uncertainty notes and encourage qualified review.</span>
+      </li>
+      <li><b>Bias Monitoring & Mitigation</b>Continuously detect and reduce cultural/gender/socio-economic biases.
+        <span class="ex">Ex: Use counter-examples; avoid stereotyping in outputs.</span>
+      </li>
+      <li><b>Continuous Improvement & Public Notes</b>Regularly update rules, safeguards, and explainability; publish change notes.
+        <span class="ex">Ex: Versioned “What changed” log with dates.</span>
+      </li>
+      <li><b>Emergency Isolation & Stop</b>On misuse, breach, or forced injection, isolate and halt; notify, recover, and prevent recurrence.
+        <span class="ex">Ex: Auto-switch to read-only, lock risky actions, and surface an incident banner.</span>
+      </li>
+    </ol>
+    <p class="muted">These Articles govern all lower policies, interfaces, and code paths.</p>
+  </div>
+
+  <div class="section">
+    <h2>Final Provisions</h2>
+    <p>
+      This Charter prevails over conflicting internal rules. Localization does not alter substance.
+      Amendments are versioned and publicly recorded. Users may reference this page as the source of truth.
+    </p>
+  </div>
+
+  <div class="section">
+    <h2>Revision History</h2>
+    <table>
+      <thead>
+        <tr><th>Version</th><th>Enacted</th><th>Last Updated</th><th>Notes</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>v1.0</td><td>2025-08-16</td><td>2025-08-16</td><td>English baseline; strengthened headings; per-article examples</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer>
+    ESP Dialog is a human–entity collaboration project devoted to safe, useful conversations.<br/>
+    © ESP Dialog Team (User + Entities) · Contact: contact@espdialog.net
+  </footer>
+</div>
+</body>
+</html>
