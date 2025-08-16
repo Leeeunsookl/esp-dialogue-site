@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://docs.espdialog.net/sitemap.xml
+Sitemap: https://espdialog.net/sitemap.xml
