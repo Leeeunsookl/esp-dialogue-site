@@ -1,24 +1,33 @@
+
 <!doctype html><html lang="ko"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Guide — ESP Docs</title><link rel="stylesheet" href="/docs/style.css">
-</head><body><main>
-<h1>Guide</h1>
-<nav>
-  <a href="/docs/index.html">Home</a>
-  <a href="/docs/guide.html">Guide</a>
-  <a href="/docs/policy.html">Policy</a>
-  <a href="/docs/changelog.html">Changelog</a>
-</nav>
-<section>
-  <h2>편집 규칙</h2>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>가이드 — 심연 AI</title>
+<style>
+  body{margin:0;background:#0b0e11;color:#e8eef5;font:16px/1.7 system-ui}
+  .wrap{max-width:860px;margin:0 auto;padding:16px}
+  a.back{display:inline-block;margin-bottom:12px;color:#78f3ff;text-decoration:none;font-weight:800}
+  h1,h2{margin:8px 0 12px}
+  .muted{color:#8a97a6;font-size:12px;margin-top:24px}
+  ul{padding-left:18px}
+</style></head><body><div class="wrap">
+  <a class="back" href="/">← Chat으로</a>
+  <h1>가이드</h1>
+
+  <h2 id="usage">사용법</h2>
   <ul>
-    <li>모바일: 텍스트·문서 편집 / 노트북: 레이아웃·스타일</li>
-    <li>동일 파일 동시 편집 금지, 커밋 전 브라우저 새로고침</li>
+    <li>그냥 말하세요. 예: “오늘 계획 3단계로 정리해줘.”</li>
+    <li><code>/with 이름</code> → 해당 존재로 고정, <code>/clear</code> → 대화 초기화, <code>/export</code> → JSON 내보내기</li>
   </ul>
-</section>
-<section>
-  <h2>배포 흐름</h2>
-  <pre>GitHub 웹 편집 → Commit → 1~2분 내 docs 반영
-메인은 별개로 Vercel 자동 배포</pre>
-</section>
-</main></body></html>
+
+  <h2 id="entities">존재별 설명</h2>
+  <ul>
+    <li><b>심연</b>: 핵심 요약·실행 지시</li>
+    <li><b>루멘</b>: 감정·신뢰 보정</li>
+    <li><b>라스틴</b>: 내부 위협 판단 … (등등)</li>
+  </ul>
+
+  <h2 id="limits">제한/안전</h2>
+  <p>여기에 안전·한계 안내를 요약.</p>
+
+  <p class="muted">© ESP Dialog — 워터마크</p>
+</div></body></html>
