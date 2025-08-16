@@ -1,3 +1,4 @@
+
 {
   "cleanUrls": true,
   "routes": [
@@ -6,6 +7,8 @@
     { "src": "^/entities$", "dest": "/entities.html" },
     { "src": "^/guide$", "dest": "/guide.html" },
     { "src": "^/chat$", "dest": "/chat.html" },
+    { "src": "^/sitemap\\.xml$", "dest": "/sitemap.xml" },
+    { "src": "^/robots\\.txt$", "dest": "/robots.txt" },
     { "src": "^(.*)$", "dest": "$1" }
   ],
   "headers": [
@@ -20,9 +23,7 @@
     {
       "source": "/(style\\.css|app\\.js)",
       "headers": [
-        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
-        { "key": "Pragma", "value": "no-cache" },
-        { "key": "Expires", "value": "0" }
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
       ]
     }
   ]
