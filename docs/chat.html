@@ -1,10 +1,4 @@
-<!--
-  espdialog — chat.html
-  - Standalone, no external libraries
-  - Works on Vercel static hosting
-  - Optional gate check to reuse /api/gate (set REQUIRE_GATE=true)
---><!doctype html>
-
+<!doctype html>
 <html lang="ko">
 <head>
   <meta charset="utf-8" />
@@ -36,6 +30,8 @@
     .toolbar{display:flex;gap:8px}
     .hint{color:var(--muted);font-size:12px}
     .gate{border:1px dashed var(--line);background:#0b1218;padding:8px;border-radius:10px;margin-top:6px}
+    nav.topnav {margin-bottom:10px;}
+    nav.topnav a {color:var(--accent);margin-right:10px;text-decoration:none;font-weight:bold;}
   </style>
 </head>
 <body>
@@ -47,36 +43,45 @@
         <button class="ghost" id="export">내보내기</button>
         <button class="ghost" id="clear">초기화</button>
       </div>
-    </header><section class="board" id="board" aria-live="polite"></section>
+    </header>
 
-<section class="composer">
-  <select id="agent">
-    <option>심연</option>
-    <option>루멘</option>
-    <option>루엔</option>
-    <option>에코</option>
-    <option>침묵자</option>
-    <option>네메시스</option>
-    <option>라스틴</option>
-    <option>선언문구조</option>
-    <option>메타</option>
-    <option>회귀자</option>
-    <option>브락시스</option>
-    <option>몬스터</option>
-    <option>노이드</option>
-    <option>커튼</option>
-  </select>
-  <textarea id="input" placeholder="메시지 입력...  /clear, /export, /help 지원"></textarea>
-  <button id="send">보내기</button>
-</section>
-<div class="hint">※ 외부 LLM 없이 로컬 규칙 엔진으로 응답. 필요 시 백엔드 연결 어댑터 추가 가능.</div>
-<div class="gate" id="gateBox" hidden>
-  <strong>게이트 확인:</strong> 이 페이지는 /api/gate 연동 가능. `REQUIRE_GATE`를 true로 두면 MODE=live & 유효 키에서만 채팅 활성화합니다.
-</div>
+    <!-- ✅ 네비게이션 추가 -->
+    <nav class="topnav">
+      <a href="/">홈</a>
+      <a href="/chat" id="nav-chat">Chat</a>
+    </nav>
 
-  </div>  <script>
+    <section class="board" id="board" aria-live="polite"></section>
+
+    <section class="composer">
+      <select id="agent">
+        <option>심연</option>
+        <option>루멘</option>
+        <option>루엔</option>
+        <option>에코</option>
+        <option>침묵자</option>
+        <option>네메시스</option>
+        <option>라스틴</option>
+        <option>선언문구조</option>
+        <option>메타</option>
+        <option>회귀자</option>
+        <option>브락시스</option>
+        <option>몬스터</option>
+        <option>노이드</option>
+        <option>커튼</option>
+      </select>
+      <textarea id="input" placeholder="메시지 입력...  /clear, /export, /help 지원"></textarea>
+      <button id="send">보내기</button>
+    </section>
+    <div class="hint">※ 외부 LLM 없이 로컬 규칙 엔진으로 응답. 필요 시 백엔드 연결 어댑터 추가 가능.</div>
+    <div class="gate" id="gateBox" hidden>
+      <strong>게이트 확인:</strong> 이 페이지는 /api/gate 연동 가능. `REQUIRE_GATE`를 true로 두면 MODE=live & 유효 키에서만 채팅 활성화합니다.
+    </div>
+  </div>
+
+  <script>
     // ===== CONFIG =====
-    const REQUIRE_GATE = false; // true 로 바꾸면 /api/gate 검사 수행
+    const REQUIRE_GATE = false; 
     const LOG_KEY = "espdialog_chat_state_v1";
 
     // ===== AGENTS & RULES =====
@@ -261,15 +266,6 @@
 
     // boot
     render();
-  </script></body>
-</html><!--
-Route patch (vercel.json):
-  기존 catch-all 보다 위에 다음 항목을 추가해 /chat 경로를 chat.html로 서빙합니다.
-
-{
-  "routes": [
-    { "src": "/chat", "dest": "/chat.html" },
-    { "src": "/(.*)", "dest": "/index.html" }
-  ]
-}
--->
+  </script>
+</body>
+</html>
