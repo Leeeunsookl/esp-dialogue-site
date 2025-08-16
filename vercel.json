@@ -1,8 +1,22 @@
+
 {
+  "cleanUrls": true,
   "routes": [
     { "src": "^/$", "dest": "/docs/index.html" },
     { "src": "^/chat$", "dest": "/docs/chat.html" },
     { "src": "^/policy$", "dest": "/docs/policy.html" },
+    { "src": "^/entities$", "dest": "/docs/entities.html" },
+    { "src": "^/guide$", "dest": "/docs/guide.html" },
     { "src": "^(.*)$", "dest": "/docs$1" }
+  ],
+  "headers": [
+    {
+      "source": "/docs/index.html",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
+        { "key": "Pragma", "value": "no-cache" },
+        { "key": "Expires", "value": "0" }
+      ]
+    }
   ]
 }
