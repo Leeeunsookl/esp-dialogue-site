@@ -1,7 +1,7 @@
 {
   "cleanUrls": true,
-  "rewrites": [
-    { "source": "/chat", "destination": "/chat.html" }
+  "redirects": [
+    { "source": "/chat", "destination": "/", "permanent": false }
   ],
   "trailingSlash": false
 }
