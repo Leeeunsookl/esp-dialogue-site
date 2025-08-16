@@ -10,7 +10,7 @@
     {"source": "/(.*)", "destination": "/index.html" }
   ]
   }
-  ],
+  ,
   "headers": [
     {
       "source": "/(index|chat|policy|entities|guide).html",
@@ -21,4 +21,4 @@
       ]
     }
   ]
-}
+
