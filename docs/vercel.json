@@ -2,25 +2,19 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
+    { "source": "/",         "destination": "/index.html" },
+    { "source": "/chat",     "destination": "/chat.html" },
     { "source": "/policy",   "destination": "/policy.html" },
     { "source": "/entities", "destination": "/entities.html" },
-    { "source": "/guide",    "destination": "/guide.html" },
-    { "source": "/chat",     "destination": "/chat.html" },
-    { "source": "/",         "destination": "/index.html" }
+    { "source": "/guide",    "destination": "/guide.html" }
   ],
   "headers": [
     {
-      "source": "/(index|policy|entities|guide|chat).html",
+      "source": "/(index|chat|policy|entities|guide).html",
       "headers": [
         { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
         { "key": "Pragma",        "value": "no-cache" },
         { "key": "Expires",       "value": "0" }
-      ]
-    },
-    {
-      "source": "/(style\\.css|app\\.js)",
-      "headers": [
-        { "key": "Cache-Control", "value": "max-age=0, s-maxage=0, must-revalidate" }
       ]
     }
   ]
