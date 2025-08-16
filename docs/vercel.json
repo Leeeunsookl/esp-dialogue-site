@@ -7,6 +7,9 @@
     { "source": "/policy",   "destination": "/policy.html" },
     { "source": "/entities", "destination": "/entities.html" },
     { "source": "/guide",    "destination": "/guide.html" }
+    {"source": "/(.*)", "destination": "/index.html" }
+  ]
+  }
   ],
   "headers": [
     {
