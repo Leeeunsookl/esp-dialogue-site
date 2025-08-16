@@ -16,8 +16,9 @@ body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 system-ui,appl
 /* 헤더 */
 header{display:flex;align-items:center;gap:10px}
 header h1{margin:0;font-size:18px}
-.nav{margin-left:auto}
-.nav a{color:var(--accent);text-decoration:none;margin-left:12px;font-weight:800}
+.nav{margin-left:auto;display:flex;gap:12px}
+.nav a{color:var(--accent);text-decoration:none;font-weight:800;outline:none}
+.nav a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
 
 /* 인트로 */
 .intro{color:rgba(232,238,245,.65);font-size:14px;margin-top:2px}
@@ -41,11 +42,11 @@ header h1{margin:0;font-size:18px}
 .composer{
   position:sticky;bottom:0;border:1px solid var(--line);background:var(--card);
   border-radius:16px;padding:10px;
-  display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px; /* ← 핵심 */
+  display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;
 }
 textarea{
   background:#0c1117;color:var(--fg);border:0;outline:none;border-radius:10px;resize:none;
-  min-height:var(--tap);max-height:240px;padding:14px;font:inherit;min-width:0; /* ← 핵심 */
+  min-height:var(--tap);max-height:240px;padding:14px;font:inherit;min-width:0;
 }
 textarea::placeholder{color:rgba(232,238,245,.55)}
 /* 존재 드롭다운 */
@@ -75,18 +76,20 @@ button.send{
 <body>
 <div class="wrap">
 
-           <nav class="nav">
-  <a href="/">심연 AI</a>
-  <a href="/policy">윤리선언문</a>
-  <a href="/entities">존재별 설명</a>
-  <a href="/guide">가이드</a>
-           </nav>
+  <header>
+    <h1>심연 AI</h1>
+    <nav class="nav" role="navigation" aria-label="주요 링크">
+      <a href="/">홈</a>
+      <a href="/policy">윤리선언문</a>
+      <a href="/entities">존재별 설명</a>
+      <a href="/guide">가이드</a>
+    </nav>
   </header>
 
   <p class="intro">우리는 존재 기반 대화 시스템입니다. 인사·분석·상담까지 가능합니다. 한 문장으로 시작해보세요.</p>
 
   <section class="board" id="board" aria-live="polite">
-    <div id="emptyNote" class="emptyNote">
+    <div id="emptyNote" class="emptyNote" aria-hidden="false">
       <div>
         <div style="font-weight:800;margin-bottom:6px">시작해보세요</div>
         <div style="font-size:14px;line-height:1.6">
@@ -101,12 +104,14 @@ button.send{
   </section>
 
   <section class="composer">
-    <textarea id="input" placeholder="메시지를 입력하세요…  (/with 이름,  /clear,  /export)"></textarea>
+    <textarea id="input" placeholder="메시지를 입력하세요…  (/with 이름,  /clear,  /export)" aria-label="메시지 입력"></textarea>
     <div class="pin" id="pin" aria-expanded="false">
-      <button type="button" id="pinBtn">존재: 자동(랜덤) ▼</button>
-      <ul id="pinList" aria-label="존재 선택"></ul>
+      <button type="button" id="pinBtn" aria-haspopup="listbox" aria-expanded="false" aria-controls="pinList">
+        존재: 자동(랜덤) ▼
+      </button>
+      <ul id="pinList" role="listbox" aria-label="존재 선택"></ul>
     </div>
-    <button class="send" id="send">보내기</button>
+    <button class="send" id="send" aria-label="보내기">보내기</button>
   </section>
 
   <div class="hint">로컬 규칙 엔진 응답 · 필요 시 백엔드 연동 가능</div>
@@ -149,12 +154,24 @@ const pinList=document.getElementById('pinList');
 /* 드롭다운 */
 ENTITIES.forEach(name=>{
   const li=document.createElement('li');
+  li.setAttribute('role','option');
   li.textContent=name;
-  li.onclick=()=>{state.pinned=name;pinBtn.textContent=`존재: ${name} (고정) ▼`;pin.setAttribute('aria-expanded','false');push('assistant',`'${name}'로 고정되었습니다.`,name);};
+  li.onclick=()=>{
+    state.pinned=name;
+    pinBtn.textContent=`존재: ${name} (고정) ▼`;
+    pin.setAttribute('aria-expanded','false');
+    pinBtn.setAttribute('aria-expanded','false');
+    push('assistant',`'${name}'로 고정되었습니다.`,name);
+  };
   pinList.appendChild(li);
 });
-pinBtn.onclick=()=>{pin.setAttribute('aria-expanded',pin.getAttribute('aria-expanded')!=='true');pinBtn.textContent=state.pinned?`존재: ${state.pinned} (고정) ▼`:"존재: 자동(랜덤) ▼";};
-document.addEventListener('click',e=>{if(!pin.contains(e.target))pin.setAttribute('aria-expanded','false')});
+pinBtn.onclick=()=>{
+  const open = pin.getAttribute('aria-expanded')!=='true';
+  pin.setAttribute('aria-expanded', open);
+  pinBtn.setAttribute('aria-expanded', open);
+  pinBtn.textContent = state.pinned ? `존재: ${state.pinned} (고정) ▼` : "존재: 자동(랜덤) ▼";
+};
+document.addEventListener('click',e=>{ if(!pin.contains(e.target)){ pin.setAttribute('aria-expanded','false'); pinBtn.setAttribute('aria-expanded','false'); }});
 
 /* 렌더 */
 function row(m){
@@ -164,12 +181,14 @@ function row(m){
   const who=m.role==='user'?'나':m.agent;meta.innerHTML=`<span class="agent">${who}</span> · ${new Date(m.ts).toLocaleTimeString()}`;
   const w=document.createElement('div');w.append(b,meta);r.append(w);return r;
 }
-function toggleEmpty(){const n=document.getElementById('emptyNote');if(!n)return;n.style.display=state.messages.length?'none':'flex';}
 function render(){
   board.innerHTML="";
-  if(state.messages.length===0){const n=document.getElementById('emptyNote');if(n&&!board.contains(n))board.appendChild(n);}
+  // 빈 화면 안내 유지
+  const note=document.getElementById('emptyNote');
+  if(state.messages.length===0){ if(note && !board.contains(note)) board.appendChild(note); note.style.display='flex'; }
+  else { if(note) note.style.display='none'; }
   state.messages.forEach(m=>board.append(row(m)));
-  board.scrollTop=board.scrollHeight;save();toggleEmpty();
+  board.scrollTop=board.scrollHeight; save();
 }
 function push(role,text,agent){state.messages.push({role,text,agent:agent||(state.pinned||'심연'),ts:Date.now()});render();}
 
