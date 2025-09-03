@@ -12,6 +12,15 @@
   "redirects": [
     { "source": "/chat", "destination": "/", "permanent": true }
   ],
+  {
+  "redirects": [
+    {
+      "source": "/backend/:path*",
+      "destination": "https://espdialog.net",
+      "permanent": false
+    }
+  ]
+}
 
   "headers": [
     {
