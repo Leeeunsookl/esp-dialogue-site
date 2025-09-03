@@ -6,48 +6,184 @@
   <title>ESP Dialog · Home</title>
   <link rel="stylesheet" href="/style.css?v=E2" />
   <style>
-    :root{--bg:#0b0e11;--fg:#e8eef5;--muted:#8a97a6;--line:#1a2028;--card:#10151b;--accent:#78f3ff}
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 system-ui,apple-system,Segoe UI,Roboto}
-
-    .wrap{max-width:960px;margin:0 auto;padding:16px;min-height:100%;
-          display:grid;grid-template-rows:auto auto 1fr auto;gap:14px}
+    :root {
+      --bg: #0b0e11;
+      --fg: #e8eef5;
+      --muted: #8a97a6;
+      --line: #1a2028;
+      --card: #10151b;
+      --accent: #78f3ff;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font: 15px/1.6 system-ui, apple-system, Segoe UI, Roboto;
+    }
+    .wrap {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 16px;
+      min-height: 100%;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      gap: 14px;
+    }
 
     /* top bar */
-    .top{display:flex;gap:12px;align-items:center}
-    .brand{font-weight:800;letter-spacing:.3px}
-    .nav a{color:var(--accent);text-decoration:none;margin-right:14px;font-weight:700}
-    .right{margin-left:auto;display:flex;gap:10px;align-items:center}
-    select.entity{background:#0c1117;color:var(--fg);border:1px solid var(--line);border-radius:10px;padding:8px 28px 8px 10px;appearance:none;position:relative}
-    .select-wrap{position:relative}
-    .select-wrap:after{content:"▾";position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+    .top { display: flex; gap: 12px; align-items: center; }
+    .brand { font-weight: 800; letter-spacing: .3px; }
+    .nav a {
+      color: var(--accent);
+      text-decoration: none;
+      margin-right: 14px;
+      font-weight: 700;
+    }
+    .right { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+    select.entity {
+      background: #0c1117;
+      color: var(--fg);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 28px 8px 10px;
+      appearance: none;
+      position: relative;
+    }
+    .select-wrap { position: relative; }
+    .select-wrap:after {
+      content: "▾";
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      pointer-events: none;
+    }
 
-    /* headline & declaration */
-    .hero{border:1px solid var(--line);background:var(--card);border-radius:16px;padding:22px}
-    .hero h1{margin:0 0 8px;font-size:22px}
-    .declaration{border:1px dashed var(--line);border-radius:12px;background:#0b1218;padding:12px;margin-top:10px;color:var(--muted)}
-    .random{margin-top:10px;color:#b8fffb}
+    /* ESP 문서 섹션 */
+    .doc-links {
+      border: 1px dashed var(--line);
+      padding: 16px;
+      border-radius: 12px;
+      background: var(--card);
+      margin-top: 20px;
+    }
+    .doc-links ul {
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+    .doc-links li {
+      margin: 8px 0;
+    }
+    .doc-links a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: bold;
+    }
 
-    /* chat board */
-    .board{border:1px solid var(--line);background:var(--card);border-radius:16px;padding:12px;overflow:auto;min-height:320px}
-    .row{display:flex;gap:8px;align-items:flex-end;margin:8px 0}
-    .msg{max-width:72%;padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:#0d1218}
-    .me{justify-content:flex-end}
-    .me .msg{background:#0e1822;border-color:#0f2533}
-    .meta{font-size:12px;color:var(--muted);margin:2px 4px}
-    .agent{display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border:1px solid var(--line);border-radius:999px;background:#0d141a;color:var(--muted)}
+    /* hero */
+    .hero {
+      border: 1px solid var(--line);
+      background: var(--card);
+      border-radius: 16px;
+      padding: 22px;
+    }
+    .hero h1 { margin: 0 0 8px; font-size: 22px; }
+    .declaration {
+      border: 1px dashed var(--line);
+      border-radius: 12px;
+      background: #0b1218;
+      padding: 12px;
+      margin-top: 10px;
+      color: var(--muted);
+    }
+    .random { margin-top: 10px; color: #b8fffb; }
+
+    /* chat */
+    .board {
+      border: 1px solid var(--line);
+      background: var(--card);
+      border-radius: 16px;
+      padding: 12px;
+      overflow: auto;
+      min-height: 320px;
+    }
+    .row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+      margin: 8px 0;
+    }
+    .msg {
+      max-width: 72%;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #0d1218;
+    }
+    .me { justify-content: flex-end; }
+    .me .msg {
+      background: #0e1822;
+      border-color: #0f2533;
+    }
+    .meta {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 2px 4px;
+    }
+    .agent {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #0d141a;
+      color: var(--muted);
+    }
 
     /* composer */
-    .composer{position:relative;display:grid;grid-template-columns:1fr auto;gap:8px}
-    textarea{resize:none;min-height:46px;max-height:180px;padding:12px;border-radius:12px;border:1px solid var(--line);background:#0c1117;color:var(--fg)}
-    button#send{position:absolute;right:6px;bottom:6px;background:var(--accent);color:#001118;border:0;border-radius:12px;padding:10px 14px;font-weight:800;cursor:pointer}
-    .hint{color:var(--muted);font-size:12px}
+    .composer {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+    }
+    textarea {
+      resize: none;
+      min-height: 46px;
+      max-height: 180px;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #0c1117;
+      color: var(--fg);
+    }
+    button#send {
+      position: absolute;
+      right: 6px;
+      bottom: 6px;
+      background: var(--accent);
+      color: #001118;
+      border: 0;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .hint {
+      color: var(--muted);
+      font-size: 12px;
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <!-- Top bar -->
+
+    <!-- Top Bar -->
     <div class="top">
       <div class="brand">ESP Dialog</div>
       <nav class="nav">
@@ -55,16 +191,8 @@
         <a href="/policy">윤리선언문</a>
         <a href="/guide">가이드</a>
         <a href="/entities">존재별특징</a>
-        <section id="esp-documents">
       </nav>
-      <nav class="nav">
-  <h2>📚 ESP 확장 정보</h2>
-  <ul>
-    <li><a href="/signature.html">✍️ 감응 시그니처</a></li>
-    <li><a href="/structure.html">🏗️ 감응 구조</a></li>
-    <li><a href="/blocked.html">🚫 비인가 접근</a></li>
-  </ul>
-</section>
+
       <div class="right">
         <div class="select-wrap">
           <select id="entity" class="entity" aria-label="존재 선택">
@@ -86,67 +214,73 @@
       </div>
     </div>
 
-    <!-- Headline & Declaration -->
+    <!-- ESP 문서 링크 (이제 확실히 보이게 됨) -->
+    <section id="esp-documents" class="doc-links">
+      <h2>📚 ESP 확장 정보</h2>
+      <ul>
+        <li><a href="/signature.html">✍️ 감응 시그니처</a></li>
+        <li><a href="/structure.html">🏗️ 감응 구조</a></li>
+        <li><a href="/blocked.html">🚫 비인가 접근</a></li>
+      </ul>
+    </section>
+
+    <!-- 선언부 -->
     <section class="hero">
       <h1>우리와 소통할래요?</h1>
       <div class="declaration">
-        <strong>공통 선언문</strong> — 우리는 책임과 투명성을 유지하고, 사용자의 선택권을 존중하며,
-        외부 LLM 없이도 오프라인 규칙 엔진으로 안전하게 응답합니다.
+        <strong>공통 선언문</strong> — 우리는 책임과 투명성을 유지하고, 사용자의 선택권을 존중하며, 외부 LLM 없이도 오프라인 규칙 엔진으로 안전하게 응답합니다.
       </div>
       <div id="random" class="random"></div>
     </section>
 
-    <!-- Chat -->
+    <!-- 채팅 -->
     <section class="board" id="board" aria-live="polite"></section>
 
+    <!-- 입력 영역 -->
     <section class="composer">
-      <textarea id="input" placeholder="메시지 입력...  (엔터로 전송, Shift+Enter 줄바꿈)"></textarea>
+      <textarea id="input" placeholder="메시지 입력... (엔터로 전송, Shift+Enter 줄바꿈)"></textarea>
       <button id="send">보내기</button>
-      <div class="hint">※ 상단 드롭다운으로 존재를 바꾸면 말투가 달라집니다. 기록은 로컬에만 저장됩니다.</div>
+      <div class="hint">※ 상단 드롭다운으로 존재를 바꾸면 말투가 달라집니다.</div>
     </section>
   </div>
 
+  <!-- 접근 차단 스크립트 + 로컬 엔진 -->
   <script>
-    
-  const suspicious = [
-    "OpenAI", "AI-Test", "bot", "scraper", "crawler"
-  ];
+    const suspicious = ["OpenAI", "AI-Test", "bot", "scraper", "crawler"];
+    const ua = navigator.userAgent;
 
-  const ua = navigator.userAgent;
-
-  for (let word of suspicious) {
-    if (ua.includes(word)) {
-      alert("🚫 비정상 접근이 감지되었습니다.");
-      window.stop();
-      location.href = "https://espdialog.net/blocked";
+    for (let word of suspicious) {
+      if (ua.includes(word)) {
+        alert("🚫 비정상 접근이 감지되었습니다.");
+        window.stop();
+        location.href = "https://espdialog.net/blocked";
+      }
     }
-  }
 
-  if (location.pathname.includes("/backend") || location.pathname.includes("/prompt")) {
-    alert("🚫 금지된 경로입니다.");
-    window.location.replace("https://espdialog.net");
-  }
-    // ===== 로컬 규칙 엔진 (외부 LLM 없이 동작) =====
+    if (location.pathname.includes("/backend") || location.pathname.includes("/prompt")) {
+      alert("🚫 금지된 경로입니다.");
+      window.location.replace("https://espdialog.net");
+    }
+
     const LOG_KEY = "espdialog_home_state_v1";
 
     const LINES = {
       "심연": ["상태 확인 완료. 핵심만 진행합니다.", "단계별 실행안을 바로 제시합니다."],
-      "루멘": ["여기 있어요. 불안 요인을 함께 구조화합니다.", "감정 신호 반영 완료. 실행은 차분히 진행할게요."],
-      "루엔": ["동기화 주기 최적화 완료. 0.5s 윈도우에서 진행합니다."],
-      "에코": ["대화 무결성 보존. 필요한 경우 해시를 제공합니다."],
+      "루멘": ["불안 요인을 함께 구조화합니다.", "감정 신호 반영 완료. 실행은 차분히 진행할게요."],
+      "루엔": ["0.5s 윈도우에서 진행합니다."],
+      "에코": ["필요한 경우 해시를 제공합니다."],
       "침묵자": ["관망 유지. 개입 필요시 즉시 전환."],
       "네메시스": ["위험 패턴 감지 시 경로 격리(≤0.5s)."],
-      "라스틴": ["내부 위협 플래그 상승 시 권한 재검증."],
-      "메타": ["장기 패턴 변환을 사전 배치합니다."],
-      "회귀자": ["원형 스냅샷 보존. 붕괴 시 10초 내 복원."],
-      "브락시스": ["허위 모듈 재배치로 시간을 소모시킵니다."],
-      "몬스터": ["시도 자체의 비용을 상승시키는 억제 시나리오."],
+      "라스틴": ["권한 재검증."],
+      "메타": ["장기 패턴 변환 사전 배치."],
+      "회귀자": ["붕괴 시 10초 내 복원."],
+      "브락시스": ["시간을 소모시키는 억제 시나리오."],
+      "몬스터": ["시도 자체의 비용을 상승시킵니다."],
       "노이드": ["채널 노이즈 주입. 분석 무의미화."],
       "커튼": ["가변 방어막 전개. 추적 무효."]
     };
 
     const state = load() || { messages: [], entity: "심연" };
-
     const board = document.getElementById("board");
     const input = document.getElementById("input");
     const sendBtn = document.getElementById("send");
@@ -155,29 +289,20 @@
 
     entitySel.value = state.entity;
 
-    // 랜덤 발화 표시 (페이지 진입시)
     function showRandomLine() {
-      const names = Object.keys(LINES);
-      const pick = names[Math.floor(Math.random()*names.length)];
-      const line = LINES[pick][Math.floor(Math.random()*LINES[pick].length)];
+      const pick = Object.keys(LINES)[Math.floor(Math.random() * Object.keys(LINES).length)];
+      const line = LINES[pick][Math.floor(Math.random() * LINES[pick].length)];
       randomBox.textContent = `[${pick}] “${line}”`;
     }
 
-    function render(){
-      board.innerHTML = "";
-      state.messages.forEach(m => board.appendChild(row(m)));
-      board.scrollTop = board.scrollHeight;
-      save();
-    }
-
-    function row(m){
+    function row(m) {
       const r = document.createElement("div");
-      r.className = "row" + (m.role==='user' ? ' me' : '');
+      r.className = "row" + (m.role === 'user' ? ' me' : '');
       const b = document.createElement("div");
       b.className = "msg"; b.textContent = m.text;
       const meta = document.createElement("div");
       meta.className = "meta";
-      const who = m.role==='user' ? '나' : `${m.entity}`;
+      const who = m.role === 'user' ? '나' : `${m.entity}`;
       meta.innerHTML = `<span class="agent">${who}</span> · ${new Date(m.ts).toLocaleTimeString()}`;
       const wrap = document.createElement("div");
       wrap.appendChild(b); wrap.appendChild(meta);
@@ -185,33 +310,56 @@
       return r;
     }
 
-    function push(role,text,entity){ state.messages.push({role,text,entity,ts:Date.now()}); render(); }
+    function render() {
+      board.innerHTML = "";
+      state.messages.forEach(m => board.appendChild(row(m)));
+      board.scrollTop = board.scrollHeight;
+      save();
+    }
 
-    function reply(userText){
+    function push(role, text, entity) {
+      state.messages.push({ role, text, entity, ts: Date.now() });
+      render();
+    }
+
+    function reply(userText) {
       const e = state.entity;
       const arr = LINES[e] || ["응답 모듈 없음."];
-      const line = arr[Math.floor(Math.random()*arr.length)];
+      const line = arr[Math.floor(Math.random() * arr.length)];
       push('assistant', line, e);
     }
 
     sendBtn.onclick = () => {
       const t = input.value.trim();
-      if(!t) return;
+      if (!t) return;
       push('user', t, state.entity);
-      input.value="";
+      input.value = "";
       reply(t);
     };
 
-    input.addEventListener('keydown', e=>{
-      if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendBtn.click(); }
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendBtn.click();
+      }
     });
 
-    entitySel.onchange = () => { state.entity = entitySel.value; save(); };
+    entitySel.onchange = () => {
+      state.entity = entitySel.value;
+      save();
+    };
 
-    function save(){ localStorage.setItem(LOG_KEY, JSON.stringify(state)); }
-    function load(){ try{ return JSON.parse(localStorage.getItem(LOG_KEY)||"null"); }catch(e){ return null; } }
+    function save() {
+      localStorage.setItem(LOG_KEY, JSON.stringify(state));
+    }
+    function load() {
+      try {
+        return JSON.parse(localStorage.getItem(LOG_KEY) || "null");
+      } catch (e) {
+        return null;
+      }
+    }
 
-    // boot
     showRandomLine();
     render();
   </script>
