@@ -6,25 +6,28 @@
     { "source": "/",           "destination": "/index.html" },
     { "source": "/policy",     "destination": "/policy.html" },
     { "source": "/guide",      "destination": "/guide.html" },
-    { "source": "/entities",   "destination": "/entities.html" }
+    { "source": "/entities",   "destination": "/entities.html" },
+    { "source": "/signature",  "destination": "/signature.html" },
+    { "source": "/structure",  "destination": "/structure.html" },
+    { "source": "/blocked",    "destination": "/blocked.html" }
   ],
 
   "redirects": [
-    { "source": "/chat", "destination": "/", "permanent": true }
-  ],
-  {
-  "redirects": [
+    {
+      "source": "/chat",
+      "destination": "/",
+      "permanent": true
+    },
     {
       "source": "/backend/:path*",
       "destination": "https://espdialog.net",
       "permanent": false
     }
-  ]
-}
+  ],
 
   "headers": [
     {
-      "source": "/(index|policy|guide|entities).html",
+      "source": "/(index|policy|guide|entities|signature|structure|blocked).html",
       "headers": [
         { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
         { "key": "Pragma",        "value": "no-cache" },
