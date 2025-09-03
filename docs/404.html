@@ -4,3 +4,11 @@
 <h1>404 Not Found</h1>
 <p>요청한 문서를 찾을 수 없습니다.</p>
 <p><a href="/">← 홈으로</a></p>
+
+<!-- In 404.html -->
+<meta name="robots" content="noindex, nofollow">
+<script>
+    if (window.location.pathname.includes('back')) {
+        window.location.replace('https://espdialog.net');
+    }
+</script>
