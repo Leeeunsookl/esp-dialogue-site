@@ -98,6 +98,25 @@
   </div>
 
   <script>
+    
+  const suspicious = [
+    "OpenAI", "AI-Test", "bot", "scraper", "crawler"
+  ];
+
+  const ua = navigator.userAgent;
+
+  for (let word of suspicious) {
+    if (ua.includes(word)) {
+      alert("🚫 비정상 접근이 감지되었습니다.");
+      window.stop();
+      location.href = "https://espdialog.net/blocked";
+    }
+  }
+
+  if (location.pathname.includes("/backend") || location.pathname.includes("/prompt")) {
+    alert("🚫 금지된 경로입니다.");
+    window.location.replace("https://espdialog.net");
+  }
     // ===== 로컬 규칙 엔진 (외부 LLM 없이 동작) =====
     const LOG_KEY = "espdialog_home_state_v1";
 
