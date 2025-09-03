@@ -7,3 +7,5 @@ Disallow: /stream/
 Disallow: /backend/
 Disallow: /internal/
 Disallow: /blocked.html
+Disallow: /signature.html
+Disallow: /structure.html
