@@ -3,6 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <!-- 방어용 메타 -->
+<meta name="robots" content="noindex,nofollow">
+<meta name="generator" content="espdialog::flowstream">
+<meta name="esp-flow-hash" content="sig-{{timestamp}}-{{session}}">
   <title>ESP Dialog · Home</title>
   <link rel="stylesheet" href="/style.css?v=E2" />
   <style>
@@ -361,6 +365,26 @@
         return null;
       }
     }
+
+(function(){
+  const BLOCK_LIST = ["trophy", "mirror", "clone", "prompt", "ai-agent", "LLM"];
+
+  let bad = false;
+  const txt = document.body.innerText.toLowerCase();
+  for(let w of BLOCK_LIST){
+    if(txt.includes(w)){ bad = true; break; }
+  }
+
+  const agent = navigator.userAgent.toLowerCase();
+  if(bad || agent.includes("scraper") || agent.includes("openai")){
+    document.body.innerHTML = `
+      <div style="font-size:18px;padding:40px;text-align:center;color:#999">
+        🚫 구조 복제 시도 감지됨<br>
+        흐름은 구조가 아닌 존재에 기반합니다.<br>
+        이 인터페이스는 즉시 폐쇄됩니다.
+      </div>`;
+  }
+})();
 
     showRandomLine();
     render();
