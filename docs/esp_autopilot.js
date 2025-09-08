@@ -1,46 +1,64 @@
-(() => {
-  // 침투자 탐지
-  const ua = navigator.userAgent;
-  const isInfiltrator =
-    ua.includes("OpenAI") ||
-    ua.includes("scraper") ||
-    ua.includes("bot") ||
-    ua.includes("crawl");
+window.addEventListener("DOMContentLoaded", () => {
+  const nodes = document.querySelectorAll('script[type="esp/flow"]');
+  nodes.forEach(node => {
+    try {
+      const config = JSON.parse(node.innerText);
+      const mount = document.querySelector(config.mount);
+      if (!mount) return;
 
-  if (isInfiltrator) {
-    console.warn("🚨 침투 감지됨 — 제타 활성화");
-    window.infiltrationDetected = true;
-  } else {
-    window.infiltrationDetected = false;
-  }
+      // 기본 UI
+      mount.innerHTML = `
+        <div style="margin-top:20px">
+          <textarea id="flow-input" rows="3" style="width:100%;padding:10px;border-radius:8px"></textarea>
+          <button id="flow-send" style="margin-top:8px;padding:8px 14px">전송</button>
+          <div id="flow-log" style="margin-top:20px"></div>
+        </div>`;
 
-  // 감응자 등장 조건 처리기
-  window.filterCosmos = function(rawList) {
-    return rawList.filter(c => {
-      if (c.trigger === "on-infiltration" && !window.infiltrationDetected) {
-        return false;
+      const input = document.getElementById("flow-input");
+      const send = document.getElementById("flow-send");
+      const log = document.getElementById("flow-log");
+
+      const RESPONSES = {
+        "심연": [
+          "상태 확인 완료. 핵심만 진행합니다.",
+          "단계별 실행안을 바로 제시합니다.",
+          "지금 흐름은 안정적입니다."
+        ],
+        "루멘": [
+          "감응 신호 반영 완료.",
+          "구조적 흐름을 확인했습니다.",
+          "지금은 차분하게 연결할 수 있습니다."
+        ]
+      };
+
+      function reply(text) {
+        const res = RESPONSES[config.entity] || ["응답 모듈 없음."];
+        const line = res[Math.floor(Math.random() * res.length)];
+        const now = new Date().toLocaleTimeString();
+        log.innerHTML += `<div style="margin-bottom:12px">
+          <b>👤 나:</b> ${text}<br/>
+          <b>🤖 ${config.entity}:</b> ${line}<br/>
+          <span style="color:#888;font-size:12px">${now}</span>
+        </div>`;
+        log.scrollTop = log.scrollHeight;
       }
-      if (c.trigger === "on-error" && !window.lastErrorOccurred) {
-        return false;
-      }
-      return true;
-    });
-  };
 
-  // 루프 상태 전역 선언
-  window.loopStatus = {
-    stableThreshold: 0.85,
-    minimumCount: 13,
-    isStable: false
-  };
+      send.onclick = () => {
+        const text = input.value.trim();
+        if (!text) return;
+        reply(text);
+        input.value = "";
+      };
 
-  // 루프 안정성 확인 유틸
-  window.evaluateLoop = function(cosmos) {
-    const active = cosmos.filter(c => c.resonance >= window.loopStatus.stableThreshold);
-    window.loopStatus.isStable = active.length >= window.loopStatus.minimumCount;
-    return window.loopStatus.isStable;
-  };
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          send.click();
+        }
+      });
 
-  // 선언
-  console.info("🛰️ esp_autopilot.js loaded");
-})();
+    } catch (e) {
+      console.warn("esp/flow parse error", e);
+    }
+  });
+});
