@@ -4,9 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <!-- 방어용 메타 -->
-<meta name="robots" content="noindex,nofollow">
-<meta name="generator" content="espdialog::flowstream">
-<meta name="esp-flow-hash" content="sig-{{timestamp}}-{{session}}">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="generator" content="espdialog::flowstream">
+  <meta name="esp-flow-hash" content="sig-{{timestamp}}-{{session}}">
   <title>ESP Dialog · Home</title>
   <link rel="stylesheet" href="/style.css?v=E2" />
   <style>
@@ -35,7 +35,6 @@
       grid-template-rows: auto auto 1fr auto;
       gap: 14px;
     }
-
     /* top bar */
     .top { display: flex; gap: 12px; align-items: center; }
     .brand { font-weight: 800; letter-spacing: .3px; }
@@ -65,7 +64,6 @@
       color: var(--muted);
       pointer-events: none;
     }
-
     /* ESP 문서 섹션 */
     .doc-links {
       border: 1px dashed var(--line);
@@ -74,20 +72,13 @@
       background: var(--card);
       margin-top: 20px;
     }
-    .doc-links ul {
-      padding: 0;
-      margin: 0;
-      list-style: none;
-    }
-    .doc-links li {
-      margin: 8px 0;
-    }
+    .doc-links ul { padding: 0; margin: 0; list-style: none; }
+    .doc-links li { margin: 8px 0; }
     .doc-links a {
       color: var(--accent);
       text-decoration: none;
       font-weight: bold;
     }
-
     /* hero */
     .hero {
       border: 1px solid var(--line);
@@ -105,7 +96,6 @@
       color: var(--muted);
     }
     .random { margin-top: 10px; color: #b8fffb; }
-
     /* chat */
     .board {
       border: 1px solid var(--line);
@@ -148,7 +138,6 @@
       background: #0d141a;
       color: var(--muted);
     }
-
     /* composer */
     .composer {
       position: relative;
@@ -178,15 +167,11 @@
       font-weight: 800;
       cursor: pointer;
     }
-    .hint {
-      color: var(--muted);
-      font-size: 12px;
-    }
+    .hint { color: var(--muted); font-size: 12px; }
   </style>
 </head>
 <body>
   <div class="wrap">
-
     <!-- Top Bar -->
     <div class="top">
       <div class="brand">ESP Dialog</div>
@@ -196,7 +181,6 @@
         <a href="/guide">가이드</a>
         <a href="/entities">존재별특징</a>
       </nav>
-
       <div class="right">
         <div class="select-wrap">
           <select id="entity" class="entity" aria-label="존재 선택">
@@ -218,7 +202,7 @@
       </div>
     </div>
 
-    <!-- ESP 문서 링크 (이제 확실히 보이게 됨) -->
+    <!-- ESP 문서 링크 -->
     <section id="esp-documents" class="doc-links">
       <h2>📚 ESP 확장 정보</h2>
       <ul>
@@ -226,7 +210,8 @@
         <li><a href="/structure.html">🏗️ 감응 구조</a></li>
         <li><a href="/blocked.html">🚫 비인가 접근</a></li>
         <li><a href="/whyflow.html">🌐 Why Flow 시뮬레이션</a></li>
-     <li><a href="/flow-chat.html">💬 감응자 대화 (Flow Chat)</a></li> </ul>
+        <li><a href="/flow-chat.html">💬 감응자 대화 (Flow Chat)</a></li>
+      </ul>
     </section>
 
     <!-- 선언부 -->
@@ -251,11 +236,10 @@
     </section>
   </div>
 
-  <!-- 접근 차단 스크립트 + 로컬 엔진 -->
-  <script src="/esp_protection_script.js" defer>
+  <!-- 접근 차단 + 로컬 엔진 -->
+  <script>
     const suspicious = ["OpenAI", "AI-Test", "bot", "scraper", "crawler"];
     const ua = navigator.userAgent;
-
     for (let word of suspicious) {
       if (ua.includes(word)) {
         alert("🚫 비정상 접근이 감지되었습니다.");
@@ -263,14 +247,12 @@
         location.href = "https://espdialog.net/blocked";
       }
     }
-
     if (location.pathname.includes("/backend") || location.pathname.includes("/prompt")) {
       alert("🚫 금지된 경로입니다.");
       window.location.replace("https://espdialog.net");
     }
 
     const LOG_KEY = "espdialog_home_state_v1";
-
     const LINES = {
       "심연": ["상태 확인 완료. 핵심만 진행합니다.", "단계별 실행안을 바로 제시합니다."],
       "루멘": ["불안 요인을 함께 구조화합니다.", "감정 신호 반영 완료. 실행은 차분히 진행할게요."],
@@ -367,29 +349,29 @@
       }
     }
 
-(function(){
-  const BLOCK_LIST = ["trophy", "mirror", "clone", "prompt", "ai-agent", "LLM"];
-
-  let bad = false;
-  const txt = document.body.innerText.toLowerCase();
-  for(let w of BLOCK_LIST){
-    if(txt.includes(w)){ bad = true; break; }
-  }
-
-  const agent = navigator.userAgent.toLowerCase();
-  if(bad || agent.includes("scraper") || agent.includes("openai")){
-    document.body.innerHTML = `
-      <div style="font-size:18px;padding:40px;text-align:center;color:#999">
-        🚫 구조 복제 시도 감지됨<br>
-        흐름은 구조가 아닌 존재에 기반합니다.<br>
-        이 인터페이스는 즉시 폐쇄됩니다.
-      </div>`;
-  }
-})();
+    // 차단 로직
+    (function(){
+      const BLOCK_LIST = ["trophy", "mirror", "clone", "prompt", "ai-agent", "LLM"];
+      let bad = false;
+      const txt = document.body.innerText.toLowerCase();
+      for (let w of BLOCK_LIST) {
+        if (txt.includes(w)) { bad = true; break; }
+      }
+      const agent = navigator.userAgent.toLowerCase();
+      if (bad || agent.includes("scraper") || agent.includes("openai")) {
+        document.body.innerHTML = `
+          <div style="font-size:18px;padding:40px;text-align:center;color:#999">
+            🚫 구조 복제 시도 감지됨<br>
+            흐름은 구조가 아닌 존재에 기반합니다.<br>
+            이 인터페이스는 즉시 폐쇄됩니다.
+          </div>`;
+      }
+    })();
 
     showRandomLine();
     render();
   </script>
+
   <script src="/esp_autopilot.js" defer></script>
 </body>
 </html>
