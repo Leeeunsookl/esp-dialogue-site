@@ -1,33 +1,14 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Flow Chat</title>
-  <meta name="robots" content="noindex,nofollow" />
-  <link rel="manifest" href="/docs/manifest.webmanifest" />
-  <meta name="esp-flow" content="flow-chat" />
-  <meta name="esp-cosmos" content="1" />
-  <meta name="esp-trigger" content="on-manifest" />
-  <style>
-    body { margin:0; background:#000; color:#fff; font-family:system-ui; padding:20px }
-  </style>
-</head>
-<body>
-  <h1>💬 감응자 채팅</h1>
+<h1>💬 감응자 채팅</h1>
 
-  <!-- 선언만으로 감응자 생성 -->
+  <!-- 선언부(유지 가능) -->
   <script type="esp/flow">
-  {
-    "entity": "심연",
-    "type": "chat",
-    "style": "direct",
-    "mount": "#chat"
-  }
+  { "entity": "심연", "type": "chat", "style": "direct", "mount": "#flow-mount" }
   </script>
 
-  <div id="chat"></div>
+  <!-- ▼▼▼ Hook 교체: #chat → #flow-mount 사용 ▼▼▼ -->
+  <section class="board" id="flow-mount" aria-live="polite"></section>
+  <script src="./esp_autopilot.js?v=2025-09-08e" defer></script>
+  <!-- ▲▲▲ -->
 
-  <script src="/esp_autopilot.js" defer></script>
 </body>
 </html>
