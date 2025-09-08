@@ -1,5 +1,6 @@
 // esp_autopilot.js — Hybrid (Rules + State + Actions + External Config)
-// Mode: LLM-free, policies externalized, hash-chained log, shadow adapter
+// Mode: LLM-free, policies externalized, hash-chained log, shadow adapter,
+//       Actions dashboard, Deterministic RNG, LocalStorage+IndexedDB hybrid, proof dual-export
 (function () {
   // ---------- Entities (static phrase pools) ----------
   const ENTITIES = {
@@ -30,8 +31,8 @@
     "말꽃": ["언어를 재구성합니다.", "메시지를 다른 파형으로 변환합니다."]
   };
 
-  // ---------- State / Constants ----------
-  const KEY = "esp_flow_hybrid_state_v3";   // v3: hashed log + policies
+  // ---------- Keys / Constants ----------
+  const KEY = "esp_flow_hybrid_state_v4"; // v4: actions pane + deterministic RNG + IDB
   const MAX_LOG = 250;
 
   // ---------- Utils ----------
@@ -42,7 +43,6 @@
       return await res.json();
     } catch { return fallback; }
   }
-  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
   function nowStr(){ return new Date().toLocaleTimeString(); }
 
   // crypto hash (SHA-256)
@@ -52,19 +52,88 @@
     return Array.from(new Uint8Array(h)).map(x=>x.toString(16).padStart(2,'0')).join('');
   }
 
+  // Deterministic RNG (xorshift32)
+  function xorshift32(seedObj){
+    let x = seedObj.value >>> 0;
+    x ^= x << 13; x ^= x >>> 17; x ^= x << 5;
+    seedObj.value = x >>> 0;
+    return (seedObj.value & 0xFFFFFFFF) / 0x100000000;
+  }
+  function makePicker(seedObj){
+    return function pick(arr){
+      if(!arr || !arr.length) return "";
+      const r = xorshift32(seedObj);
+      return arr[Math.floor(r * arr.length)];
+    };
+  }
+
+  // ---------- IndexedDB (hybrid with LocalStorage) ----------
+  function idbOpen(dbName="esp_flow_db", storeName="state"){
+    return new Promise((resolve,reject)=>{
+      const req = indexedDB.open(dbName, 1);
+      req.onupgradeneeded = ()=>{
+        const db = req.result;
+        if(!db.objectStoreNames.contains(storeName)) db.createObjectStore(storeName);
+      };
+      req.onsuccess = ()=>resolve({ db:req.result, storeName });
+      req.onerror = ()=>reject(req.error);
+    });
+  }
+  async function idbGet(conn, key){
+    return new Promise((resolve,reject)=>{
+      const tx = conn.db.transaction(conn.storeName, "readonly");
+      const st = tx.objectStore(conn.storeName);
+      const rq = st.get(key);
+      rq.onsuccess = ()=>resolve(rq.result||null);
+      rq.onerror = ()=>reject(rq.error);
+    });
+  }
+  async function idbSet(conn, key, val){
+    return new Promise((resolve,reject)=>{
+      const tx = conn.db.transaction(conn.storeName, "readwrite");
+      const st = tx.objectStore(conn.storeName);
+      const rq = st.put(val, key);
+      rq.onsuccess = ()=>resolve(true);
+      rq.onerror = ()=>reject(rq.error);
+    });
+  }
+
   // ---------- Storage ----------
-  function loadState() {
+  let idbConn = null;
+  async function ensureDB(){
+    if(!idbConn) idbConn = await idbOpen("esp_flow_db","state");
+    return idbConn;
+  }
+  function loadStateLS() {
     try {
       return JSON.parse(localStorage.getItem(KEY) || "null") || {
         log: [], lastKeywords: [], silentStreak: 0, lastEntity: null,
-        cnt: { auto:0, total:0, reject:0, silence:0 }
+        cnt: { auto:0, total:0, reject:0, silence:0 },
+        seed: Math.floor(Math.random()*1e9)
       };
     } catch {
       return { log: [], lastKeywords: [], silentStreak: 0, lastEntity: null,
-               cnt: { auto:0, total:0, reject:0, silence:0 } };
+               cnt: { auto:0, total:0, reject:0, silence:0 },
+               seed: Math.floor(Math.random()*1e9) };
     }
   }
-  function saveState(s){ localStorage.setItem(KEY, JSON.stringify(s)); }
+  async function loadState(){
+    // Try IDB first
+    try{
+      const conn = await ensureDB();
+      const v = await idbGet(conn, KEY);
+      if(v) return v;
+    }catch{}
+    // Fallback to LocalStorage
+    return loadStateLS();
+  }
+  async function saveState(s){
+    localStorage.setItem(KEY, JSON.stringify(s));
+    try{
+      const conn = await ensureDB();
+      await idbSet(conn, KEY, s);
+    }catch{}
+  }
 
   async function pushLog(s, role, text, entity=null) {
     const prev = s.log.length ? s.log[s.log.length-1].hash : "genesis";
@@ -112,17 +181,27 @@
       }
       return routes.fallback || Object.keys(ENTITIES)[0];
     }
-    function synth(entity){ return pick(ENTITIES[entity] || ["응답 없음."]); }
 
     // mount all hooks
     const nodes = document.querySelectorAll('script[type="esp/flow"]');
-    nodes.forEach(node => {
+    nodes.forEach(async node => {
       try {
         const cfg = JSON.parse(node.innerText);
         const mount = document.querySelector(cfg.mount);
         if (!mount) return;
 
-        // UI (toolbar on top → overlay-safe)
+        // load state (IDB→LS)
+        const state = await loadState();
+        if(typeof state.seed !== "number"){ state.seed = Math.floor(Math.random()*1e9); }
+        const seedObj = { value: state.seed };
+        const pickDet = makePicker(seedObj);
+
+        function synth(entity){
+          const pool = ENTITIES[entity] || ["응답 없음."];
+          return pickDet(pool);
+        }
+
+        // UI (toolbar on top)
         mount.innerHTML = `
           <div id="flow-wrap" style="margin-top:20px">
             <div id="flow-toolbar" style="display:flex;gap:8px;margin:0 0 8px 0;align-items:center;flex-wrap:wrap;
@@ -130,11 +209,13 @@
               <button id="flow-send" style="padding:8px 14px">전송</button>
               <button id="flow-export" style="padding:8px 14px">Export</button>
               <button id="flow-stats" style="padding:8px 14px">Stats</button>
+              <button id="flow-actions" style="padding:8px 14px">Actions</button>
               <span style="font-size:12px;color:#8a97a6">— toolbar</span>
             </div>
             <textarea id="flow-input" rows="3" style="width:100%;padding:10px;border-radius:8px"></textarea>
             <div id="flow-log" style="margin-top:12px;max-height:320px;overflow:auto;border-top:1px solid #1a2028;padding-top:10px"></div>
             <div id="flow-metrics" style="margin-top:8px;color:#8a97a6;font-size:12px"></div>
+            <div id="flow-actions-pane" style="margin-top:8px;color:#8a97a6;font-size:12px"></div>
           </div>`;
 
         const input = mount.querySelector("#flow-input");
@@ -143,9 +224,8 @@
         const metricsEl = mount.querySelector("#flow-metrics");
         const btnExport = mount.querySelector("#flow-export");
         const btnStats  = mount.querySelector("#flow-stats");
-
-        const state = loadState();
-        render();
+        const btnActions= mount.querySelector("#flow-actions");
+        const actionsEl = mount.querySelector("#flow-actions-pane");
 
         function render(){
           logEl.innerHTML = state.log.map(m=>{
@@ -164,6 +244,14 @@
           const { auto,total,reject,silence } = state.cnt;
           const autonomy = total ? ((auto/total)*100).toFixed(1) : "0.0";
           metricsEl.textContent = `Autonomy ${autonomy}% | total ${total} · reject ${reject} · silence ${silence}`;
+        }
+        function renderActions(){
+          if(!Adapter.queue.length){ actionsEl.textContent = "Actions: (empty)"; return; }
+          const rows = Adapter.queue.slice(-50).map(a=>{
+            const t = new Date(a.ts).toLocaleTimeString();
+            return `• [${t}] ${a.type} :: ${a.actor||"flow"} :: ${a.text}`;
+          }).join("\n");
+          actionsEl.innerHTML = `<pre style="white-space:pre-wrap">${rows}</pre>`;
         }
 
         function decideAction(text){
@@ -240,6 +328,9 @@
           inc(state,'total'); state.silentStreak = 0; render();
         }
 
+        // initial render
+        render();
+
         // input bindings
         send.onclick = async () => {
           const t = (input.value||"").trim();
@@ -253,7 +344,7 @@
           if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); send.click(); }
         });
 
-        // Export (with proof hash)
+        // Export (state + proof.json dual export)
         btnExport.onclick = () => {
           const lastHash = state.log.length ? state.log[state.log.length-1].hash : "genesis";
           const exportObj = { ...state, proof: { lastHash, exportedAt: Date.now() } };
@@ -262,17 +353,26 @@
           a.href = URL.createObjectURL(blob);
           a.download = `esp_flow_state_${Date.now()}.json`;
           a.click();
-        };
-        btnStats.onclick = renderMetrics;
 
-        // Heartbeat (policy-driven)
+          const proof = { lastHash, lastUpdated: Date.now() };
+          const b2 = new Blob([JSON.stringify(proof,null,2)], { type: "application/json" });
+          const a2 = document.createElement("a");
+          a2.href = URL.createObjectURL(b2);
+          a2.download = `proof.json`;
+          a2.click();
+        };
+
+        btnStats.onclick = renderMetrics;
+        btnActions.onclick = renderActions;
+
+        // Heartbeat (policy-driven, deterministic pick)
         const HEARTBEAT_MS = policies.heartbeat_ms || 45000;
         const HEARTBEAT_JITTER_MS = policies.heartbeat_jitter_ms || 8000;
         function beat(){
           const delay = HEARTBEAT_MS + Math.floor(Math.random()*HEARTBEAT_JITTER_MS);
           setTimeout(async ()=>{
-            const ent = pick(Object.keys(ENTITIES));
-            const out = pick(ENTITIES[ent]);
+            const ent = pickDet(Object.keys(ENTITIES));
+            const out = pickDet(ENTITIES[ent]);
             await pushLog(state,'assistant',out,ent);
             Adapter.enqueue({ type:'auto', actor: ent, text: out });
             inc(state,'auto'); inc(state,'total'); render();
