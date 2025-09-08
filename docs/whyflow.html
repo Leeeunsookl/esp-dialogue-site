@@ -100,6 +100,8 @@
 
     sorted.forEach(c => {
       const div = document.createElement("div");
+      if (c.trigger === "on-infiltration" && !window.infiltrationDetected) return;
+if (c.trigger === "on-declare" && !window.userDeclared) return;
       div.className = "card";
       div.innerHTML = `
         <h2>${c.id}</h2>
