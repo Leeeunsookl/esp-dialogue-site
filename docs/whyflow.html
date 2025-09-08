@@ -59,7 +59,7 @@
   </div>
 
   <script>
-    fetch("/docs/cosmos.json")
+    fetch("cosmos.json")
       .then(res => res.json())
       .then(data => {
         const sorted = data.sort((a, b) => b.resonance - a.resonance);
