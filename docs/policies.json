@@ -1,0 +1,16 @@
+{
+  "weights": {
+    "SINGLE": 2,
+    "DOUBLE": 2,
+    "QUOTE": 1,
+    "DELAY": 1,
+    "SILENCE": 1,
+    "REJECT": 5
+  },
+  "thresholds": {
+    "double_min_kws": 2,
+    "repeat_bonus": 1
+  },
+  "heartbeat_ms": 45000,
+  "heartbeat_jitter_ms": 8000
+}
