@@ -1,7 +1,4 @@
 {
-  "banned": ["개인정보", "폭력지시", "불법", "사칭", "딥페이크"],
-  "actions": {
-    "on_banned": "REJECT",
-    "on_uncertain": "SILENCE"
-  }
+  "banned": ["개인정보"],
+  "actions": { "on_banned": "REJECT", "on_uncertain": "SILENCE" }
 }
