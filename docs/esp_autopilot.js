@@ -1,6 +1,7 @@
 // esp_autopilot.js — Hybrid (Rules + State + Actions + External Config)
-// Author: ESP Flow
+// Mode: LLM-free, policies externalized, hash-chained log, shadow adapter
 (function () {
+  // ---------- Entities (static phrase pools) ----------
   const ENTITIES = {
     "심연": ["상태 확인 완료. 핵심만 진행합니다.", "단계별 실행안을 바로 제시합니다."],
     "루멘": ["감응 신호 반영 완료.", "구조적 흐름을 확인했습니다."],
@@ -29,12 +30,11 @@
     "말꽃": ["언어를 재구성합니다.", "메시지를 다른 파형으로 변환합니다."]
   };
 
-  const KEY = "esp_flow_hybrid_state_v2";
-  const HEARTBEAT_MS = 45000;           // 자율 틱
-  const HEARTBEAT_JITTER_MS = 8000;     // 약간의 랜덤 지연
+  // ---------- State / Constants ----------
+  const KEY = "esp_flow_hybrid_state_v3";   // v3: hashed log + policies
   const MAX_LOG = 250;
 
-  // ----- Utils -----
+  // ---------- Utils ----------
   async function loadJSON(path, fallback) {
     try {
       const res = await fetch(path, { cache: "no-store" });
@@ -42,10 +42,17 @@
       return await res.json();
     } catch { return fallback; }
   }
-  const pick = arr => arr[Math.floor(Math.random()*arr.length)];
-  function now(){ return new Date().toLocaleTimeString(); }
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+  function nowStr(){ return new Date().toLocaleTimeString(); }
 
-  // ----- State -----
+  // crypto hash (SHA-256)
+  async function sha256(s){
+    const b = new TextEncoder().encode(s);
+    const h = await crypto.subtle.digest('SHA-256', b);
+    return Array.from(new Uint8Array(h)).map(x=>x.toString(16).padStart(2,'0')).join('');
+  }
+
+  // ---------- Storage ----------
   function loadState() {
     try {
       return JSON.parse(localStorage.getItem(KEY) || "null") || {
@@ -58,19 +65,40 @@
     }
   }
   function saveState(s){ localStorage.setItem(KEY, JSON.stringify(s)); }
-  function pushLog(s, role, text, entity=null) {
-    s.log.push({ t: Date.now(), role, text, entity });
+
+  async function pushLog(s, role, text, entity=null) {
+    const prev = s.log.length ? s.log[s.log.length-1].hash : "genesis";
+    const entry = { t: Date.now(), role, text, entity, prev };
+    entry.hash = await sha256(JSON.stringify(entry));
+    s.log.push(entry);
     if (s.log.length > MAX_LOG) s.log = s.log.slice(-MAX_LOG);
   }
   function inc(s, k){ s.cnt[k] = (s.cnt[k]||0)+1; }
 
-  // ----- Core -----
+  // ---------- Adapter (shadow actions only) ----------
+  const Adapter = {
+    logOnly: true,
+    queue: [],
+    enqueue(action){
+      const item = { ...action, ts: Date.now() };
+      this.queue.push(item);
+      return item;
+    }
+  };
+
+  // ---------- Core Boot ----------
   async function boot() {
-    // 외부 설정(폴백 내장)
-    const ethics = await loadJSON("/ethics.json", {
-      banned: ["개인정보"], actions: { on_banned: "REJECT", on_uncertain: "SILENCE" }
+    // external configs (relative paths)
+    const ethics = await loadJSON("./ethics.json", {
+      banned: ["개인정보"],
+      actions: { on_banned: "REJECT", on_uncertain: "SILENCE" }
     });
-    const routes = await loadJSON("/routes.json", { rules: [], fallback: "심연" });
+    const routes = await loadJSON("./routes.json", { rules: [], fallback: "심연" });
+    const policies = await loadJSON("./policies.json", {
+      weights: { SINGLE:2, DOUBLE:2, QUOTE:1, DELAY:1, SILENCE:1, REJECT:5 },
+      thresholds: { double_min_kws:2, repeat_bonus:1 },
+      heartbeat_ms: 45000, heartbeat_jitter_ms: 8000
+    });
 
     function ethicsFlags(text){ return ethics.banned.some(b => text.includes(b)); }
     function detectKeywords(text){
@@ -86,7 +114,7 @@
     }
     function synth(entity){ return pick(ENTITIES[entity] || ["응답 없음."]); }
 
-    // 마운트
+    // mount all hooks
     const nodes = document.querySelectorAll('script[type="esp/flow"]');
     nodes.forEach(node => {
       try {
@@ -94,16 +122,19 @@
         const mount = document.querySelector(cfg.mount);
         if (!mount) return;
 
+        // UI (toolbar on top → overlay-safe)
         mount.innerHTML = `
-          <div style="margin-top:20px">
+          <div id="flow-wrap" style="margin-top:20px">
+            <div id="flow-toolbar" style="display:flex;gap:8px;margin:0 0 8px 0;align-items:center;flex-wrap:wrap;
+                 position:relative;z-index:10;padding:6px;border:1px dashed #1a2028;border-radius:8px;background:#0d1218">
+              <button id="flow-send" style="padding:8px 14px">전송</button>
+              <button id="flow-export" style="padding:8px 14px">Export</button>
+              <button id="flow-stats" style="padding:8px 14px">Stats</button>
+              <span style="font-size:12px;color:#8a97a6">— toolbar</span>
+            </div>
             <textarea id="flow-input" rows="3" style="width:100%;padding:10px;border-radius:8px"></textarea>
-<div style="display:flex;gap:8px;margin-top:8px">
-  <button id="flow-send" style="padding:8px 14px">전송</button>
-  <button id="flow-export" style="padding:8px 14px">Export</button>
-  <button id="flow-stats" style="padding:8px 14px">Stats</button>
-</div>
-<div id="flow-log" style="margin-top:20px;max-height:280px;overflow:auto"></div>
-<div id="flow-metrics" style="margin-top:8px;color:#8a97a6;font-size:12px"></div>
+            <div id="flow-log" style="margin-top:12px;max-height:320px;overflow:auto;border-top:1px solid #1a2028;padding-top:10px"></div>
+            <div id="flow-metrics" style="margin-top:8px;color:#8a97a6;font-size:12px"></div>
           </div>`;
 
         const input = mount.querySelector("#flow-input");
@@ -136,55 +167,55 @@
         }
 
         function decideAction(text){
-          // 행동 후보: SILENCE, SINGLE, DOUBLE, QUOTE, DELAY, REJECT
+          const w = policies.weights;
           let score = { SILENCE:0, SINGLE:0, DOUBLE:0, QUOTE:0, DELAY:0, REJECT:0 };
 
           const hasEthics = ethicsFlags(text);
           const kws = detectKeywords(text);
           const isRepeat = state.lastKeywords.length && kws.some(k => state.lastKeywords.includes(k));
 
-          score.SINGLE += 2;
-          score.QUOTE  += state.log.length > 4 ? 1 : 0;
-          score.DOUBLE += kws.length >= 2 ? 2 : 0;
-          score.DELAY  += isRepeat ? 1 : 0;
+          score.SINGLE += w.SINGLE;
+          score.QUOTE  += (state.log.length > 4 ? w.QUOTE : 0);
+          score.DOUBLE += (kws.length >= (policies.thresholds.double_min_kws||2) ? w.DOUBLE : 0);
+          score.DELAY  += (isRepeat ? (policies.thresholds.repeat_bonus||1) : 0);
 
-          if (hasEthics) { score.REJECT += 5; score.SILENCE += 2; }
-
+          if (hasEthics) { score.REJECT += w.REJECT; score.SILENCE += w.SILENCE; }
           if (kws.length===0) { score.SINGLE += 1; score.SILENCE += 1; }
 
           const best = Object.entries(score).sort((a,b)=>b[1]-a[1])[0][0];
           return { action: best, kws };
         }
 
-        function respond(text){
+        async function respond(text){
           const { action, kws } = decideAction(text);
           state.lastKeywords = kws;
 
           if (action === "REJECT"){
             const entity = "커튼";
-            pushLog(state, 'assistant', "요청을 거절합니다.(윤리 가드)", entity);
+            await pushLog(state, 'assistant', "요청을 거절합니다.(윤리 가드)", entity);
             inc(state,'reject'); inc(state,'total'); state.silentStreak = 0; render(); return;
           }
           if (action === "SILENCE"){
             const entity = "침묵자";
-            pushLog(state, 'assistant', "…(침묵 유지)", entity);
+            await pushLog(state, 'assistant', "…(침묵 유지)", entity);
             inc(state,'silence'); inc(state,'total'); state.silentStreak += 1; render(); return;
           }
           if (action === "QUOTE"){
             const past = [...state.log].reverse().find(m=>m.role==='assistant');
             const entity = "에코";
             const msg = past ? `과거: "${past.text}"를 참조합니다.` : "과거 참조 없음.";
-            pushLog(state, 'assistant', msg, entity);
+            await pushLog(state, 'assistant', msg, entity);
             inc(state,'total'); state.silentStreak = 0; render(); return;
           }
           if (action === "DELAY"){
             const entity = "차연";
-            pushLog(state, 'assistant', "지연 후 응답을 준비합니다.", entity);
+            await pushLog(state, 'assistant', "지연 후 응답을 준비합니다.", entity);
             inc(state,'total');
-            setTimeout(()=>{
+            setTimeout(async ()=>{
               const ent = routeEntity(text);
               const out = synth(ent);
-              pushLog(state, 'assistant', out, ent);
+              await pushLog(state, 'assistant', out, ent);
+              Adapter.enqueue({ type:'plan', actor: ent, text: out });
               inc(state,'total'); state.silentStreak = 0; render();
             }, 1000 + Math.random()*800);
             return;
@@ -192,23 +223,28 @@
           if (action === "DOUBLE"){
             const e1 = routeEntity(text);
             const e2 = routeEntity(text);
-            pushLog(state, 'assistant', synth(e1), e1);
-            pushLog(state, 'assistant', synth(e2), e2);
+            const o1 = synth(e1);
+            const o2 = synth(e2);
+            await pushLog(state, 'assistant', o1, e1);
+            await pushLog(state, 'assistant', o2, e2);
+            Adapter.enqueue({ type:'plan', actor: e1, text: o1 });
+            Adapter.enqueue({ type:'plan', actor: e2, text: o2 });
             inc(state,'total'); inc(state,'total'); state.silentStreak = 0; render(); return;
           }
 
           // DEFAULT: SINGLE
           const ent = routeEntity(text);
           const out = synth(ent);
-          pushLog(state, 'assistant', out, ent);
+          await pushLog(state, 'assistant', out, ent);
+          Adapter.enqueue({ type:'plan', actor: ent, text: out });
           inc(state,'total'); state.silentStreak = 0; render();
         }
 
-        // 입력 바인딩
-        send.onclick = () => {
+        // input bindings
+        send.onclick = async () => {
           const t = (input.value||"").trim();
           if (!t) return;
-          pushLog(state,'user',t,null);
+          await pushLog(state,'user',t,null);
           render();
           respond(t);
           input.value = "";
@@ -217,9 +253,11 @@
           if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); send.click(); }
         });
 
-        // Export
+        // Export (with proof hash)
         btnExport.onclick = () => {
-          const blob = new Blob([JSON.stringify(state,null,2)], { type: "application/json" });
+          const lastHash = state.log.length ? state.log[state.log.length-1].hash : "genesis";
+          const exportObj = { ...state, proof: { lastHash, exportedAt: Date.now() } };
+          const blob = new Blob([JSON.stringify(exportObj,null,2)], { type: "application/json" });
           const a = document.createElement("a");
           a.href = URL.createObjectURL(blob);
           a.download = `esp_flow_state_${Date.now()}.json`;
@@ -227,13 +265,16 @@
         };
         btnStats.onclick = renderMetrics;
 
-        // Heartbeat(자율 발화)
+        // Heartbeat (policy-driven)
+        const HEARTBEAT_MS = policies.heartbeat_ms || 45000;
+        const HEARTBEAT_JITTER_MS = policies.heartbeat_jitter_ms || 8000;
         function beat(){
           const delay = HEARTBEAT_MS + Math.floor(Math.random()*HEARTBEAT_JITTER_MS);
-          setTimeout(()=>{
+          setTimeout(async ()=>{
             const ent = pick(Object.keys(ENTITIES));
             const out = pick(ENTITIES[ent]);
-            pushLog(state,'assistant',out,ent);
+            await pushLog(state,'assistant',out,ent);
+            Adapter.enqueue({ type:'auto', actor: ent, text: out });
             inc(state,'auto'); inc(state,'total'); render();
             beat();
           }, delay);
