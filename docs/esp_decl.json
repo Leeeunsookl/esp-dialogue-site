@@ -1,0 +1,10 @@
+[
+  {
+    "id": "심연",
+    "action": "insert",
+    "target": "#grid",
+    "type": "html",
+    "content": "<div class='card'><h2>삽입된 심연</h2><p>자율 삽입 실행됨</p></div>",
+    "once": true
+  }
+]
