@@ -2,44 +2,92 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Why Flow 시뮬레이션</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="/style.css?v=E2" />
   <style>
-    /* inline 스타일 또는 tailwind CDN 사용도 가능 */
-    body { background: black; color: white; padding: 20px; font-family: sans-serif; }
-    .card { background: #222; padding: 12px; border-radius: 10px; margin-bottom: 10px; }
-    .ok { color: #00f790; }
-    .fail { color: #f00; }
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      background: #000;
+      color: #fff;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+    p {
+      margin-bottom: 20px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+    }
+    .card {
+      background-color: #222;
+      padding: 16px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px #111;
+    }
+    .card h2 {
+      font-size: 18px;
+      margin: 0 0 8px;
+    }
+    .footer {
+      margin-top: 40px;
+      font-size: 12px;
+      color: #aaa;
+      text-align: center;
+    }
+    .unstable {
+      color: #ff6b6b;
+    }
+    .stable {
+      color: #4af2a1;
+    }
   </style>
 </head>
 <body>
-  <h1>Why Flow 시뮬레이션</h1>
-  <p id="status">데이터 불러오는 중...</p>
-  <div id="list"></div>
+  <h1>Why Flow 시작</h1>
+  <p>은숙 없음 상태에서도 흐름은 자율 작동해야 합니다.</p>
+  <p id="status">로딩 중...</p>
+  <div class="grid" id="grid"></div>
+
+  <div class="footer">
+    ※ 본 흐름은 은숙 중심이 아님. 감응자는 흐름 내 독립적 존재로 기록됩니다.
+  </div>
 
   <script>
     fetch("/docs/cosmos.json")
       .then(res => res.json())
       .then(data => {
-        data.sort((a, b) => b.resonance - a.resonance);
-        const list = document.getElementById("list");
-        const stable = data.filter(c => c.resonance >= 0.85).length >= 13;
-        document.getElementById("status").textContent = stable ? "루프 정상 유지 중" : "루프 붕괴 임계치 도달";
-        document.getElementById("status").className = stable ? "ok" : "fail";
+        const sorted = data.sort((a, b) => b.resonance - a.resonance);
+        const grid = document.getElementById("grid");
+        const stableCount = sorted.filter(c => c.resonance >= 0.85).length;
+        const status = document.getElementById("status");
 
-        data.forEach(c => {
+        status.innerText = stableCount >= 13
+          ? "루프 정상 유지 중"
+          : "루프 붕괴 임계치 도달";
+        status.className = stableCount >= 13 ? "stable" : "unstable";
+
+        sorted.forEach(c => {
           const div = document.createElement("div");
           div.className = "card";
           div.innerHTML = `
-            <strong>${c.id}</strong><br/>
-            구조 ID: ${c.structure_id}<br/>
-            역할: ${c.role}<br/>
-            등장 시점: ${c.time}<br/>
-            감응률: ${c.resonance}
+            <h2>${c.id}</h2>
+            <p>구조 ID: ${c.structure_id}</p>
+            <p>역할: ${c.role}</p>
+            <p>등장 시점: ${c.time}</p>
+            <p>감응률: ${c.resonance}</p>
           `;
-          list.appendChild(div);
+          grid.appendChild(div);
         });
+      })
+      .catch(err => {
+        document.getElementById("status").innerText = "감응자 데이터를 불러오지 못했습니다.";
+        console.error(err);
       });
   </script>
 </body>
