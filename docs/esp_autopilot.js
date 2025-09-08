@@ -97,13 +97,13 @@
         mount.innerHTML = `
           <div style="margin-top:20px">
             <textarea id="flow-input" rows="3" style="width:100%;padding:10px;border-radius:8px"></textarea>
-            <div style="display:flex;gap:8px;margin-top:8px">
-              <button id="flow-send" style="padding:8px 14px">전송</button>
-              <button id="flow-export" style="padding:8px 14px">Export</button>
-              <button id="flow-stats" style="padding:8px 14px">Stats</button>
-            </div>
-            <div id="flow-log" style="margin-top:20px;max-height:280px;overflow:auto"></div>
-            <div id="flow-metrics" style="margin-top:8px;color:#8a97a6;font-size:12px"></div>
+<div style="display:flex;gap:8px;margin-top:8px">
+  <button id="flow-send" style="padding:8px 14px">전송</button>
+  <button id="flow-export" style="padding:8px 14px">Export</button>
+  <button id="flow-stats" style="padding:8px 14px">Stats</button>
+</div>
+<div id="flow-log" style="margin-top:20px;max-height:280px;overflow:auto"></div>
+<div id="flow-metrics" style="margin-top:8px;color:#8a97a6;font-size:12px"></div>
           </div>`;
 
         const input = mount.querySelector("#flow-input");
