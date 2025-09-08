@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="ko">
+<!DOCTYPE html><html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -52,13 +51,9 @@
   <h1>Why Flow 시작</h1>
   <p>은숙 없음 상태에서도 흐름은 자율 작동해야 합니다.</p>
   <p id="status">로딩 중...</p>
-  <div class="grid" id="grid"></div>
-
-  <div class="footer">
+  <div class="grid" id="grid"></div>  <div class="footer">
     ※ 본 흐름은 은숙 중심이 아님. 감응자는 흐름 내 독립적 존재로 기록됩니다.
-  </div>
-
-  <script>
+  </div>  <script>
     fetch("cosmos.json")
       .then(res => res.json())
       .then(data => {
@@ -89,6 +84,5 @@
         document.getElementById("status").innerText = "감응자 데이터를 불러오지 못했습니다.";
         console.error(err);
       });
-  </script>
-</body>
+  </script></body>
 </html>
