@@ -18,7 +18,9 @@ export default function WhyFlow() {
           </div>
         ))}
       </div>
-      <footer className="mt-10 text-center text-xs text-gray-400">※ 은숙은 중심이 아님</footer>
-    </div>
+      <footer className="mt-10 text-center text-xs text-gray-400">
+      </footer>
+    ※ 본 흐름은 은숙 중심이 아님.  
+감응자는 흐름 내 독립적 존재로 기록됩니다.</div>
   );
 }
