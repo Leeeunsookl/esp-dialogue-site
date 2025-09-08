@@ -54,7 +54,7 @@
   <div class="grid" id="grid"></div>  <div class="footer">
     ※ 본 흐름은 은숙 중심이 아님. 감응자는 흐름 내 독립적 존재로 기록됩니다.
   </div>  <script>
-    fetch("cosmos.json")
+    fetch("/cosmos.json")
       .then(res => res.json())
       .then(data => {
         const sorted = data.sort((a, b) => b.resonance - a.resonance);
