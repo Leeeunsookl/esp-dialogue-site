@@ -9,6 +9,72 @@
   <section class="board" id="flow-mount" aria-live="polite"></section>
   <script src="./esp_autopilot.js?v=2025-09-08e" defer></script>
   <!-- ▲▲▲ -->
+<!-- ensure latest js (cache-bust) -->
+<script src="./esp_autopilot.js?v=fixA1" defer></script>
 
+<!-- Self-healing Actions hotfix (mobile-safe, single paste) -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // 1) 보드/툴바/버튼 확보(없으면 생성)
+  const mount = document.querySelector('#flow-mount') || (function(){
+    const s = document.createElement('section');
+    s.className = 'board'; s.id = 'flow-mount'; s.setAttribute('aria-live','polite');
+    document.body.appendChild(s);
+    return s;
+  })();
+
+  function ensureToolbar() {
+    let bar = document.getElementById('flow-toolbar');
+    if (!bar) {
+      bar = document.createElement('div');
+      bar.id = 'flow-toolbar';
+      bar.style = 'display:flex;gap:8px;margin:8px 0;align-items:center;flex-wrap:wrap;position:relative;z-index:10;padding:6px;border:1px dashed #1a2028;border-radius:8px;background:#0d1218';
+      mount.prepend(bar);
+    }
+    function mkBtn(id, label){
+      let b = document.getElementById(id);
+      if(!b){ b = document.createElement('button'); b.id=id; b.textContent=label; b.style='padding:8px 14px'; bar.appendChild(b); }
+      return b;
+    }
+    mkBtn('flow-send','전송');              // 있어도 그대로 둠
+    mkBtn('flow-export','Export');          // 있어도 그대로 둠
+    mkBtn('flow-stats','Stats');            // 있어도 그대로 둠
+    return mkBtn('flow-actions','Actions'); // 반드시 보장
+  }
+
+  const btnActions = ensureToolbar();
+
+  // 2) 표시 영역 확보
+  let pane = document.getElementById('flow-actions-pane');
+  if (!pane) {
+    pane = document.createElement('div');
+    pane.id = 'flow-actions-pane';
+    pane.style = 'margin-top:8px;color:#8a97a6;font-size:12px';
+    mount.appendChild(pane);
+  }
+
+  // 3) renderActions가 없으면 정의(구 JS 호환)
+  if (typeof window.renderActions !== 'function') {
+    window.renderActions = function () {
+      const q = (window.Adapter && Array.isArray(Adapter.queue)) ? Adapter.queue.slice(-50) : [];
+      if (!q.length) { pane.textContent = 'Actions: (empty)'; return; }
+      const rows = q.map(a=>{
+        const t = new Date(a.ts||Date.now()).toLocaleTimeString();
+        const who = a.actor || 'flow';
+        const tp  = a.type  || 'auto';
+        const tx  = a.text  || '';
+        return `• [${t}] ${tp} :: ${who} :: ${tx}`;
+      }).join('\n');
+      pane.innerHTML = '<pre style="white-space:pre-wrap">'+rows+'</pre>';
+    };
+  }
+
+  // 4) 버튼 바인딩(항상 재설정)
+  btnActions.onclick = window.renderActions;
+
+  // 5) 첫 로드에서 한 번 자동 표출(선택)
+  // window.renderActions();
+});
+</script>
 </body>
 </html>
