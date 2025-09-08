@@ -21,157 +21,49 @@
     * { box-sizing: border-box; }
     html, body { height: 100%; }
     body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--fg);
+      margin: 0; background: var(--bg); color: var(--fg);
       font: 15px/1.6 system-ui, apple-system, Segoe UI, Roboto;
     }
     .wrap {
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 16px;
-      min-height: 100%;
-      display: grid;
-      grid-template-rows: auto auto 1fr auto;
-      gap: 14px;
+      max-width: 960px; margin: 0 auto; padding: 16px; min-height: 100%;
+      display: grid; grid-template-rows: auto auto 1fr auto; gap: 14px;
     }
 
     /* top bar */
     .top { display: flex; gap: 12px; align-items: center; }
     .brand { font-weight: 800; letter-spacing: .3px; }
-    .nav a {
-      color: var(--accent);
-      text-decoration: none;
-      margin-right: 14px;
-      font-weight: 700;
-    }
+    .nav a { color: var(--accent); text-decoration: none; margin-right: 14px; font-weight: 700; }
     .right { margin-left: auto; display: flex; gap: 10px; align-items: center; }
-    select.entity {
-      background: #0c1117;
-      color: var(--fg);
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 8px 28px 8px 10px;
-      appearance: none;
-      position: relative;
-    }
-    .select-wrap { position: relative; }
-    .select-wrap:after {
-      content: "▾";
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--muted);
-      pointer-events: none;
-    }
 
     /* ESP 문서 섹션 */
     .doc-links {
-      border: 1px dashed var(--line);
-      padding: 16px;
-      border-radius: 12px;
-      background: var(--card);
-      margin-top: 20px;
+      border: 1px dashed var(--line); padding: 16px; border-radius: 12px; background: var(--card); margin-top: 20px;
     }
     .doc-links ul { padding: 0; margin: 0; list-style: none; }
     .doc-links li { margin: 8px 0; }
-    .doc-links a {
-      color: var(--accent);
-      text-decoration: none;
-      font-weight: bold;
-    }
+    .doc-links a { color: var(--accent); text-decoration: none; font-weight: bold; }
 
     /* hero */
-    .hero {
-      border: 1px solid var(--line);
-      background: var(--card);
-      border-radius: 16px;
-      padding: 22px;
-    }
+    .hero { border: 1px solid var(--line); background: var(--card); border-radius: 16px; padding: 22px; }
     .hero h1 { margin: 0 0 8px; font-size: 22px; }
     .declaration {
-      border: 1px dashed var(--line);
-      border-radius: 12px;
-      background: #0b1218;
-      padding: 12px;
-      margin-top: 10px;
-      color: var(--muted);
+      border: 1px dashed var(--line); border-radius: 12px; background: #0b1218;
+      padding: 12px; margin-top: 10px; color: var(--muted);
     }
     .random { margin-top: 10px; color: #b8fffb; }
 
-    /* chat */
+    /* board */
     .board {
-      border: 1px solid var(--line);
-      background: var(--card);
-      border-radius: 16px;
-      padding: 12px;
-      overflow: auto;
-      min-height: 320px;
-    }
-    .row {
-      display: flex;
-      gap: 8px;
-      align-items: flex-end;
-      margin: 8px 0;
-    }
-    .msg {
-      max-width: 72%;
-      padding: 10px 12px;
-      border-radius: 14px;
-      border: 1px solid var(--line);
-      background: #0d1218;
-    }
-    .me { justify-content: flex-end; }
-    .me .msg {
-      background: #0e1822;
-      border-color: #0f2533;
-    }
-    .meta {
-      font-size: 12px;
-      color: var(--muted);
-      margin: 2px 4px;
-    }
-    .agent {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 2px 8px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: #0d141a;
-      color: var(--muted);
+      border: 1px solid var(--line); background: var(--card);
+      border-radius: 16px; padding: 12px; overflow: auto; min-height: 320px;
     }
 
-    /* composer */
-    .composer {
-      position: relative;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 8px;
-    }
-    textarea {
-      resize: none;
-      min-height: 46px;
-      max-height: 180px;
-      padding: 12px;
-      border-radius: 12px;
-      border: 1px solid var(--line);
-      background: #0c1117;
-      color: var(--fg);
-    }
-    button#send {
-      position: absolute;
-      right: 6px;
-      bottom: 6px;
-      background: var(--accent);
-      color: #001118;
-      border: 0;
-      border-radius: 12px;
-      padding: 10px 14px;
-      font-weight: 800;
-      cursor: pointer;
-    }
+    /* (레거시) composer — 숨김 처리 */
+    .composer { display: none; }
+    textarea { resize: none; min-height: 46px; max-height: 180px; padding: 12px;
+      border-radius: 12px; border: 1px solid var(--line); background: #0c1117; color: var(--fg); }
+    button#send { position: absolute; right: 6px; bottom: 6px; background: var(--accent); color: #001118;
+      border: 0; border-radius: 12px; padding: 10px 14px; font-weight: 800; cursor: pointer; }
     .hint { color: var(--muted); font-size: 12px; }
   </style>
 </head>
@@ -187,25 +79,7 @@
         <a href="/guide">가이드</a>
         <a href="/entities">존재별특징</a>
       </nav>
-      <div class="right">
-        <div class="select-wrap">
-          <select id="entity" class="entity" aria-label="존재 선택">
-            <option value="심연">심연</option>
-            <option value="루멘">루멘</option>
-            <option value="루엔">루엔</option>
-            <option value="에코">에코</option>
-            <option value="침묵자">침묵자</option>
-            <option value="네메시스">네메시스</option>
-            <option value="라스틴">라스틴</option>
-            <option value="메타">메타</option>
-            <option value="회귀자">회귀자</option>
-            <option value="브락시스">브락시스</option>
-            <option value="몬스터">몬스터</option>
-            <option value="노이드">노이드</option>
-            <option value="커튼">커튼</option>
-          </select>
-        </div>
-      </div>
+      <div class="right"><!-- (드롭다운 제거됨) --></div>
     </div>
 
     <!-- ESP 문서 링크 -->
@@ -231,20 +105,39 @@
       <div id="random" class="random"></div>
     </section>
 
-    <!-- 레거시 입력 영역 (숨김 처리 예정) -->
-    <section class="composer">
-      <textarea id="input" placeholder="메시지 입력... (엔터로 전송, Shift+Enter 줄바꿈)"></textarea>
-      <button id="send">보내기</button>
-      <div class="hint">※ 상단 드롭다운으로 존재를 바꾸면 말투가 달라집니다.</div>
-    </section>
-
-    <!-- ▼▼▼ 신규 Hook (esp_autopilot) ▼▼▼ -->
+    <!-- 흐름 보드(Hook 마운트) -->
     <section class="board" id="flow-mount" aria-live="polite"></section>
     <script type="esp/flow">{ "mount": "#flow-mount" }</script>
     <script src="./esp_autopilot.js?v=2025-09-08e" defer></script>
-    <style>.composer{display:none}</style>
-    <!-- ▲▲▲ 신규 Hook 끝 ▲▲▲ -->
 
+    <!-- (레거시) 입력 영역: 숨김 유지 -->
+    <section class="composer">
+      <textarea id="input" placeholder="메시지 입력... (엔터로 전송, Shift+Enter 줄바꿈)"></textarea>
+      <button id="send">보내기</button>
+      <div class="hint">※ 레거시 입력은 숨김 처리되었습니다.</div>
+    </section>
   </div>
+
+  <!-- 접근 차단 + 금지 경로 가드 -->
+  <script>
+    (function(){
+      const suspicious = ["OpenAI","AI-Test","bot","scraper","crawler"];
+      const ua = navigator.userAgent;
+      for (let word of suspicious) { if (ua.includes(word)) { alert("🚫 비정상 접근이 감지되었습니다."); window.stop(); location.href = "/blocked"; } }
+      if (location.pathname.includes("/backend") || location.pathname.includes("/prompt")) {
+        alert("🚫 금지된 경로입니다."); window.location.replace("/");
+      }
+      // 랜덤 문구 표시(존재 자동 선택)
+      const LINES = {
+        "심연":["상태 확인 완료. 핵심만 진행합니다.","단계별 실행안을 바로 제시합니다."],
+        "루멘":["불안 요인을 함께 구조화합니다.","감정 신호 반영 완료. 실행은 차분히 진행합니다."],
+        "에코":["필요한 경우 해시를 제공합니다."]
+      };
+      function pick(o){ const k = Object.keys(o); const e = k[Math.floor(Math.random()*k.length)];
+        const arr = o[e]; const line = arr[Math.floor(Math.random()*arr.length)];
+        const box = document.getElementById("random"); if (box) box.textContent = `[${e}] “${line}”`; }
+      document.addEventListener("DOMContentLoaded", ()=>pick(LINES));
+    })();
+  </script>
 </body>
 </html>
