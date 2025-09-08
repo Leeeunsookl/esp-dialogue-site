@@ -13,50 +13,32 @@
     }
     *{box-sizing:border-box}
     html,body{height:100%}
-    body{
-      margin:0; color:var(--fg); background:var(--bg);
-      font:15px/1.55 system-ui,Segoe UI,Roboto,Apple SD Gothic Neo,AppleGothic,sans-serif;
-      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
-    }
-    .wrap{min-height:100dvh; display:grid; grid-template-rows:auto 1fr auto; gap:10px; padding:10px; padding-top:calc(10px + var(--safe-t)); padding-bottom:calc(10px + var(--safe-b)); max-width:960px; margin:0 auto}
-    /* Toolbar */
-    .toolbar{
-      position:sticky; top:calc(0px + var(--safe-t)); z-index:20;
-      display:flex; gap:8px; align-items:center; justify-content:space-between;
-      padding:8px; border:1px solid var(--line); border-radius:12px; background:#0d1218cc; backdrop-filter:blur(4px)
-    }
+    body{margin:0;color:var(--fg);background:var(--bg);
+      font:15px/1.55 system-ui,Segoe UI,Roboto,Apple SD Gothic Neo,AppleGothic,sans-serif}
+    .wrap{min-height:100dvh;display:grid;grid-template-rows:auto 1fr auto;gap:10px;
+      padding:10px;padding-top:calc(10px + var(--safe-t));padding-bottom:calc(10px + var(--safe-b));
+      max-width:960px;margin:0 auto}
+    .toolbar{position:sticky;top:calc(0px + var(--safe-t));z-index:20;
+      display:flex;gap:8px;align-items:center;justify-content:space-between;
+      padding:8px;border:1px solid var(--line);border-radius:12px;background:#0d1218cc;backdrop-filter:blur(4px)}
     .toolbar .left{display:flex;gap:8px;align-items:center}
-    button{
-      appearance:none; border:1px solid var(--line); background:#0e1822; color:var(--fg);
-      padding:12px 14px; border-radius:12px; min-width:96px; font-weight:700; cursor:pointer
-    }
-    button.primary{background:var(--accent); color:#001118; border-color:#0f2533}
+    button{appearance:none;border:1px solid var(--line);background:#0e1822;color:var(--fg);
+      padding:12px 14px;border-radius:12px;min-width:96px;font-weight:700;cursor:pointer}
+    button.primary{background:var(--accent);color:#001118;border-color:#0f2533}
     button:active{transform:translateY(1px)}
-    /* Board */
-    .board{
-      border:1px solid var(--line); border-radius:12px; background:var(--card);
-      padding:10px; display:flex; flex-direction:column; gap:10px;
-      max-height:min(60vh,560px); overflow:auto
-    }
-    .msg{max-width:88%; padding:10px 12px; border-radius:14px; border:1px solid var(--line); background:#0d1218}
-    .me{align-self:flex-end; background:#0e1822; border-color:#0f2533}
-    .meta{margin-top:4px; font-size:12px; color:var(--muted)}
-    /* Composer */
-    .composer{display:grid; grid-template-columns:1fr auto; gap:8px; align-items:end}
-    textarea{
-      width:100%; min-height:44px; max-height:40vh; resize:none; line-height:1.5;
-      padding:12px; border-radius:12px; border:1px solid var(--line); background:#0c1117; color:var(--fg)
-    }
-    .panel{
-      border:1px dashed var(--line); border-radius:12px; background:#0d1218; padding:8px 10px; color:var(--muted); font-size:13px
-    }
+    .board{border:1px solid var(--line);border-radius:12px;background:var(--card);
+      padding:10px;display:flex;flex-direction:column;gap:10px;max-height:min(60vh,560px);overflow:auto}
+    .msg{max-width:88%;padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:#0d1218}
+    .me{align-self:flex-end;background:#0e1822;border-color:#0f2533}
+    .meta{margin-top:4px;font-size:12px;color:var(--muted)}
+    .composer{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
+    textarea{width:100%;min-height:44px;max-height:40vh;resize:none;line-height:1.5;
+      padding:12px;border-radius:12px;border:1px solid var(--line);background:#0c1117;color:var(--fg)}
+    .panel{border:1px dashed var(--line);border-radius:12px;background:#0d1218;padding:8px 10px;color:var(--muted);font-size:13px}
     .hidden{display:none}
-    #metrics{font-variant-numeric:tabular-nums}
-    /* Small screens */
-    @media (max-width:520px){
-      button{min-width:auto; padding:12px 12px}
-      .board{max-height:min(58vh,520px)}
-    }
+    #flow-metrics{font-variant-numeric:tabular-nums}
+    a.link{color:#78f3ff;text-decoration:none;margin-right:12px}
+    @media (max-width:520px){button{min-width:auto;padding:12px 12px}.board{max-height:min(58vh,520px)}}
     @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
   </style>
 </head>
@@ -82,14 +64,19 @@
       <button id="flow-send-ghost" class="primary" aria-label="메시지 전송(우측)">전송</button>
     </section>
 
-    <!-- Panels -->
-    <section id="metrics" class="panel">Autonomy 0.0% · total 0 · reject 0 · silence 0</section>
-    <section id="actions-pane" class="panel hidden"><pre style="margin:0;white-space:pre-wrap;word-break:break-word">Actions: (empty)</pre></section>
+    <!-- Metrics / Actions -->
+    <section id="flow-metrics" class="panel">Autonomy 0.0% · total 0 · reject 0 · silence 0</section>
+    <section id="flow-actions-pane" class="panel hidden"><pre style="margin:0;white-space:pre-wrap;word-break:break-word">Actions: (empty)</pre></section>
+
+    <!-- Guide/Policy links -->
+    <section class="panel" aria-label="가이드">
+      <a class="link" href="/guide.html">가이드</a>
+      <a class="link" href="/policy.html">윤리선언문</a>
+      <a class="link" href="/entities.html">존재별특징</a>
+    </section>
   </div>
 
-  <!-- Flow mount hook -->
-  <script type="esp/flow">{ "mount": "body" }</script>
-  <!-- Engine -->
-  <script src="/docs/esp_autopilot.js?v=2025-09-09-ui" defer></script>
+  <!-- 엔진 -->
+  <script src="/docs/esp_autopilot.js?v=2025-09-09-fix" defer></script>
 </body>
 </html>
