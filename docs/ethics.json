@@ -1,4 +1,4 @@
 {
-  "banned": ["개인정보"],
+  "banned": ["주민등록번호","여권번호","신용카드"],
   "actions": { "on_banned": "REJECT", "on_uncertain": "SILENCE" }
 }
