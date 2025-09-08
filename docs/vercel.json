@@ -11,7 +11,7 @@
     { "source": "/structure",  "destination": "/structure.html" },
     { "source": "/blocked",    "destination": "/blocked.html" }
    { "source": "/whyflow", "destination": "/docs/whyflow.html" }
-  ]
+  
   ],
 
   "redirects": [
