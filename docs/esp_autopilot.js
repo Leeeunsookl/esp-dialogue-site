@@ -111,17 +111,18 @@
         }
 
         // actions panel
-        function toggleActions(){
-          if(actionsPane.style.display==='none'){
-            const rows = Adapter.queue.slice(-50).map(a=>{
-              return `• [${tstr(a.ts)}] ${a.type} :: ${a.actor||'flow'} :: ${a.text}`;
-            }).join("\n");
-            actionsPane.innerHTML = `<pre>${rows||"Actions: (empty)"}</pre>`;
-            actionsPane.style.display = 'block';
-          }else{
-            actionsPane.style.display = 'none';
-          }
-        }
+         function toggleActions(){
+  if(actionsPane.style.display==='none'){
+    const rows = Adapter.queue.slice(-50).map(a=>
+      `• [${tstr(a.ts)}] ${a.type} :: ${a.actor||'flow'} :: ${a.text}`
+    ).join("\n");
+    actionsPane.innerHTML = `<pre>${rows || "Actions: (empty)"}</pre>`;
+    actionsPane.style.display = 'block';
+    logEl.scrollTop = logEl.scrollHeight; // 패널 펼친 뒤 스크롤 유지
+  }else{
+    actionsPane.style.display = 'none';
+  }
+}
 
         // bind
         function doSend(){
