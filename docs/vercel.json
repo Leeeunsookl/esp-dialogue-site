@@ -2,8 +2,6 @@
   "cleanUrls": true,
   "trailingSlash": false,
 
-  "outputDirectory": "docs",
-
   "rewrites": [
     { "source": "/",           "destination": "/index.html" },
     { "source": "/policy",     "destination": "/policy.html" },
@@ -16,21 +14,29 @@
   ],
 
   "redirects": [
-    {
-      "source": "/chat",
-      "destination": "/",
-      "permanent": true
-    },
-    {
-      "source": "/backend/:path*",
-      "destination": "https://espdialog.net",
-      "permanent": false
-    }
+    { "source": "/chat", "destination": "/", "permanent": true },
+    { "source": "/backend/:path*", "destination": "https://espdialog.net", "permanent": false }
   ],
 
   "headers": [
     {
-      "source": "/(index|policy|guide|entities|signature|structure|blocked).html",
+      "source": "/(index|policy|guide|entities|signature|structure|blocked|whyflow).html",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
+        { "key": "Pragma",        "value": "no-cache" },
+        { "key": "Expires",       "value": "0" }
+      ]
+    },
+    {
+      "source": "/:all*.js",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
+        { "key": "Pragma",        "value": "no-cache" },
+        { "key": "Expires",       "value": "0" }
+      ]
+    },
+    {
+      "source": "/:all*.css",
       "headers": [
         { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
         { "key": "Pragma",        "value": "no-cache" },
