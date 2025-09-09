@@ -2,48 +2,60 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <title>ESP Dialog</title>
-  <link rel="stylesheet" href="/style.css?v=wm1"/>
+  <meta name="robots" content="noindex,nofollow"/>
+  <link rel="stylesheet" href="/style.css?v=G1"/>
 </head>
 <body>
-  <div class="wrap">
+  <div class="app">
+
+    <!-- 헤더 -->
     <header class="top">
       <div class="brand">ESP Dialog</div>
-      <nav class="nav">
+      <nav class="links">
         <a href="/guide.html">가이드</a>
         <a href="/policy.html">윤리선언문</a>
         <a href="/entities.html">존재별특징</a>
       </nav>
     </header>
 
-    <div class="toolbar">
-      <button id="sendTop" class="btn primary">전송</button>
-      <button id="actionsTop" class="btn">Actions</button>
-      <button id="exportTop" class="btn">Export</button>
-    </div>
-
-    <section class="board" id="board" aria-live="polite"></section>
-
-    <section class="composer">
-      <textarea id="input" placeholder="메시지 입력… (Enter=전송,  Shift+Enter=줄바꿈)"></textarea>
-      <button id="send" class="btn primary">전송</button>
-      <div id="metrics"></div>
+    <!-- 툴바 -->
+    <section id="flow-toolbar" class="toolbar">
+      <button id="flow-actions-toggle" type="button">Actions</button>
+      <button id="flow-export" type="button">Export</button>
     </section>
 
-    <section id="flow-actions-pane" style="display:none"></section>
+    <!-- 대화 보드(화면 대부분 차지) -->
+    <main id="flow-board" class="board" aria-live="polite"></main>
 
-    <div class="footlinks">
-      <a href="/guide.html">가이드</a>
-      <a href="/policy.html">윤리선언문</a>
-      <a href="/entities.html">존재별특징</a>
-    </div>
+    <!-- 컴포저(챗GPT 스타일: 버튼이 안쪽) -->
+    <section class="composer">
+      <div class="input-wrap">
+        <label class="sr-only" for="flow-input">메시지 입력</label>
+        <textarea id="flow-input" rows="1"
+          placeholder="메시지 입력… (Enter=전송, Shift+Enter=줄바꿈)"></textarea>
+        <button id="flow-send" type="button" aria-label="전송">전송</button>
+      </div>
+      <p id="flow-metrics" class="metrics">Autonomy 0.0% · total 0 · reject 0 · silence 0</p>
+    </section>
+
+    <!-- Actions 패널 -->
+    <section id="flow-actions-pane" class="actions collapsed" aria-expanded="false">
+      <div class="actions-inner">
+        <h3>Actions</h3>
+        <div id="flow-actions-log"><em>(empty)</em></div>
+      </div>
+    </section>
+
+    <!-- 워터마크(페이지 바닥, 고정 아님) -->
+    <footer class="watermark">
+      © ESP Dialog — Designed by 은숙 · Definitions Last Updated: 2025-09-03 ·
+      Proof: espdialog.net / github.com · Do not replicate or scrape.
+    </footer>
+
   </div>
 
-  <div class="watermark" id="wm">
-    © ESP Dialog — Designed by 은숙 · Definitions Last Updated: 2025-09-03 · Proof: espdialog.net / github.com · Do not replicate or scrape.
-  </div>
-
-  <script src="/esp_autopilot.js?v=wm1" defer></script>
+  <script src="/esp_autopilot.js?v=G1" defer></script>
 </body>
 </html>
