@@ -1,3 +1,4 @@
+document.documentElement.setAttribute('data-esp','v6');
 // esp_autopilot.js — safe wiring (only needs: flow-board, flow-input, flow-send, flow-metrics)
 (function () {
   function ready(fn){
