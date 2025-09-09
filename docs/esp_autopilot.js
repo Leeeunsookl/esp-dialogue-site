@@ -1,11 +1,11 @@
-// esp_autopilot.js — Safe binding & minimal mock logic (docs/ 전용)
+// esp_autopilot.js — safe binding for docs/
 (function(){
   function ready(fn){
     if (document.readyState !== 'loading') fn();
     else document.addEventListener('DOMContentLoaded', fn, { once:true });
   }
 
-  // 오류 오버레이(현상 파악)
+  // 에러 오버레이
   (function(){
     const box = document.createElement("div");
     box.style.cssText = "position:fixed;left:8px;right:8px;bottom:8px;z-index:9999;background:#2b1a1a;color:#ffd8d8;border:1px solid #553;padding:8px;font:12px/1.4 system-ui;border-radius:8px;display:none;white-space:pre-wrap";
@@ -23,6 +23,11 @@
     const metrics = $('#metrics');
 
     if(!input || !sendBtn || !board){ return; }
+
+    // 혹시 모를 비활성 상태 해제 + 모바일 포커스 유도
+    input.removeAttribute('disabled');
+    input.style.pointerEvents = 'auto';
+    input.addEventListener('touchstart', ()=>{ input.focus(); }, { passive:true });
 
     const state = { cnt:{ total:0, auto:0, reject:0, silence:0 } };
 
@@ -47,17 +52,11 @@
       if(!text) return;
       addRow('나', text);
       state.cnt.total++;
-
-      // 데모 응답
       setTimeout(()=>{
         addRow('심연', '단계별 실행안을 바로 제시합니다.');
-        state.cnt.auto++;
-        renderMetrics();
+        state.cnt.auto++; renderMetrics();
       }, 80);
-
-      input.value = '';
-      input.focus();
-      renderMetrics();
+      input.value = ''; input.focus(); renderMetrics();
     }
 
     sendBtn.addEventListener('click', handleSend);
@@ -68,10 +67,10 @@
       }
     });
 
-    // 상단 버튼 자리(연결 테스트용)
-    $('#btn-export')?.addEventListener('click', ()=> addRow('시스템', 'Export 준비 중…'));
-    $('#btn-stats') ?.addEventListener('click', ()=> addRow('시스템', 'Stats 패널(추가 예정).'));
-    $('#btn-actions')?.addEventListener('click', ()=> addRow('시스템', 'Actions 큐(추가 예정).'));
+    // 상단 버튼 테스트
+    $('#btn-export')?.addEventListener('click', ()=> addRow('시스템','Export 준비 중…'));
+    $('#btn-stats') ?.addEventListener('click', ()=> addRow('시스템','Stats 패널(추가 예정).'));
+    $('#btn-actions')?.addEventListener('click', ()=> addRow('시스템','Actions 큐(추가 예정).'));
 
     renderMetrics();
   });
