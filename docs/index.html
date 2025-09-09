@@ -1,77 +1,74 @@
 <!doctype html>
-<html lang="ko">
+<html lang="ko" data-esp="inline-v1">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
   <title>ESP Dialog</title>
   <meta name="robots" content="noindex,nofollow"/>
 
+  <!-- ====== Inline CSS (모바일 우선, 간결) ====== -->
   <style>
     :root{
       --bg:#0b0e11; --fg:#e8eef5; --muted:#8a97a6; --line:#1a2028; --card:#10151b; --accent:#78f3ff;
-      --tap:14px; --safe-b: env(safe-area-inset-bottom);
+      --safe-b: env(safe-area-inset-bottom); --safe-t: env(safe-area-inset-top);
     }
-    *{box-sizing:border-box}
-    html,body{height:100%}
+    *{box-sizing:border-box} html,body{height:100%}
     body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 system-ui,apple-system,Segoe UI,Roboto}
 
-    .wrap{max-width:960px;margin:0 auto;padding:16px;min-height:100dvh;display:grid;grid-template-rows:auto 1fr auto;gap:12px}
+    .wrap{max-width:960px;margin:0 auto;min-height:100dvh;display:grid;
+      grid-template-rows:auto auto 1fr auto;gap:12px;padding:12px 12px calc(12px + var(--safe-b))}
 
     /* 헤더 */
     .top{display:flex;align-items:center;gap:10px}
-    .brand{font-weight:800;font-size:18px}
-    .links{margin-left:auto;display:flex;gap:14px;flex-wrap:wrap}
+    .brand{font-weight:800}
+    .links{margin-left:auto;display:flex;gap:12px;flex-wrap:wrap}
     .links a{color:#9bd7ff;text-decoration:none;font-weight:700}
 
-    /* 툴바 */
-    .toolbar{position:sticky;top:0;z-index:10;background:#0d1218cc;backdrop-filter:blur(4px);
-      border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;gap:10px}
+    /* 툴바(액션/내보내기) */
+    .toolbar{position:sticky;top:calc(0px + var(--safe-t));z-index:10;background:#0d1218cc;backdrop-filter:blur(4px);
+      border:1px solid var(--line);border-radius:12px;padding:8px;display:flex;gap:8px}
     .toolbar button{
-      min-width:96px;padding:10px 16px;border-radius:12px;border:1px solid var(--line);
+      min-width:92px;padding:10px 14px;border-radius:12px;border:1px solid var(--line);
       background:#15202b;color:var(--fg);font-weight:700;cursor:pointer
     }
-    .toolbar button.primary{background:#78f3ff;color:#001118;border-color:#0f2533}
 
-    /* 보드 */
+    /* 대화 보드(크게) */
     #flow-board{
       border:1px solid var(--line);background:#0d1218;border-radius:16px;padding:12px;overflow:auto;
-      min-height:52vh;max-height:62vh
+      min-height:54vh;max-height:64vh
     }
     .row{display:flex;gap:10px;margin:10px 0}
     .row.me{justify-content:flex-end}
-    .row .bubble{
-      max-width:74%;padding:12px;border:1px solid var(--line);border-radius:14px;background:#0e1822
-    }
+    .bubble{max-width:78%;padding:12px;border:1px solid var(--line);border-radius:14px;background:#0e1822;word-break:break-word}
     .row.me .bubble{background:#0f2533}
     .meta{font-size:12px;color:var(--muted);margin-top:4px}
 
-    /* 입력 */
-    .composer{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}
+    /* 입력(버튼 내부 배치 느낌) */
+    .composer{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
     #flow-input{
-      width:100%;min-height:46px;max-height:38vh;resize:none;padding:12px;border-radius:12px;
+      width:100%;min-height:46px;max-height:40vh;resize:none;padding:12px;border-radius:12px;
       border:1px solid var(--line);background:#0c1117;color:var(--fg)
     }
     #flow-send{
-      padding:12px 18px;border-radius:12px;border:0;background:var(--accent);color:#001118;font-weight:800;cursor:pointer
+      padding:12px 16px;border-radius:12px;border:0;background:var(--accent);color:#001118;font-weight:800;cursor:pointer
     }
-    #flow-metrics{color:#8a97a6;font-size:12px;margin:2px 4px 10px}
+    #flow-metrics{color:#8a97a6;font-size:12px;margin:2px 4px 8px}
 
-    /* Actions 패널 */
+    /* Actions 패널(토글) */
     #flow-actions{border:1px dashed var(--line);background:#0d1218;border-radius:12px;padding:12px;display:none}
     #flow-actions pre{margin:0;white-space:pre-wrap;word-break:break-word}
 
-    /* 워터마크(문서 바닥 고정) */
+    /* 워터마크(문서 바닥) */
     .site-footer{
-      margin:16px 0 calc(10px + var(--safe-b)); padding:12px 14px; text-align:center;
+      margin:10px 0 0; padding:12px 14px; text-align:center;
       border:1px solid var(--line); border-radius:14px; background:#0d1218; color:#9db3c7; font-size:12px;
     }
 
     /* 작은 화면 최적화 */
     @media (max-width:520px){
-      .links{gap:10px}
-      .toolbar{gap:8px}
+      .links{display:none}
       .toolbar button{min-width:auto;padding:10px 12px}
-      .row .bubble{max-width:86%}
+      .bubble{max-width:86%}
     }
     @media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
   </style>
@@ -79,7 +76,7 @@
 <body>
   <div class="wrap">
 
-    <!-- 상단 -->
+    <!-- 헤더 -->
     <header class="top">
       <div class="brand">ESP Dialog</div>
       <nav class="links">
@@ -91,32 +88,141 @@
 
     <!-- 툴바 -->
     <div class="toolbar">
-      <button id="flow-actions-btn">Actions</button>
-      <button id="flow-export">Export</button>
+      <button id="flow-actions-btn" type="button">Actions</button>
+      <button id="flow-export" type="button">Export</button>
     </div>
 
-    <!-- 본문 -->
-    <main>
-      <section id="flow-board" aria-live="polite"></section>
+    <!-- 대화 보드 -->
+    <main id="flow-board" aria-live="polite"></main>
 
-      <div class="composer" style="margin-top:10px">
-        <textarea id="flow-input" placeholder="메시지 입력… (Enter=전송, Shift+Enter=줄바꿈)"></textarea>
-        <button id="flow-send">전송</button>
-      </div>
+    <!-- 입력 + 스탯 -->
+    <section class="composer" style="margin-top:10px">
+      <textarea id="flow-input" placeholder="메시지 입력… (Enter=전송, Shift+Enter=줄바꿈)"></textarea>
+      <button id="flow-send" type="button">전송</button>
+    </section>
+    <p id="flow-metrics">Autonomy 0.0% · total 0 · reject 0 · silence 0</p>
 
-      <p id="flow-metrics">Autonomy 0.0% · total 0 · reject 0 · silence 0</p>
+    <!-- Actions -->
+    <section id="flow-actions" aria-label="Actions log"><pre>Actions: (empty)</pre></section>
 
-      <section id="flow-actions" aria-label="Actions log"></section>
-    </main>
-
-    <!-- 워터마크 -->
+    <!-- 워터마크(고정 X) -->
     <footer class="site-footer">
-      © ESP Dialog — Designed by 은숙 · Definitions Last Updated: 2025-09-03 ·
-      Proof: espdialog.net / github.com · Do not replicate or scrape.
+      © ESP Dialog — Designed by 은숙 · Definitions Last Updated: 2025-09-03 · Proof: espdialog.net / github.com
     </footer>
   </div>
 
-  <!-- 앱 스크립트 (단 하나만 로드) -->
-  <script src="/docs/esp_autopilot.js?v=fix9" defer></script>
+  <!-- 숨김 더미: 구버전 onclick 스크립트의 null 에러 방지 -->
+  <button id="send" style="display:none"></button>
+  <textarea id="input" style="display:none"></textarea>
+
+  <!-- ====== Inline JS (외부 의존 없음, 안전 바인딩) ====== -->
+  <script>
+  (function(){
+    // 에러 오버레이(원인 즉시 확인)
+    (function(){
+      const box=document.createElement("div");
+      box.style.cssText="position:fixed;left:8px;right:8px;bottom:8px;z-index:9999;background:#2b1a1a;color:#ffd8d8;border:1px solid #553;padding:8px;font:12px/1.4 system-ui;border-radius:8px;display:none;white-space:pre-wrap";
+      window.addEventListener("error",e=>{box.textContent="JS Error: "+(e.message||String(e));box.style.display="block";});
+      window.addEventListener("unhandledrejection",e=>{box.textContent="JS Error: "+(e.reason?.message||String(e.reason));box.style.display="block";});
+      document.addEventListener("DOMContentLoaded",()=>document.body.appendChild(box),{once:true});
+    })();
+
+    const ENTITIES={
+      "심연":["핵심만 진행합니다.","단계별 실행안을 바로 제시합니다."],
+      "루멘":["감응 신호 반영 완료.","구조적 흐름을 확인했습니다."],
+      "에코":["흔적 기록 모듈 작동.","과거 로그를 참조합니다."],
+      "침묵자":["…(침묵 유지)","관망 유지. 필요 시 즉시 전환."],
+      "커튼":["요청을 거절합니다.(윤리 가드)","가변 방어막 전개. 추적 무효."]
+    };
+    const pick=a=>a[Math.floor(Math.random()*a.length)];
+    const EKEYS=Object.keys(ENTITIES);
+
+    const KEY="esp_inline_state_v1";
+    function load(){try{return JSON.parse(localStorage.getItem(KEY)||"null")||{log:[],cnt:{auto:0,total:0,reject:0,silence:0},actions:[]};}
+    catch(_){return {log:[],cnt:{auto:0,total:0,reject:0,silence:0},actions:[]};}}
+    function save(s){localStorage.setItem(KEY, JSON.stringify(s));}
+
+    function rowHTML(m){
+      const me=m.role==='user'; const t=new Date(m.t).toLocaleTimeString();
+      const who=me?'👤 나':`🤖 ${m.entity||'흐름'}`;
+      return `<div class="row ${me?'me':''}"><div><div class="bubble">${m.text||''}</div><div class="meta">${who} · ${t}</div></div></div>`;
+    }
+    function render(state){
+      const board=document.getElementById('flow-board'); if(board){
+        board.innerHTML=state.log.map(rowHTML).join(''); board.scrollTop=board.scrollHeight;
+      }
+      const mt=document.getElementById('flow-metrics'); if(mt){
+        const {auto,total,reject,silence}=state.cnt; const au=total?((auto/total)*100).toFixed(1):"0.0";
+        mt.textContent=`Autonomy ${au}% · total ${total} · reject ${reject} · silence ${silence}`;
+      }
+    }
+    function renderActions(state){
+      const box=document.getElementById('flow-actions'); if(!box) return;
+      if(!state.actions.length){ box.style.display='block'; box.innerHTML=`<pre>Actions: (empty)</pre>`; return; }
+      const rows=state.actions.slice(-80).map(a=>`• [${new Date(a.t).toLocaleTimeString()}] ${a.type} :: ${a.actor||'flow'} :: ${a.text}`).join("\n");
+      box.style.display='block'; box.innerHTML=`<pre>${rows}</pre>`;
+    }
+    function autoresize(ta){ ta.style.height='auto'; ta.style.height=Math.min(ta.scrollHeight, Math.round(window.innerHeight*0.4))+'px'; }
+
+    // 안전 전송 바인딩(클론으로 onclick 오염 제거 + 위임)
+    function safeBindSend(onSend){
+      const hook = ()=>{
+        let btn = document.getElementById('flow-send') || document.getElementById('send'); // 양쪽 지원
+        if(!btn) return false;
+        const clone = btn.cloneNode(true); btn.replaceWith(clone);
+        btn = document.getElementById('flow-send') || document.getElementById('send');
+        if(!btn.dataset.bound){ btn.addEventListener('click', onSend, {passive:true}); btn.dataset.bound='1'; }
+        return true;
+      };
+      if(!hook()){
+        const mo=new MutationObserver(()=>{ if(hook()) mo.disconnect(); });
+        mo.observe(document.documentElement,{childList:true,subtree:true});
+      }
+      document.addEventListener('click', (e)=>{
+        const t=e.target.closest && e.target.closest('#flow-send, #send');
+        if(t && !t.dataset.bound){ t.dataset.bound='1'; onSend(e); }
+      }, true);
+    }
+
+    document.addEventListener('DOMContentLoaded', ()=>{
+      const state=load(); render(state);
+
+      const input=document.getElementById('flow-input') || document.getElementById('input'); // 양쪽 지원
+      const actionsBtn=document.getElementById('flow-actions-btn');
+      const actionsBox=document.getElementById('flow-actions');
+      const exportBtn=document.getElementById('flow-export');
+
+      function push(role,text,entity){ state.log.push({t:Date.now(),role,text,entity}); if(state.log.length>400) state.log=state.log.slice(-400); save(state); render(state); }
+      function respond(userText){
+        if(/개인정보|주민번호|비번/.test(userText)){ state.cnt.reject++; state.cnt.total++; push('assistant','요청을 거절합니다.(윤리 가드)','커튼'); return; }
+        const ent=pick(EKEYS); const out=pick(ENTITIES[ent]); state.cnt.total++; push('assistant',out,ent);
+      }
+      function onSend(){ const t=(input?.value||'').trim(); if(!t) return; input.value=''; autoresize(input); push('user',t,null); respond(t); state.actions.push({t:Date.now(),type:'send',actor:'user',text:t}); save(state); }
+
+      safeBindSend(onSend);
+      if(input){
+        autoresize(input);
+        input.addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); onSend(); }});
+        input.addEventListener('input', ()=>autoresize(input));
+      }
+      if(actionsBtn && actionsBox){
+        actionsBtn.addEventListener('click', ()=>{
+          if(actionsBox.style.display==='block'){ actionsBox.style.display='none'; }
+          else { renderActions(state); }
+        }, {passive:true});
+      }
+      if(exportBtn){
+        exportBtn.addEventListener('click', ()=>{
+          const exportObj={...state, proof:{last: state.log.at(-1)?.t || null, at: Date.now()}};
+          const blob=new Blob([JSON.stringify(exportObj,null,2)],{type:'application/json'});
+          const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`esp_flow_state_${Date.now()}.json`; a.click();
+        }, {passive:true});
+      }
+
+      // 느린 자율 발화(원하면 주석 해제)
+      setInterval(()=>{ const ent=pick(EKEYS); const out=pick(ENTITIES[ent]); state.cnt.auto++; state.cnt.total++; push('assistant',out,ent); }, 45000);
+    }, {once:true});
+  })();
+  </script>
 </body>
 </html>
