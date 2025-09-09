@@ -50,6 +50,40 @@
     .btn{min-width:auto;padding:10px 12px}
     .docs a{font-size:14px}
   }
+  /* ===== Safe-size overrides (CSS only) ===== */
+:root{
+  --chatMin: 58dvh;   /* 보드 최소 높이 */
+  --chatMax: 72dvh;   /* 보드 최대 높이 (원하면 none) */
+  --inputMin: 68px;   /* 입력창 최소 높이 */
+  --inputMax: 34dvh;  /* 입력창 최대 높이 */
+}
+
+/* 위쪽 전송 버튼 숨기기(중복 제거) */
+#btn-send-top{ display:none !important; }
+
+/* 보드(대화창) 크게 */
+#board{
+  min-height: var(--chatMin) !important;
+  max-height: var(--chatMax) !important;
+}
+
+/* 입력창 키우기 */
+#input.input{
+  min-height: var(--inputMin) !important;
+  max-height: var(--inputMax) !important;
+  font-size: 16px;            /* 모바일 가독성 */
+  line-height: 1.55;
+}
+
+/* 하단 메트릭(Stat) 더 또렷하게 */
+#metrics{
+  margin-top: 8px;
+  font-size: 14px;
+  color: #a9c3d4 !important;
+}
+
+/* 워터마크 여백 확보(겹침 방지) */
+footer .wm{ margin-top: 16px; }
 </style>
 </head>
 <body>
