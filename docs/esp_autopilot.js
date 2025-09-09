@@ -1,10 +1,13 @@
+// --- READY HELPER (add this near the top) ---
+function ready(fn){
+  if (document.readyState !== 'loading') { fn(); }          // DOM 이미 준비됨 → 즉시 실행
+  else { document.addEventListener('DOMContentLoaded', fn, { once:true }); } // 아직 → 준비되면 1회 실행
+}
 // esp_autopilot.js — Multi-selector safe binding (no HTML changes required)
 (function(){
 
   // 0) DOM ready 보장
-  function ready(fn){
-    if (document.readyState !== 'loading') fn();
-    else document.addEventListener('DOMContentLoaded', fn, { once:true });
+  function ready(() => { boot(); });   // ← 이 한 줄이 전송 버튼 미바인딩 문제를 해결
   }
 
   // 1) 에러 오버레이(문구로 바로 원인 확인)
