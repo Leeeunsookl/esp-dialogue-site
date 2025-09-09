@@ -1,42 +1,93 @@
-/* ===== Layout & spacing hotfix ===== */
+/* ===== Layout breathing room ===== */
+:root{
+  --bg:#0b0e11; --fg:#e8eef5; --muted:#8a97a6; --line:#1a2028; --card:#10151b; --accent:#78f3ff;
+  --pad:16px; --gap:12px;
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+}
+
+html, body { height:100%; }
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  font:15.5px/1.75 system-ui, apple-system, "Segoe UI", Roboto, sans-serif;
+  scroll-padding-bottom: 140px; /* 워터마크 위로 스크롤 여유 */
+}
+
 .wrap{
-  max-width:960px; margin:0 auto; padding:16px;
+  max-width:960px; margin:0 auto;
+  padding: calc(var(--pad) + var(--safe-t)) var(--pad) var(--pad);
   min-height:100dvh;
-  padding-bottom:160px; /* 워터마크 + 하단 링크 공간 확보(기존 96px → 160px) */
+  padding-bottom: 180px; /* 하단 링크 + 워터마크 공간 */
+  display:grid; grid-template-rows:auto auto 1fr auto; gap:14px;
 }
 
-/* 채팅 로그가 하단 요소 뒤에 숨지 않도록 바닥 패딩 보강 */
-#flow-log{
-  background:var(--card); border:1px solid var(--line); border-radius:14px;
-  min-height:280px; max-height:min(55vh, 560px); /* 높이 여유 확대 */
-  overflow:auto; padding:14px;
-  padding-bottom:96px; /* 입력창/워터마크와 겹침 방지(기존 72px → 96px) */
-  margin-top:10px;
+/* ===== Top brand & nav ===== */
+.top { display:flex; align-items:center; gap:10px; }
+.brand{ font-weight:800; letter-spacing:.3px; }
+.nav{ display:flex; gap:14px; flex-wrap:wrap; }
+.nav a{ color:var(--accent); text-decoration:none; font-weight:700; }
+
+/* ===== Toolbar (buttons) ===== */
+.toolbar{ display:flex; gap:10px; flex-wrap:wrap; }
+.toolbar .btn{
+  background:#0f141b; border:1px solid var(--line); color:#e8eef5;
+  border-radius:12px; padding:10px 14px; min-width:88px;
+}
+.toolbar .btn.primary{ background:var(--accent); color:#001118; font-weight:800; }
+
+/* ===== Board (log) ===== */
+.board{
+  background:var(--card); border:1px solid var(--line);
+  border-radius:16px; padding:14px;
+  min-height:320px; max-height:min(55vh, 560px); overflow:auto;
+  /* 입력창·워터마크와 겹침 방지 */
+  padding-bottom: 96px;
 }
 
-/* 입력 줄과 버튼 */
-.input-row{ display:flex; align-items:flex-end; gap:8px; margin-top:10px; }
-#flow-input{ width:100%; min-height:44px; max-height:40vh; padding:14px; }
-#flow-send2{ border:0; border-radius:14px; padding:12px 16px; background:var(--accent); color:#001118; font-weight:800; }
+.log-row{ margin:12px 0; }
+.log-bubble{
+  display:inline-block; background:#0d1218; border:1px solid var(--line);
+  border-radius:14px; padding:10px 12px; max-width:72%;
+}
+.log-bubble.me{ background:#0e1822; border-color:#0f2533; }
+.meta{ font-size:12px; color:var(--muted); margin-top:4px; }
 
-/* Actions 패널이 워터마크와 겹치지 않도록 하단 마진 */
-.actions-pane{ margin-bottom:16px; }
+/* ===== Composer ===== */
+.composer{ display:grid; grid-template-columns:1fr auto; gap:10px; align-items:end; }
+#input{
+  resize:none; min-height:48px; max-height:40vh;
+  padding:12px; border-radius:12px; border:1px solid var(--line);
+  background:#0c1117; color:var(--fg); line-height:1.55;
+}
+#send{
+  border:0; border-radius:12px; padding:12px 16px;
+  background:var(--accent); color:#001118; font-weight:800;
+}
 
-/* 하단 링크와 워터마크 간격 확보 */
-.footlinks{ margin-top:12px; display:flex; gap:18px; margin-bottom:70px; }
+/* ===== Actions & Metrics ===== */
+#flow-actions-pane{
+  background:#0d1218; border:1px dashed var(--line); border-radius:12px;
+  padding:12px; margin-top:10px; margin-bottom:16px;
+}
+#flow-actions-pane pre{ margin:0; white-space:pre-wrap; word-break:break-word; }
+#metrics{ color:var(--muted); font-size:13px; margin-top:6px; }
 
-/* 워터마크: 시각 안정 + 클릭 차단 */
+/* ===== Foot links ===== */
+.footlinks{ display:flex; gap:18px; flex-wrap:wrap; margin:12px 0 72px; }
+
+/* ===== Watermark (not blocking clicks) ===== */
 .watermark{
-  position:fixed; left:16px; right:16px; bottom:10px; z-index:10;
-  height:44px; display:flex; align-items:center; justify-content:center;
-  color:#8aa; font-size:12px; background:#060a0dcc; backdrop-filter:blur(3px);
-  border:1px solid var(--line); border-radius:10px;
-  pointer-events:none; /* 뒤 요소 클릭 가능 */
-  text-shadow:0 1px 0 rgba(0,0,0,.6);
+  position:fixed; left:16px; right:16px; bottom:12px; z-index:10;
+  padding:10px 12px; height:auto;
+  color:#8aa; font-size:12px; text-align:center;
+  background:#060a0dcc; border:1px solid var(--line); border-radius:10px;
+  backdrop-filter: blur(3px);
+  pointer-events:none; /* 아래 요소 클릭 가능 */
+  text-shadow:0 1px 0 rgba(0,0,0,.55);
 }
 
-/* 상단 바 버튼이 2줄로 꺾이지 않게 */
-.toolbar{ flex-wrap:wrap; row-gap:8px; }
+/* ===== Small screens ===== */
 @media (max-width:520px){
   .nav{ display:none; }
+  .toolbar .btn{ min-width:auto; padding:10px 12px; }
 }
