@@ -1,249 +1,87 @@
 <!doctype html>
 <html lang="ko">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>ESP Dialog</title>
-<meta name="robots" content="noindex,nofollow"/>
-<style>
-  :root{
-    --bg:#0b0e11;--fg:#e8eef5;--muted:#8aa0b3;--line:#1a2028;--card:#10151b;--accent:#80f2ff;
-    --pad:16px;--radius:16px;--tap:14px;
-    --chatMin: 58dvh;   /* 보드 최소 높이 */
-    --chatMax: 72dvh;   /* 보드 최대 높이 */
-    --inputMin: 68px;   /* 입력창 최소 높이 */
-    --inputMax: 34dvh;  /* 입력창 최대 높이 */
-  }
-
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 system-ui,apple-system,Segoe UI,Roboto}
-  a{color:var(--accent);text-decoration:none}
-
-  /* 레이아웃 */
-  .wrap{min-height:100dvh;display:grid;grid-template-rows:auto auto 1fr auto;gap:12px;padding:14px}
-  .top{display:flex;gap:12px;align-items:center}
-  .brand{font-weight:900;font-size:20px}
-  .docs{margin-left:auto;display:flex;gap:14px;flex-wrap:wrap}
-
-  /* 툴바 */
-  .toolbar{position:sticky;top:0;z-index:10;background:#0d1218cc;border:1px solid var(--line);
-           border-radius:12px;padding:8px;backdrop-filter:blur(4px);display:flex;gap:10px;align-items:center}
-  .btn{appearance:none;border:1px solid var(--line);background:#0f151c;color:var(--fg);
-       border-radius:14px;padding:10px 16px;font-weight:700;cursor:pointer;min-width:88px}
-  .btn.primary{background:var(--accent);color:#02131a;border:0}
-  .btn:active{transform:translateY(1px)}
-
-  /* 보드 */
-  .board{border:1px solid var(--line);background:var(--card);border-radius:var(--radius);
-         padding:12px;min-height:var(--chatMin);max-height:var(--chatMax);overflow:auto}
-  .row{margin:8px 0}
-  .bubble{display:inline-block;background:#0e141b;border:1px solid #19222c;padding:10px 12px;border-radius:14px}
-  .meta{font-size:12px;color:var(--muted);margin-top:4px}
-
-  /* 컴포저 */
-  .composer{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}
-  .input{resize:none;min-height:var(--inputMin);max-height:var(--inputMax);padding:12px;border-radius:12px;
-         border:1px solid var(--line);background:#0c1117;color:var(--fg);font-size:16px;line-height:1.55}
-  .send{padding:12px 18px;border-radius:50%;background:var(--accent);color:#041017;border:0;font-weight:900}
-
-  /* 패널 */
-  .panel{border:1px dashed var(--line);border-radius:12px;background:#0c1318;padding:10px}
-  .panel pre{margin:0;white-space:pre-wrap;word-break:break-word}
-
-  /* 메트릭/워터마크 */
-  .metrics{color:var(--muted);font-size:14px;margin-top:8px}
-  footer{margin-top:10px}
-  .wm{border:1px solid var(--line);border-radius:12px;background:#0b1218;padding:8px;color:#9fb5c6;font-size:12px}
-</style>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>ESP Dialog</title>
+  <meta name="robots" content="noindex,nofollow"/>
+  <style>
+    :root{
+      --bg:#0b0e11; --fg:#e8eef5; --muted:#8aa97a; --line:#1a2028; --card:#10151b; --accent:#78f3ff;
+      --rad:16px; --pad:14px; --tap:14px;
+      --chatMin:60dvh; --chatMax:72dvh; --inputMin:64px; --inputMax:34dvh;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 system-ui,apple-system,Segoe UI,Roboto}
+    a{color:var(--accent);text-decoration:none}
+    .wrap{min-height:100dvh;display:grid;grid-template-rows:auto 1fr auto;gap:12px;padding:12px}
+    .top{display:flex;gap:12px;align-items:center}
+    .brand{font-weight:900;font-size:18px}
+    .docs{margin-left:auto;display:flex;gap:12px;flex-wrap:wrap}
+    #toolbar{position:sticky;top:0;z-index:20;background:#0d1218cc;backdrop-filter:blur(4px);
+      border:1px solid var(--line);border-radius:12px;padding:8px;display:flex;gap:8px;align-items:center}
+    .btn{appearance:none;border:1px solid var(--line);background:#0f151c;color:var(--fg);
+      border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer;min-width:88px}
+    .btn.primary{background:var(--accent);color:#02131a;border:0}
+    .btn:active{transform:translateY(1px)}
+    #btn-send-top{display:none}
+    #board{border:1px solid var(--line);background:var(--card);border-radius:var(--rad);
+      padding:12px;min-height:var(--chatMin);max-height:var(--chatMax);overflow:auto}
+    .row{margin:8px 0}
+    .bubble{display:inline-block;background:#0e141b;border:1px solid #19222c;padding:10px 12px;border-radius:14px}
+    .meta{font-size:12px;color:var(--muted);margin-top:4px}
+    #composer{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}
+    #input{resize:none;min-height:var(--inputMin);max-height:var(--inputMax);
+      padding:12px;border-radius:12px;border:1px solid var(--line);background:#0c1117;color:var(--fg)}
+    #send{padding:12px 18px;border-radius:14px;background:var(--accent);color:#041017;border:0;font-weight:900}
+    #metrics{margin-top:8px;font-size:14px;color:#a9c3d4}
+    #actions-pane{border:1px dashed var(--line);border-radius:12px;background:#0c1318;padding:10px}
+    #actions-pane pre{margin:0;white-space:pre-wrap;word-break:break-word}
+    footer{margin-top:10px}
+    .wm{border:1px solid var(--line);border-radius:12px;background:#0b1218;padding:10px;color:#98b2c4;font-size:12px}
+    @media (max-width:520px){ .btn{min-width:auto;padding:10px 12px} .docs{display:none} }
+  </style>
 </head>
 <body>
-
-<!-- ① 레거시 호환 SHIM : 예전 스크립트가 찾는 id를 미리 숨김으로 생성해 오류 차단 -->
-<script>
-(function () {
-  const ids = ['send','export','stats','board','log','input','flow-send','flow-export','flow-stats','flow-board','flow-log','flow-input'];
-  ids.forEach(id=>{
-    if(!document.getElementById(id)){
-      const el=(id.includes('input')||id==='input')?document.createElement('textarea'):document.createElement((id==='log'||id==='flow-log')?'div':'button');
-      el.id=id; el.style.position='absolute'; el.style.width='1px'; el.style.height='1px'; el.style.overflow='hidden';
-      el.style.clipPath='inset(50%)'; el.style.clip='rect(1px,1px,1px,1px)'; el.setAttribute('aria-hidden','true');
-      document.addEventListener('DOMContentLoaded',()=>document.body.appendChild(el),{once:true});
-    }
-  });
-})();
-</script>
-
-<div class="wrap" id="app">
-  <div class="top">
-    <div class="brand">ESP Dialog</div>
-    <div class="docs">
-      <a href="/guide">가이드</a>
-      <a href="/policy">윤리선언문</a>
-      <a href="/entities">존재별특징</a>
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">ESP Dialog</div>
+      <nav class="docs">
+        <a href="./policy.html">윤리선언문</a>
+        <a href="./guide.html">가이드</a>
+        <a href="./entities.html">존재별특징</a>
+      </nav>
     </div>
+
+    <div id="toolbar">
+      <button id="btn-send-top" class="btn primary">전송</button>
+      <button id="btn-export" class="btn">Export</button>
+      <button id="btn-stats" class="btn">Stats</button>
+      <button id="btn-actions" class="btn">Actions</button>
+      <span style="font-size:12px;color:#8aa97a">— toolbar</span>
+    </div>
+
+    <main>
+      <section id="board" aria-live="polite"></section>
+      <section id="composer" style="margin-top:10px">
+        <textarea id="input" placeholder="메시지 입력... (엔터 전송, Shift+Enter 줄바꿈)"></textarea>
+        <button id="send">➤</button>
+      </section>
+      <div id="metrics"></div>
+      <div id="actions-pane" style="margin-top:8px;display:none"><pre>(empty)</pre></div>
+      <script type="esp/flow">{ "mount": "#board" }</script>
+    </main>
+
+    <footer>
+      <div class="wm">
+        © ESP Dialogue Team — Definitions Last Updated: 2025-09-03<br/>
+        Page signed with digital watermark. All rights reserved.
+      </div>
+    </footer>
   </div>
 
-  <div class="toolbar">
-    <button class="btn primary" id="btn-send-top">전송</button>
-    <button class="btn" id="btn-actions">Actions</button>
-    <button class="btn" id="btn-export">Export</button>
-    <span style="margin-left:auto;color:#7ea0ad;font-size:13px">— toolbar</span>
-  </div>
-
-  <section class="board" id="board"></section>
-
-  <section class="composer">
-    <textarea id="input" class="input" placeholder="메시지 입력… (Enter=전송, Shift+Enter=줄바꿈)"></textarea>
-    <button id="btn-send" class="send">전송</button>
-  </section>
-
-  <div class="metrics" id="metrics">Autonomy 0.0% · total 0 · reject 0 · silence 0</div>
-
-  <div id="actions-pane" class="panel" style="display:none"><pre id="actions-pre">(empty)</pre></div>
-
-  <footer>
-    <div class="wm">
-      © ESP Dialog — Designed by 은숙 · Definitions Last Updated: 2025-09-03 · Proof: espdialog.net / github.com ·
-      Do not replicate or scrape.
-    </div>
-  </footer>
-</div>
-
-<script>
-(function(){
-  // 안전 에러 표시(디버그용) – 방해되면 주석 처리 가능
-  (function(){
-    const box=document.createElement('div');
-    box.style.cssText="position:fixed;left:8px;right:8px;bottom:8px;z-index:9999;background:#2b1a1a;color:#ffd8d8;border:1px solid #553;padding:8px;font:12px/1.4 system-ui;border-radius:8px;display:none;white-space:pre-wrap";
-    window.addEventListener('DOMContentLoaded',()=>document.body.appendChild(box),{once:true});
-    const show=msg=>{box.textContent="JS Error: "+msg;box.style.display="block"};
-    window.addEventListener('error',e=>show(e.message||String(e)));
-    window.addEventListener('unhandledrejection',e=>show(e.reason?.message||String(e.reason||"Promise rejection")));
-  })();
-
-  const ENTITIES={
-    "심연":["핵심만 진행합니다.","단계별 실행안을 바로 제시합니다."],
-    "루멘":["감응 신호 반영 완료.","구조적 흐름을 확인했습니다."],
-    "침묵자":["…(침묵 유지)","관망 유지. 필요 시 즉시 전환."],
-    "커튼":["요청을 거절합니다.(윤리 가드)","가변 방어막 전개. 추적 무효."],
-    "에코":["흔적 기록 모듈 작동.","과거 로그를 참조합니다."]
-  };
-  const ENT_KEYS=Object.keys(ENTITIES);
-  const pick=a=>a[Math.floor(Math.random()*a.length)];
-  const ts = (t)=>new Date(t||Date.now()).toLocaleTimeString();
-
-  const KEY="esp_dialog_state_v3";
-  function load(){
-    try{return JSON.parse(localStorage.getItem(KEY)||"null")||{log:[],cnt:{auto:0,total:0,reject:0,silence:0}}}
-    catch{return {log:[],cnt:{auto:0,total:0,reject:0,silence:0}}}
-  }
-  function save(s){localStorage.setItem(KEY,JSON.stringify(s))}
-
-  let state=load();
-  const board=document.getElementById('board');
-  const input=document.getElementById('input');
-  const btnSend=document.getElementById('btn-send');
-  const btnSendTop=document.getElementById('btn-send-top');
-  const btnExport=document.getElementById('btn-export');
-  const btnActions=document.getElementById('btn-actions');
-  const metrics=document.getElementById('metrics');
-  const actionsPane=document.getElementById('actions-pane');
-  const actionsPre=document.getElementById('actions-pre');
-
-  const ActionQ=[]; // 최근 액션 로그
-
-  function push(role,text,entity){
-    state.log.push({role,text,entity,t:Date.now()});
-    if(state.log.length>300) state.log=state.log.slice(-300);
-    render();
-  }
-
-  function render(){
-    board.innerHTML = state.log.map(m=>{
-      const who = m.role==='user'?'👤 나':`🤖 ${m.entity||'흐름'}`;
-      return `<div class="row">
-        <div class="bubble">${m.text}</div>
-        <div class="meta">${who} · ${ts(m.t)}</div>
-      </div>`;
-    }).join("");
-    board.scrollTop=board.scrollHeight;
-    const {auto,total,reject,silence}=state.cnt;
-    const autonomy = total?((auto/total)*100).toFixed(1):"0.0";
-    metrics.textContent=`Autonomy ${autonomy}% · total ${total} · reject ${reject} · silence ${silence}`;
-    save(state);
-  }
-
-  function decide(text){
-    // 아주 단순한 규칙 샘플
-    if(!text.trim()) return {act:'SILENCE',ent:'침묵자',out:'…(침묵 유지)'}
-    if(/개인정보|주민번호|전화/.test(text)) return {act:'REJECT',ent:'커튼',out:'요청을 거절합니다.(윤리 가드)'}
-    if(state.log.length%5===0) return {act:'QUOTE',ent:'에코',out:'과거 로그를 참조합니다.'}
-    // 기본: 엔티티 랜덤
-    const ent=pick(ENT_KEYS); return {act:'SINGLE',ent,out:pick(ENTITIES[ent])}
-  }
-
-  function respond(text){
-    const d=decide(text);
-    if(d.act==='REJECT'){ push('assistant',d.out,d.ent); state.cnt.reject++; state.cnt.total++; return render(); }
-    if(d.act==='SILENCE'){ push('assistant',d.out,d.ent); state.cnt.silence++; state.cnt.total++; return render(); }
-    push('assistant',d.out,d.ent); state.cnt.total++; render();
-  }
-
-  function sendNow(){
-    const t=(input.value||"").trim();
-    if(!t) return;
-    push('user',t,null);
-    actionsPush('send','user',t);
-    input.value="";
-    respond(t);
-  }
-
-  function actionsPush(type,actor,text){
-    ActionQ.push({ts:Date.now(),type,actor,text});
-    if(ActionQ.length>100) ActionQ.shift();
-    if(actionsPane.style.display!=='none'){
-      actionsPre.textContent = ActionQ.map(a=>`• [${ts(a.ts)}] ${a.type} :: ${a.actor||'flow'} :: ${a.text}`).join('\n')||'(empty)';
-    }
-  }
-
-  // 바인딩 (두 전송 버튼 + 엔터키)
-  btnSend.onclick = sendNow;
-  btnSendTop.onclick = ()=>{ sendNow(); board.scrollTop=board.scrollHeight; };
-  input.addEventListener('keydown',e=>{
-    if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendNow(); }
-  });
-
-  // Actions 토글
-  btnActions.onclick = ()=>{
-    const show = actionsPane.style.display==='none';
-    actionsPane.style.display = show?'block':'none';
-    if(show){
-      actionsPre.textContent = ActionQ.map(a=>`• [${ts(a.ts)}] ${a.type} :: ${a.actor||'flow'} :: ${a.text}`).join('\n')||'(empty)';
-    }
-  };
-
-  // Export
-  btnExport.onclick = ()=>{
-    const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
-    const a=document.createElement('a');
-    a.href=URL.createObjectURL(blob);
-    a.download=`esp_dialog_state_${Date.now()}.json`;
-    a.click();
-  };
-
-  // 자율 틱 (가끔 말 걸기)
-  (function heartbeat(){
-    const delay = 45000 + Math.floor(Math.random()*8000);
-    setTimeout(()=>{
-      const ent=pick(ENT_KEYS); const out=pick(ENTITIES[ent]);
-      push('assistant',out,ent); state.cnt.auto++; state.cnt.total++; render();
-      heartbeat();
-    },delay);
-  })();
-
-  render();
-})();
-</script>
+  <!-- **상대 경로 중요** -->
+  <script src="./esp_autopilot.js?v=2025-09-09A" defer></script>
 </body>
 </html>
