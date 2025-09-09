@@ -89,119 +89,88 @@
 </div>
 <script src="/esp_autopilot.js?v=fix-v12" defer></script>
 <script>
-/* esp_autopilot inline v11 — hard bind + badge + error overlay */
-(function () {
-  // 0) 로드 배지
-  (function () {
-    const b = document.createElement('div');
-    b.textContent = 'JS:v11';
-    Object.assign(b.style, {
-      position: 'fixed', right: '8px', bottom: '8px', zIndex: 9998,
-      font: '11px/1 system-ui', color: '#0b1', background: '#041',
-      padding: '2px 6px', borderRadius: '6px', opacity: '0.85'
-    });
-    document.addEventListener('DOMContentLoaded', () => document.body.appendChild(b), { once: true });
-  })();
+/* ESP Probe v1 + Force-bind — 파일/셀렉터 자동탐지 & 전송 복구 */
+(function(){
+  function ce(t,a,s){const e=document.createElement(t);Object.assign(e,a||{});if(s)Object.assign(e.style,s);return e;}
+  function css(el){return getComputedStyle(el);}
+  function sum(el){ if(!el) return null;
+    const r=el.getBoundingClientRect(), cs=css(el);
+    const cx=r.left+r.width/2, cy=r.top+r.height/2;
+    const top=document.elementFromPoint(cx,cy);
+    return { tag:el.tagName.toLowerCase(), id:el.id||null, class:el.className||null, sel:el._probeSel||null,
+      disabled:!!el.disabled, display:cs.display, visibility:cs.visibility, opacity:cs.opacity, pointerEvents:cs.pointerEvents,
+      rect:{x:Math.round(r.x),y:Math.round(r.y),w:Math.round(r.width),h:Math.round(r.height)},
+      coveredBy: top&&top!==el ? (top.tagName.toLowerCase()+'#'+(top.id||'')) : null };
+  }
+  function find(list){ for(const sel of list){ const n=document.querySelector(sel); if(n){ n._probeSel=sel; return n; } } return null; }
 
-  // 1) 에러 박스
-  (function(){
-    const box=document.createElement("div");
-    box.style.cssText="position:fixed;left:8px;right:8px;bottom:28px;z-index:9999;background:#2b1a1a;color:#ffd8d8;border:1px solid #553;padding:8px;font:12px/1.4 system-ui;border-radius:8px;display:none;white-space:pre-wrap";
-    window.addEventListener("error",e=>{box.textContent="JS Error: "+(e.message||String(e));box.style.display="block";});
-    window.addEventListener("unhandledrejection",e=>{box.textContent="JS Error: "+(e.reason?.message||String(e.reason));box.style.display="block";});
-    document.addEventListener("DOMContentLoaded",()=>document.body.appendChild(box),{once:true});
-  })();
-
-  // 2) 상태
-  const KEY="esp_flow_state_v11";
-  const ENT={
-    "심연":["핵심만 진행합니다.","단계별 실행안을 바로 제시합니다."],
-    "루멘":["감응 신호 반영 완료.","구조적 흐름을 확인했습니다."],
-    "에코":["흔적 기록 모듈 작동.","과거 로그를 참조합니다."],
-    "침묵자":["…(침묵 유지)","관망 유지. 필요 시 즉시 전환."],
-    "커튼":["요청을 거절합니다.(윤리 가드)","가변 방어막 전개. 추적 무효."]
+  const cand = {
+    input:  ['#input','#flow-input','textarea[data-role="input"]','textarea'],
+    send:   ['#send','#flow-send','[data-role="send"]','button[type="submit"]','button.send','button'],
+    board:  ['#board','#flow-board','[data-role="board"]','.board'],
+    metrics:['#metrics','#flow-metrics','[data-role="metrics"]']
   };
-  const pick=a=>a[Math.floor(Math.random()*a.length)];
-  function load(){try{return JSON.parse(localStorage.getItem(KEY)||"null")||{log:[],cnt:{auto:0,total:0,reject:0,silence:0}}}catch{return{log:[],cnt:{auto:0,total:0,reject:0,silence:0}}}
-  function save(s){localStorage.setItem(KEY,JSON.stringify(s));}
+  const found = {
+    input: find(cand.input),
+    send:  find(cand.send),
+    board: find(cand.board),
+    metrics: find(cand.metrics)
+  };
+  const scripts=[...document.scripts].map(s=>({src:s.src||('(inline '+s.textContent.length+' chars)'),defer:!!s.defer,type:s.type||'text/javascript'}));
+  const links=[...document.querySelectorAll('link[rel="stylesheet"]')].map(l=>l.href);
+  const paths={pathname:location.pathname, base:(document.querySelector('base')||{}).href||null};
 
-  function render(state){
-    const board=document.getElementById('board');
-    if(board){
-      board.innerHTML=state.log.map(m=>{
-        const who=m.role==='user'?'👤 나':`🤖 ${m.entity||'흐름'}`;
-        const time=new Date(m.t).toLocaleTimeString();
-        return `<div class="row ${m.role==='user'?'me':''}">
-          <div><div class="bubble">${m.text}</div><div class="meta">${who} · ${time}</div></div>
-        </div>`;
-      }).join('');
-      board.scrollTop=board.scrollHeight;
-    }
-    const mt=document.getElementById('metrics');
-    if(mt){
-      const {auto,total,reject,silence}=state.cnt;
-      const autonomy=total?((auto/total)*100).toFixed(1):"0.0";
-      mt.textContent=`Autonomy ${autonomy}% · total ${total} · reject ${reject} · silence ${silence}`;
-    }
+  // Overlay
+  const wrap=ce('div',null,{position:'fixed',inset:'8px',background:'#0b0e11f0',color:'#e8eef5',border:'1px solid #223',zIndex:99999,borderRadius:'12px',padding:'10px',font:'12px/1.5 system-ui',overflow:'auto'});
+  const head=ce('div',{textContent:'ESP Probe v1 — live report'},{fontWeight:'900',marginBottom:'6px',color:'#78f3ff'});
+  const pre=ce('pre',null,{whiteSpace:'pre-wrap',wordBreak:'break-word',margin:0,maxHeight:'70vh'});
+  const btns=ce('div',null,{marginTop:'8px',display:'flex',gap:'8px',flexWrap:'wrap'});
+  const close=ce('button',{textContent:'Close'},{padding:'6px 10px',borderRadius:'8px',border:'1px solid #345',background:'#102030',color:'#e8eef5',cursor:'pointer'});
+  const force=ce('button',{textContent:'Force-bind send'},{padding:'6px 10px',borderRadius:'8px',border:'1px solid #345',background:'#103820',color:'#bdfcc9',cursor:'pointer'});
+  const copy=ce('button',{textContent:'Copy report'},{padding:'6px 10px',borderRadius:'8px',border:'1px solid #345',background:'#102030',color:'#e8eef5',cursor:'pointer'});
+
+  function report(){
+    const data={
+      candidates:cand,
+      found:{ input:sum(found.input), send:sum(found.send), board:sum(found.board), metrics:sum(found.metrics) },
+      duplicates:{ '#send':document.querySelectorAll('#send').length, '#flow-send':document.querySelectorAll('#flow-send').length },
+      scripts, links, paths
+    };
+    pre.textContent=JSON.stringify(data,null,2);
   }
 
-  function boot(){
-    const state=load(); render(state);
-    const input=document.getElementById('input');
-    let send=document.getElementById('send');
+  close.onclick=()=>wrap.remove();
+  copy.onclick=()=>{ navigator.clipboard && navigator.clipboard.writeText(pre.textContent); };
 
-    if(!input||!send){ return setTimeout(boot,200); } // 레이아웃 지연 대비 재시도
+  // 강제 바인딩(전송 복구)
+  force.onclick=()=>{
+    if(!found.input || !found.send || !found.board){ alert('input/send/board 중 일부가 없음'); return; }
+    if(found.send.hasAttribute('onclick')) found.send.removeAttribute('onclick');
+    found.send.type='button';
 
-    // 버튼 하드 리바인드
-    send.type='button';
-    if(send.hasAttribute('onclick')) send.removeAttribute('onclick');
-    const clone=send.cloneNode(true); send.replaceWith(clone);
-    send=document.getElementById('send');
+    const S={log:[],cnt:{auto:0,total:0,reject:0,silence:0}};
+    const ENT={"심연":["핵심만 진행합니다.","단계별 실행안을 바로 제시합니다."],"루멘":["감응 신호 반영 완료.","구조적 흐름을 확인했습니다."],"에코":["흔적 기록 모듈 작동.","과거 로그 참조."],"침묵자":["…(침묵 유지)","관망 유지."],"커튼":["요청 거절(윤리).","방어막 전개."]};
+    const pick=a=>a[Math.floor(Math.random()*a.length)];
 
-    function push(role,text,entity){
-      state.log.push({t:Date.now(),role,text,entity});
-      if(state.log.length>300) state.log=state.log.slice(-300);
-      save(state); render(state);
+    function render(){
+      found.board.innerHTML=S.log.map(m=>`<div class="row ${m.role==='user'?'me':''}">
+        <div><div class="bubble">${m.text}</div>
+        <div class="meta">${m.role==='user'?'👤 나':'🤖 '+(m.entity||'흐름')} · ${new Date(m.t).toLocaleTimeString()}</div></div>
+      </div>`).join('');
+      found.board.scrollTop=found.board.scrollHeight;
     }
-    function respond(txt){
-      if(/개인정보|주민번호|비번/.test(txt)){
-        state.cnt.reject++; state.cnt.total++;
-        push('assistant',"요청을 거절합니다.(윤리 가드)","커튼"); return;
-      }
-      const ent=pick(Object.keys(ENT)), out=pick(ENT[ent]);
-      state.cnt.total++; push('assistant',out,ent);
-    }
-    function onSend(){
-      const txt=(input.value||'').trim(); if(!txt) return;
-      input.value=''; push('user',txt,null); respond(txt);
-    }
+    function push(role,text,entity){ S.log.push({t:Date.now(),role,text,entity}); if(S.log.length>300) S.log=S.log.slice(-300); render(); }
+    function respond(txt){ if(/개인정보|주민번호|비번/.test(txt)){S.cnt.reject++;S.cnt.total++;push('assistant','요청 거절(윤리).','커튼');return;} const e=pick(Object.keys(ENT)), out=pick(ENT[e]); S.cnt.total++; push('assistant',out,e); }
+    function onSend(){ const t=(found.input.value||'').trim(); if(!t) return; found.input.value=''; push('user',t,null); respond(t); }
 
-    // 3중 폴백
-    send.addEventListener('click',onSend,{passive:true});
-    send.onclick=onSend;
-    document.addEventListener('click',(e)=>{ const t=e.target?.closest?.('#send'); if(t) onSend(); },true);
+    found.send.addEventListener('click',onSend,{passive:true});
+    found.input.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); onSend(); }});
+    alert('Force-bind 완료. 입력 후 전송을 눌러 테스트하세요. 필요하면 Close로 오버레이 닫기.');
+  };
 
-    // Enter = 전송 / Shift+Enter = 줄바꿈
-    input.addEventListener('keydown',(e)=>{
-      if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); onSend(); }
-    });
-
-    // Export(있으면)
-    const ex=document.getElementById('btn-export');
-    if(ex){
-      ex.type='button';
-      ex.addEventListener('click',()=>{
-        const lastHash=state.log.length?String(state.log[state.log.length-1].t):"";
-        const data={...state,proof:{lastHash,at:Date.now()}};
-        const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-        const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-        a.download=`esp_flow_state_${Date.now()}.json`; a.click();
-      },{passive:true});
-    }
-  }
-
-  document.addEventListener('DOMContentLoaded',boot,{once:true});
+  wrap.append(head,pre,btns); btns.append(close,force,copy);
+  document.addEventListener('DOMContentLoaded',()=>{ document.body.appendChild(wrap); report(); },{once:true});
 })();
-</script>
+                                                           </script>
 </body>
 </html>
