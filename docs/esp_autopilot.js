@@ -82,21 +82,23 @@
           S.log.push({t:Date.now(), role, text, entity});
           if(S.log.length>300) S.log = S.log.slice(-300);
         }
+        
         function render(){
-          logEl.innerHTML = S.log.map(m=>{
-            const who = m.role==='user' ? '나' : (m.entity||'흐름');
-            const me = m.role==='user' ? ' me' : '';
-            return `
-              <div class="log-row">
-                <div class="log-bubble${me}">${m.text}</div>
-                <div class="meta">🤖 ${who} · ${tstr(m.t)}</div>
-              </div>`;
-          }).join("");
-          logEl.scrollTop = logEl.scrollHeight;
-          const {auto,total,reject,silence} = S.cnt;
-          const autonomy = total ? ((auto/total)*100).toFixed(1) : "0.0";
-          metricsEl.textContent = `Autonomy ${autonomy}% · total ${total} · reject ${reject} · silence ${silence}`;
-          save(S);
+  logEl.innerHTML = S.log.map(m=>{
+    const who = m.role==='user' ? '나' : (m.entity||'흐름');
+    const me = m.role==='user' ? ' me' : '';
+    const text = String(m.text ?? '').trim();   // ← undefined 방지
+    return `
+      <div class="log-row">
+        <div class="log-bubble${me}">${text || ' '}</div>
+        <div class="meta">🤖 ${who} · ${tstr(m.t)}</div>
+      </div>`;
+  }).join("");
+  logEl.scrollTop = logEl.scrollHeight;
+  const {auto,total,reject,silence} = S.cnt;
+  const autonomy = total ? ((auto/total)*100).toFixed(1) : "0.0";
+  metricsEl.textContent = `Autonomy ${autonomy}% · total ${total} · reject ${reject} · silence ${silence}`;
+  save(S);
         }
         function respond(text){
           // 매우 단순한 라우팅/행동(데모)
