@@ -1,97 +1,42 @@
-/* ===== Base Theme ===== */
-:root{
-  --bg:#0b0e11; --fg:#e8eef5; --muted:#8a97a6;
-  --line:#1a2028; --card:#10151b; --accent:#78f3ff;
-  --tap:14px;
+/* ===== Layout & spacing hotfix ===== */
+.wrap{
+  max-width:960px; margin:0 auto; padding:16px;
+  min-height:100dvh;
+  padding-bottom:160px; /* 워터마크 + 하단 링크 공간 확보(기존 96px → 160px) */
 }
-*{ box-sizing:border-box; }
-html,body{ height:100%; }
-body{
-  margin:0; background:var(--bg); color:var(--fg);
-  font:15px/1.6 system-ui, apple-system, Segoe UI, Roboto;
-}
-a{ color:var(--accent); text-decoration:none; }
 
-/* ===== Layout ===== */
-.wrap{ max-width:960px; margin:0 auto; padding:16px;
-  min-height:100dvh; padding-bottom:96px; /* 워터마크 공간 확보 */
-}
-.toolbar{
-  position:sticky; top:max(0px, env(safe-area-inset-top));
-  display:flex; align-items:center; gap:12px; z-index:20;
-  background:#0d1218cc; backdrop-filter:blur(4px);
-  border:1px solid var(--line); border-radius:12px; padding:10px 12px;
-  box-shadow:0 6px 16px rgba(0,0,0,.25);
-}
-.brand{ font-weight:800; letter-spacing:.3px; }
-.nav{ margin-left:auto; display:flex; gap:14px; }
-.nav a{ font-weight:700; }
-
-.flow-mount{ margin-top:12px; }
-
-/* ===== Chat UI (JS가 마운트함) ===== */
-#flow-wrap{ position:relative; }
-#flow-toolbar{
-  position:sticky; top:calc(8px + env(safe-area-inset-top)); z-index:15;
-  background:#0d1218cc; border:1px solid var(--line); border-radius:12px;
-  padding:8px; display:flex; align-items:center; justify-content:space-between;
-}
-#flow-toolbar .btn{
-  border:1px solid var(--line); background:#12202a; color:#e8eef5;
-  padding:12px 16px; border-radius:12px; min-width:92px; cursor:pointer;
-}
-#flow-toolbar .btn.primary{ background:var(--accent); color:#001118; font-weight:800; }
-
+/* 채팅 로그가 하단 요소 뒤에 숨지 않도록 바닥 패딩 보강 */
 #flow-log{
   background:var(--card); border:1px solid var(--line); border-radius:14px;
-  min-height:280px; max-height:min(45vh, 480px); overflow:auto;
-  padding:14px; margin-top:10px; padding-bottom:72px; /* 입력창 뒤 숨김 방지 */
+  min-height:280px; max-height:min(55vh, 560px); /* 높이 여유 확대 */
+  overflow:auto; padding:14px;
+  padding-bottom:96px; /* 입력창/워터마크와 겹침 방지(기존 72px → 96px) */
+  margin-top:10px;
 }
-.log-row{ margin:10px 0; }
-.log-bubble{
-  display:inline-block; max-width:76%;
-  background:#0d1218; border:1px solid var(--line);
-  padding:10px 12px; border-radius:14px;
-}
-.log-bubble.me{ background:#0e1822; border-color:#0f2533; }
-.meta{ font-size:12px; color:var(--muted); margin-top:4px; }
 
-#flow-input{
-  width:100%; min-height:44px; max-height:40vh;
-  padding:14px; border:1px solid var(--line); border-radius:12px;
-  background:#0c1117; color:var(--fg); line-height:1.5;
-}
-#flow-send2{
-  border:0; border-radius:14px; padding:12px 16px; margin-left:8px;
-  background:var(--accent); color:#001118; font-weight:800;
-}
-.input-row{ display:flex; align-items:flex-end; margin-top:10px; }
+/* 입력 줄과 버튼 */
+.input-row{ display:flex; align-items:flex-end; gap:8px; margin-top:10px; }
+#flow-input{ width:100%; min-height:44px; max-height:40vh; padding:14px; }
+#flow-send2{ border:0; border-radius:14px; padding:12px 16px; background:var(--accent); color:#001118; font-weight:800; }
 
-.metrics{
-  color:var(--muted); font-size:13px; margin-top:6px; padding-bottom:4px;
-}
-.actions-pane{
-  margin-top:10px; background:#0d1218; border:1px dashed var(--line);
-  border-radius:12px; padding:10px; margin-bottom:12px; /* 워터마크와 간격 */
-}
-.actions-pane pre{ margin:0; white-space:pre-wrap; word-break:break-word; }
+/* Actions 패널이 워터마크와 겹치지 않도록 하단 마진 */
+.actions-pane{ margin-bottom:16px; }
 
-/* ===== Footer ===== */
-.footlinks{ margin-top:10px; display:flex; gap:18px; }
+/* 하단 링크와 워터마크 간격 확보 */
+.footlinks{ margin-top:12px; display:flex; gap:18px; margin-bottom:70px; }
+
+/* 워터마크: 시각 안정 + 클릭 차단 */
 .watermark{
-  position:fixed; left:16px; right:16px; bottom:8px; z-index:10;
-  height:40px; display:flex; align-items:center; justify-content:center;
+  position:fixed; left:16px; right:16px; bottom:10px; z-index:10;
+  height:44px; display:flex; align-items:center; justify-content:center;
   color:#8aa; font-size:12px; background:#060a0dcc; backdrop-filter:blur(3px);
   border:1px solid var(--line); border-radius:10px;
+  pointer-events:none; /* 뒤 요소 클릭 가능 */
+  text-shadow:0 1px 0 rgba(0,0,0,.6);
 }
 
-/* ===== Small ===== */
+/* 상단 바 버튼이 2줄로 꺾이지 않게 */
+.toolbar{ flex-wrap:wrap; row-gap:8px; }
 @media (max-width:520px){
   .nav{ display:none; }
-  #flow-toolbar .btn{ min-width:auto; padding:10px 12px; }
-}
-
-/* ===== Reduce motion ===== */
-@media (prefers-reduced-motion:reduce){
-  *{ animation:none !important; transition:none !important; }
 }
