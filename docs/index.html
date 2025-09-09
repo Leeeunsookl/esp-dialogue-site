@@ -3,80 +3,83 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>ESP Dialog · Flow Chat</title>
   <meta name="robots" content="noindex,nofollow"/>
-  <title>ESP Flow</title>
+
+  <!-- ===== Quick UX Fix Pack (모바일 최적화) ===== -->
   <style>
     :root{
-      --bg:#0b0e11; --fg:#e8eef5; --muted:#8a97a6;
-      --line:#1a2028; --card:#10151b; --accent:#78f3ff;
-      --safe-t: env(safe-area-inset-top); --safe-b: env(safe-area-inset-bottom);
+      --bg:#0b0e11; --card:#10151b; --line:#1a2028; --fg:#e8eef5; --muted:#8aa0b3; --accent:#78f3ff;
+      --tap:14px; --safe-pt:env(safe-area-inset-top); --safe-pb:env(safe-area-inset-bottom);
     }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{margin:0;color:var(--fg);background:var(--bg);
-      font:15px/1.55 system-ui,Segoe UI,Roboto,Apple SD Gothic Neo,AppleGothic,sans-serif}
-    .wrap{min-height:100dvh;display:grid;grid-template-rows:auto 1fr auto;gap:10px;
-      padding:10px;padding-top:calc(10px + var(--safe-t));padding-bottom:calc(10px + var(--safe-b));
-      max-width:960px;margin:0 auto}
-    .toolbar{position:sticky;top:calc(0px + var(--safe-t));z-index:20;
-      display:flex;gap:8px;align-items:center;justify-content:space-between;
-      padding:8px;border:1px solid var(--line);border-radius:12px;background:#0d1218cc;backdrop-filter:blur(4px)}
-    .toolbar .left{display:flex;gap:8px;align-items:center}
-    button{appearance:none;border:1px solid var(--line);background:#0e1822;color:var(--fg);
-      padding:12px 14px;border-radius:12px;min-width:96px;font-weight:700;cursor:pointer}
-    button.primary{background:var(--accent);color:#001118;border-color:#0f2533}
-    button:active{transform:translateY(1px)}
-    .board{border:1px solid var(--line);border-radius:12px;background:var(--card);
-      padding:10px;display:flex;flex-direction:column;gap:10px;max-height:min(60vh,560px);overflow:auto}
-    .msg{max-width:88%;padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:#0d1218}
-    .me{align-self:flex-end;background:#0e1822;border-color:#0f2533}
-    .meta{margin-top:4px;font-size:12px;color:var(--muted)}
-    .composer{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
-    textarea{width:100%;min-height:44px;max-height:40vh;resize:none;line-height:1.5;
-      padding:12px;border-radius:12px;border:1px solid var(--line);background:#0c1117;color:var(--fg)}
-    .panel{border:1px dashed var(--line);border-radius:12px;background:#0d1218;padding:8px 10px;color:var(--muted);font-size:13px}
-    .hidden{display:none}
-    #flow-metrics{font-variant-numeric:tabular-nums}
-    a.link{color:#78f3ff;text-decoration:none;margin-right:12px}
-    @media (max-width:520px){button{min-width:auto;padding:12px 12px}.board{max-height:min(58vh,520px)}}
-    @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+    *{box-sizing:border-box} html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 system-ui,apple-system,Segoe UI,Roboto}
+    .wrap{min-height:100dvh;max-width:960px;margin:0 auto;padding:16px;display:grid;grid-template-rows:auto 1fr auto;gap:10px;padding-bottom:calc(12px + var(--safe-pb))}
+    a{color:var(--accent);text-decoration:none}
+
+    /* 상단 툴바 */
+    .toolbar{position:sticky;top:0;z-index:20;background:#0d1218cc;backdrop-filter:blur(4px);
+      border:1px solid var(--line);border-radius:12px;padding:8px 10px;display:flex;align-items:center;gap:8px}
+    .toolbar .spacer{flex:1}
+    .btn{min-width:88px;padding:10px 16px;border:1px solid var(--line);border-radius:12px;background:#0f1822;color:#e8eef5;cursor:pointer}
+    .btn.primary{background:#78f3ff;color:#001118;font-weight:800}
+    .btn:active{transform:translateY(1px)}
+    .btn:focus{outline:2px solid #243140}
+
+    /* 로그 영역 */
+    .board{border:1px solid var(--line);border-radius:14px;background:var(--card);padding:12px;overflow:auto;
+      max-height:min(60vh,560px)}
+    .row{margin:10px 0}
+    .msg{padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#0d1218;display:inline-block;max-width:92%}
+    .me .msg{background:#0e1822;border-color:#0f2533}
+    .meta{color:var(--muted);font-size:12px;margin-top:4px}
+
+    /* 입력 영역 */
+    .composer{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}
+    #flow-input, #input{width:100%;min-height:42px;max-height:40vh;line-height:1.5;padding:12px;border-radius:12px;border:1px solid var(--line);background:#0c1117;color:var(--fg)}
+    .ghost-send{width:92px}
+    .metrics{color:var(--muted);font-size:12px;margin-top:6px}
+
+    /* 링크 푸터 */
+    .links{display:flex;gap:18px;flex-wrap:wrap;color:#bdefff}
+    @media (max-width:520px){
+      .btn{min-width:auto;padding:10px 12px}
+    }
+    @media (prefers-reduced-motion:reduce){
+      *{animation:none !important;transition:none !important}
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
+
     <!-- Toolbar -->
     <div class="toolbar" id="flow-toolbar">
-      <div class="left">
-        <button id="flow-send" class="primary" aria-label="메시지 전송">전송</button>
-        <button id="flow-actions" aria-label="액션 로그 토글">Actions</button>
-      </div>
-      <div class="right">
-        <button id="flow-export" aria-label="상태 내보내기">Export</button>
-      </div>
+      <button class="btn primary" id="flow-send">전송</button>
+      <button class="btn" id="flow-actions">Actions</button>
+      <div class="spacer"></div>
+      <button class="btn" id="flow-export">Export</button>
     </div>
 
-    <!-- Board -->
-    <section class="board" id="flow-log" aria-live="polite" aria-label="대화 로그"></section>
+    <!-- Log Board -->
+    <section class="board" id="flow-log" aria-live="polite"></section>
 
     <!-- Composer -->
     <section class="composer">
-      <textarea id="flow-input" placeholder="메시지를 입력… (Enter 전송, Shift+Enter 줄바꿈)"></textarea>
-      <button id="flow-send-ghost" class="primary" aria-label="메시지 전송(우측)">전송</button>
+      <textarea id="flow-input" placeholder="메시지 입력… (Enter=전송, Shift+Enter=줄바꿈)"></textarea>
+      <button class="btn primary ghost-send" id="flow-send-ghost" data-role="send">전송</button>
+      <div class="metrics" id="flow-metrics" data-role="metrics">Autonomy 0.0% · total 0 · reject 0 · silence 0</div>
     </section>
 
-    <!-- Metrics / Actions -->
-    <section id="flow-metrics" class="panel">Autonomy 0.0% · total 0 · reject 0 · silence 0</section>
-    <section id="flow-actions-pane" class="panel hidden"><pre style="margin:0;white-space:pre-wrap;word-break:break-word">Actions: (empty)</pre></section>
-
-    <!-- Guide/Policy links -->
-    <section class="panel" aria-label="가이드">
-      <a class="link" href="/guide.html">가이드</a>
-      <a class="link" href="/policy.html">윤리선언문</a>
-      <a class="link" href="/entities.html">존재별특징</a>
-    </section>
+    <!-- 하단 문서 링크 -->
+    <nav class="links">
+      <a href="/guide.html">가이드</a>
+      <a href="/policy.html">윤리선언문</a>
+      <a href="/entities.html">존재별특징</a>
+    </nav>
   </div>
 
   <!-- 엔진 -->
-  <script src="/docs/esp_autopilot.js?v=2025-09-09-fix" defer></script>
+  <script src="/esp_autopilot.js?v=H1" defer></script>
 </body>
 </html>
