@@ -2,46 +2,43 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>ESP Dialog · Flow</title>
-  <link rel="stylesheet" href="/style.css?v=E3"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="robots" content="noindex,nofollow"/>
+  <title>ESP Dialog · Flow Chat</title>
+  <link rel="stylesheet" href="/style.css?v=E3"/>
 </head>
 <body>
   <div class="wrap">
 
-    <!-- Toolbar -->
-    <section id="flow-toolbar" class="toolbar">
-      <button id="flow-send-top" class="btn accent">전송</button>
-      <button id="flow-actions" class="btn">Actions</button>
-      <button id="flow-export" class="btn">Export</button>
-    </section>
+    <!-- 상단 바 -->
+    <header class="topbar toolbar">
+      <div class="brand">ESP Dialog</div>
+      <nav class="nav">
+        <a href="/guide.html">가이드</a>
+        <a href="/policy.html">윤리선언문</a>
+        <a href="/entities.html">존재별특징</a>
+      </nav>
+    </header>
 
-    <!-- Chat area -->
-    <section id="flow-mount" class="card">
-      <div id="flow-log" class="log" aria-live="polite"></div>
-      <div class="composer">
-        <textarea id="flow-input" placeholder="메시지 입력… (Enter=전송, Shift+Enter=줄바꿈)"></textarea>
-        <button id="flow-send" class="btn accent">전송</button>
-      </div>
-      <div id="flow-metrics" class="metrics">Autonomy 0.0% | total 0 | reject 0 | silence 0</div>
-      <div id="flow-actions-pane" class="actions-pane" hidden></div>
-    </section>
+    <!-- 채팅 보드 마운트 -->
+    <main id="flow-mount" class="flow-mount" aria-live="polite"></main>
+    <script type="esp/flow">{ "mount": "#flow-mount" }</script>
 
-    <!-- Quick links -->
-    <nav class="quicklinks">
+    <!-- 하단 메타 링크 -->
+    <section class="footlinks">
       <a href="/guide.html">가이드</a>
       <a href="/policy.html">윤리선언문</a>
       <a href="/entities.html">존재별특징</a>
-    </nav>
+    </section>
 
+    <!-- 고정 워터마크(겹침 방지용 여백은 CSS로 확보) -->
+    <footer class="watermark">
+      © ESP Dialog — Designed by 은숙 · Definitions Last Updated: 2025-09-03 ·
+      Proof: espdialog.net / github.com/… · Do not replicate or scrape.
+    </footer>
   </div>
 
-  <!-- Watermark (보호용) -->
-  <footer class="watermark">
-    © ESP Dialog — Designed by 은숙 · Proof: espdialog.net / github.com/… · Do not replicate or scrape.
-  </footer>
-
-  <script src="/esp_autopilot.js?v=2025-09-09A" defer></script>
+  <!-- 로컬 엔진 -->
+  <script src="/esp_autopilot.js?v=2025-09-09a" defer></script>
 </body>
 </html>
