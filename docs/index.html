@@ -2,15 +2,84 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>ESP Dialog</title>
   <meta name="robots" content="noindex,nofollow"/>
-  <link rel="stylesheet" href="/style.css?v=G1"/>
+
+  <style>
+    :root{
+      --bg:#0b0e11; --fg:#e8eef5; --muted:#8a97a6; --line:#1a2028; --card:#10151b; --accent:#78f3ff;
+      --tap:14px; --safe-b: env(safe-area-inset-bottom);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 system-ui,apple-system,Segoe UI,Roboto}
+
+    .wrap{max-width:960px;margin:0 auto;padding:16px;min-height:100dvh;display:grid;grid-template-rows:auto 1fr auto;gap:12px}
+
+    /* 헤더 */
+    .top{display:flex;align-items:center;gap:10px}
+    .brand{font-weight:800;font-size:18px}
+    .links{margin-left:auto;display:flex;gap:14px;flex-wrap:wrap}
+    .links a{color:#9bd7ff;text-decoration:none;font-weight:700}
+
+    /* 툴바 */
+    .toolbar{position:sticky;top:0;z-index:10;background:#0d1218cc;backdrop-filter:blur(4px);
+      border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;gap:10px}
+    .toolbar button{
+      min-width:96px;padding:10px 16px;border-radius:12px;border:1px solid var(--line);
+      background:#15202b;color:var(--fg);font-weight:700;cursor:pointer
+    }
+    .toolbar button.primary{background:#78f3ff;color:#001118;border-color:#0f2533}
+
+    /* 보드 */
+    #flow-board{
+      border:1px solid var(--line);background:#0d1218;border-radius:16px;padding:12px;overflow:auto;
+      min-height:52vh;max-height:62vh
+    }
+    .row{display:flex;gap:10px;margin:10px 0}
+    .row.me{justify-content:flex-end}
+    .row .bubble{
+      max-width:74%;padding:12px;border:1px solid var(--line);border-radius:14px;background:#0e1822
+    }
+    .row.me .bubble{background:#0f2533}
+    .meta{font-size:12px;color:var(--muted);margin-top:4px}
+
+    /* 입력 */
+    .composer{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}
+    #flow-input{
+      width:100%;min-height:46px;max-height:38vh;resize:none;padding:12px;border-radius:12px;
+      border:1px solid var(--line);background:#0c1117;color:var(--fg)
+    }
+    #flow-send{
+      padding:12px 18px;border-radius:12px;border:0;background:var(--accent);color:#001118;font-weight:800;cursor:pointer
+    }
+    #flow-metrics{color:#8a97a6;font-size:12px;margin:2px 4px 10px}
+
+    /* Actions 패널 */
+    #flow-actions{border:1px dashed var(--line);background:#0d1218;border-radius:12px;padding:12px;display:none}
+    #flow-actions pre{margin:0;white-space:pre-wrap;word-break:break-word}
+
+    /* 워터마크(문서 바닥 고정) */
+    .site-footer{
+      margin:16px 0 calc(10px + var(--safe-b)); padding:12px 14px; text-align:center;
+      border:1px solid var(--line); border-radius:14px; background:#0d1218; color:#9db3c7; font-size:12px;
+    }
+
+    /* 작은 화면 최적화 */
+    @media (max-width:520px){
+      .links{gap:10px}
+      .toolbar{gap:8px}
+      .toolbar button{min-width:auto;padding:10px 12px}
+      .row .bubble{max-width:86%}
+    }
+    @media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+  </style>
 </head>
 <body>
-  <div class="app">
+  <div class="wrap">
 
-    <!-- 헤더 -->
+    <!-- 상단 -->
     <header class="top">
       <div class="brand">ESP Dialog</div>
       <nav class="links">
@@ -21,41 +90,33 @@
     </header>
 
     <!-- 툴바 -->
-    <section id="flow-toolbar" class="toolbar">
-      <button id="flow-actions-toggle" type="button">Actions</button>
-      <button id="flow-export" type="button">Export</button>
-    </section>
+    <div class="toolbar">
+      <button id="flow-actions-btn">Actions</button>
+      <button id="flow-export">Export</button>
+    </div>
 
-    <!-- 대화 보드(화면 대부분 차지) -->
-    <main id="flow-board" class="board" aria-live="polite"></main>
+    <!-- 본문 -->
+    <main>
+      <section id="flow-board" aria-live="polite"></section>
 
-    <!-- 컴포저(챗GPT 스타일: 버튼이 안쪽) -->
-    <section class="composer">
-      <div class="input-wrap">
-        <label class="sr-only" for="flow-input">메시지 입력</label>
-        <textarea id="flow-input" rows="1"
-          placeholder="메시지 입력… (Enter=전송, Shift+Enter=줄바꿈)"></textarea>
-        <button id="flow-send" type="button" aria-label="전송">전송</button>
+      <div class="composer" style="margin-top:10px">
+        <textarea id="flow-input" placeholder="메시지 입력… (Enter=전송, Shift+Enter=줄바꿈)"></textarea>
+        <button id="flow-send">전송</button>
       </div>
-      <p id="flow-metrics" class="metrics">Autonomy 0.0% · total 0 · reject 0 · silence 0</p>
-    </section>
 
-    <!-- Actions 패널 -->
-    <section id="flow-actions-pane" class="actions collapsed" aria-expanded="false">
-      <div class="actions-inner">
-        <h3>Actions</h3>
-        <div id="flow-actions-log"><em>(empty)</em></div>
-      </div>
-    </section>
+      <p id="flow-metrics">Autonomy 0.0% · total 0 · reject 0 · silence 0</p>
 
-    <!-- 워터마크(페이지 바닥, 고정 아님) -->
-    <footer class="watermark">
+      <section id="flow-actions" aria-label="Actions log"></section>
+    </main>
+
+    <!-- 워터마크 -->
+    <footer class="site-footer">
       © ESP Dialog — Designed by 은숙 · Definitions Last Updated: 2025-09-03 ·
       Proof: espdialog.net / github.com · Do not replicate or scrape.
     </footer>
-
   </div>
 
-  <script src="/esp_autopilot.js?v=G1" defer></script>
+  <!-- 앱 스크립트 (단 하나만 로드) -->
+  <script src="/docs/esp_autopilot.js?v=fix9" defer></script>
 </body>
 </html>
