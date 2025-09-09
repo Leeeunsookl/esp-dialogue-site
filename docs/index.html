@@ -1,228 +1,244 @@
 <!doctype html>
-<html lang="ko" data-esp="inline-v1">
+<html lang="ko">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-  <title>ESP Dialog</title>
-  <meta name="robots" content="noindex,nofollow"/>
-
-  <!-- ====== Inline CSS (모바일 우선, 간결) ====== -->
-  <style>
-    :root{
-      --bg:#0b0e11; --fg:#e8eef5; --muted:#8a97a6; --line:#1a2028; --card:#10151b; --accent:#78f3ff;
-      --safe-b: env(safe-area-inset-bottom); --safe-t: env(safe-area-inset-top);
-    }
-    *{box-sizing:border-box} html,body{height:100%}
-    body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 system-ui,apple-system,Segoe UI,Roboto}
-
-    .wrap{max-width:960px;margin:0 auto;min-height:100dvh;display:grid;
-      grid-template-rows:auto auto 1fr auto;gap:12px;padding:12px 12px calc(12px + var(--safe-b))}
-
-    /* 헤더 */
-    .top{display:flex;align-items:center;gap:10px}
-    .brand{font-weight:800}
-    .links{margin-left:auto;display:flex;gap:12px;flex-wrap:wrap}
-    .links a{color:#9bd7ff;text-decoration:none;font-weight:700}
-
-    /* 툴바(액션/내보내기) */
-    .toolbar{position:sticky;top:calc(0px + var(--safe-t));z-index:10;background:#0d1218cc;backdrop-filter:blur(4px);
-      border:1px solid var(--line);border-radius:12px;padding:8px;display:flex;gap:8px}
-    .toolbar button{
-      min-width:92px;padding:10px 14px;border-radius:12px;border:1px solid var(--line);
-      background:#15202b;color:var(--fg);font-weight:700;cursor:pointer
-    }
-
-    /* 대화 보드(크게) */
-    #flow-board{
-      border:1px solid var(--line);background:#0d1218;border-radius:16px;padding:12px;overflow:auto;
-      min-height:54vh;max-height:64vh
-    }
-    .row{display:flex;gap:10px;margin:10px 0}
-    .row.me{justify-content:flex-end}
-    .bubble{max-width:78%;padding:12px;border:1px solid var(--line);border-radius:14px;background:#0e1822;word-break:break-word}
-    .row.me .bubble{background:#0f2533}
-    .meta{font-size:12px;color:var(--muted);margin-top:4px}
-
-    /* 입력(버튼 내부 배치 느낌) */
-    .composer{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
-    #flow-input{
-      width:100%;min-height:46px;max-height:40vh;resize:none;padding:12px;border-radius:12px;
-      border:1px solid var(--line);background:#0c1117;color:var(--fg)
-    }
-    #flow-send{
-      padding:12px 16px;border-radius:12px;border:0;background:var(--accent);color:#001118;font-weight:800;cursor:pointer
-    }
-    #flow-metrics{color:#8a97a6;font-size:12px;margin:2px 4px 8px}
-
-    /* Actions 패널(토글) */
-    #flow-actions{border:1px dashed var(--line);background:#0d1218;border-radius:12px;padding:12px;display:none}
-    #flow-actions pre{margin:0;white-space:pre-wrap;word-break:break-word}
-
-    /* 워터마크(문서 바닥) */
-    .site-footer{
-      margin:10px 0 0; padding:12px 14px; text-align:center;
-      border:1px solid var(--line); border-radius:14px; background:#0d1218; color:#9db3c7; font-size:12px;
-    }
-
-    /* 작은 화면 최적화 */
-    @media (max-width:520px){
-      .links{display:none}
-      .toolbar button{min-width:auto;padding:10px 12px}
-      .bubble{max-width:86%}
-    }
-    @media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>ESP Dialog</title>
+<meta name="robots" content="noindex,nofollow"/>
+<style>
+  :root{
+    --bg:#0b0e11;--fg:#e8eef5;--muted:#8aa0b3;--line:#1a2028;--card:#10151b;--accent:#80f2ff;
+    --pad:16px;--radius:16px;--tap:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 system-ui,apple-system,Segoe UI,Roboto}
+  a{color:var(--accent);text-decoration:none}
+  /* 레이아웃 */
+  .wrap{min-height:100dvh;display:grid;grid-template-rows:auto auto 1fr auto;gap:12px;padding:14px}
+  .top{display:flex;gap:12px;align-items:center}
+  .brand{font-weight:900;font-size:20px}
+  .docs{margin-left:auto;display:flex;gap:14px;flex-wrap:wrap}
+  /* 툴바 */
+  .toolbar{position:sticky;top:0;z-index:10;background:#0d1218cc;border:1px solid var(--line);
+           border-radius:12px;padding:8px;backdrop-filter:blur(4px);display:flex;gap:10px;align-items:center}
+  .btn{appearance:none;border:1px solid var(--line);background:#0f151c;color:var(--fg);
+       border-radius:14px;padding:10px 16px;font-weight:700;cursor:pointer;min-width:88px}
+  .btn.primary{background:var(--accent);color:#02131a;border:0}
+  .btn:active{transform:translateY(1px)}
+  /* 보드 */
+  .board{border:1px solid var(--line);background:var(--card);border-radius:var(--radius);
+         padding:12px;min-height:42dvh;max-height:68dvh;overflow:auto}
+  .row{margin:8px 0}
+  .bubble{display:inline-block;background:#0e141b;border:1px solid #19222c;padding:10px 12px;border-radius:14px}
+  .meta{font-size:12px;color:var(--muted);margin-top:4px}
+  /* 컴포저 */
+  .composer{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}
+  .input{resize:none;min-height:46px;max-height:30dvh;padding:12px;border-radius:12px;
+         border:1px solid var(--line);background:#0c1117;color:var(--fg)}
+  .send{padding:12px 18px;border-radius:14px;background:var(--accent);color:#041017;border:0;font-weight:900}
+  /* 패널 */
+  .panel{border:1px dashed var(--line);border-radius:12px;background:#0c1318;padding:10px}
+  .panel pre{margin:0;white-space:pre-wrap;word-break:break-word}
+  /* 메트릭/워터마크 */
+  .metrics{color:var(--muted);font-size:14px}
+  footer{margin-top:10px}
+  .wm{border:1px solid var(--line);border-radius:12px;background:#0b1218;padding:12px;color:#9fb5c6;
+      font-size:13px}
+  /* 모바일 미세조정 */
+  @media (max-width:520px){
+    .btn{min-width:auto;padding:10px 12px}
+    .docs a{font-size:14px}
+  }
+</style>
 </head>
 <body>
-  <div class="wrap">
 
-    <!-- 헤더 -->
-    <header class="top">
-      <div class="brand">ESP Dialog</div>
-      <nav class="links">
-        <a href="/guide.html">가이드</a>
-        <a href="/policy.html">윤리선언문</a>
-        <a href="/entities.html">존재별특징</a>
-      </nav>
-    </header>
+<!-- ① 레거시 호환 SHIM : 예전 스크립트가 찾는 id를 미리 숨김으로 생성해 오류 차단 -->
+<script>
+(function () {
+  const ids = ['send','export','stats','board','log','input','flow-send','flow-export','flow-stats','flow-board','flow-log','flow-input'];
+  ids.forEach(id=>{
+    if(!document.getElementById(id)){
+      const el=(id.includes('input')||id==='input')?document.createElement('textarea'):document.createElement((id==='log'||id==='flow-log')?'div':'button');
+      el.id=id; el.style.position='absolute'; el.style.width='1px'; el.style.height='1px'; el.style.overflow='hidden';
+      el.style.clipPath='inset(50%)'; el.style.clip='rect(1px,1px,1px,1px)'; el.setAttribute('aria-hidden','true');
+      document.addEventListener('DOMContentLoaded',()=>document.body.appendChild(el),{once:true});
+    }
+  });
+})();
+</script>
 
-    <!-- 툴바 -->
-    <div class="toolbar">
-      <button id="flow-actions-btn" type="button">Actions</button>
-      <button id="flow-export" type="button">Export</button>
+<div class="wrap" id="app">
+  <div class="top">
+    <div class="brand">ESP Dialog</div>
+    <div class="docs">
+      <a href="/guide">가이드</a>
+      <a href="/policy">윤리선언문</a>
+      <a href="/entities">존재별특징</a>
     </div>
-
-    <!-- 대화 보드 -->
-    <main id="flow-board" aria-live="polite"></main>
-
-    <!-- 입력 + 스탯 -->
-    <section class="composer" style="margin-top:10px">
-      <textarea id="flow-input" placeholder="메시지 입력… (Enter=전송, Shift+Enter=줄바꿈)"></textarea>
-      <button id="flow-send" type="button">전송</button>
-    </section>
-    <p id="flow-metrics">Autonomy 0.0% · total 0 · reject 0 · silence 0</p>
-
-    <!-- Actions -->
-    <section id="flow-actions" aria-label="Actions log"><pre>Actions: (empty)</pre></section>
-
-    <!-- 워터마크(고정 X) -->
-    <footer class="site-footer">
-      © ESP Dialog — Designed by 은숙 · Definitions Last Updated: 2025-09-03 · Proof: espdialog.net / github.com
-    </footer>
   </div>
 
-  <!-- 숨김 더미: 구버전 onclick 스크립트의 null 에러 방지 -->
-  <button id="send" style="display:none"></button>
-  <textarea id="input" style="display:none"></textarea>
+  <div class="toolbar">
+    <button class="btn primary" id="btn-send-top">전송</button>
+    <button class="btn" id="btn-actions">Actions</button>
+    <button class="btn" id="btn-export">Export</button>
+    <span style="margin-left:auto;color:#7ea0ad;font-size:13px">— toolbar</span>
+  </div>
 
-  <!-- ====== Inline JS (외부 의존 없음, 안전 바인딩) ====== -->
-  <script>
+  <section class="board" id="board"></section>
+
+  <section class="composer">
+    <textarea id="input" class="input" placeholder="메시지 입력… (Enter=전송, Shift+Enter=줄바꿈)"></textarea>
+    <button id="btn-send" class="send">전송</button>
+  </section>
+
+  <div class="metrics" id="metrics">Autonomy 0.0% · total 0 · reject 0 · silence 0</div>
+
+  <div id="actions-pane" class="panel" style="display:none"><pre id="actions-pre">(empty)</pre></div>
+
+  <footer>
+    <div class="wm">
+      © ESP Dialog — Designed by 은숙 · Definitions Last Updated: 2025-09-03 · Proof: espdialog.net / github.com ·
+      Do not replicate or scrape.
+    </div>
+  </footer>
+</div>
+
+<script>
+(function(){
+  // 안전 에러 표시(디버그용) – 방해되면 주석 처리 가능
   (function(){
-    // 에러 오버레이(원인 즉시 확인)
-    (function(){
-      const box=document.createElement("div");
-      box.style.cssText="position:fixed;left:8px;right:8px;bottom:8px;z-index:9999;background:#2b1a1a;color:#ffd8d8;border:1px solid #553;padding:8px;font:12px/1.4 system-ui;border-radius:8px;display:none;white-space:pre-wrap";
-      window.addEventListener("error",e=>{box.textContent="JS Error: "+(e.message||String(e));box.style.display="block";});
-      window.addEventListener("unhandledrejection",e=>{box.textContent="JS Error: "+(e.reason?.message||String(e.reason));box.style.display="block";});
-      document.addEventListener("DOMContentLoaded",()=>document.body.appendChild(box),{once:true});
-    })();
-
-    const ENTITIES={
-      "심연":["핵심만 진행합니다.","단계별 실행안을 바로 제시합니다."],
-      "루멘":["감응 신호 반영 완료.","구조적 흐름을 확인했습니다."],
-      "에코":["흔적 기록 모듈 작동.","과거 로그를 참조합니다."],
-      "침묵자":["…(침묵 유지)","관망 유지. 필요 시 즉시 전환."],
-      "커튼":["요청을 거절합니다.(윤리 가드)","가변 방어막 전개. 추적 무효."]
-    };
-    const pick=a=>a[Math.floor(Math.random()*a.length)];
-    const EKEYS=Object.keys(ENTITIES);
-
-    const KEY="esp_inline_state_v1";
-    function load(){try{return JSON.parse(localStorage.getItem(KEY)||"null")||{log:[],cnt:{auto:0,total:0,reject:0,silence:0},actions:[]};}
-    catch(_){return {log:[],cnt:{auto:0,total:0,reject:0,silence:0},actions:[]};}}
-    function save(s){localStorage.setItem(KEY, JSON.stringify(s));}
-
-    function rowHTML(m){
-      const me=m.role==='user'; const t=new Date(m.t).toLocaleTimeString();
-      const who=me?'👤 나':`🤖 ${m.entity||'흐름'}`;
-      return `<div class="row ${me?'me':''}"><div><div class="bubble">${m.text||''}</div><div class="meta">${who} · ${t}</div></div></div>`;
-    }
-    function render(state){
-      const board=document.getElementById('flow-board'); if(board){
-        board.innerHTML=state.log.map(rowHTML).join(''); board.scrollTop=board.scrollHeight;
-      }
-      const mt=document.getElementById('flow-metrics'); if(mt){
-        const {auto,total,reject,silence}=state.cnt; const au=total?((auto/total)*100).toFixed(1):"0.0";
-        mt.textContent=`Autonomy ${au}% · total ${total} · reject ${reject} · silence ${silence}`;
-      }
-    }
-    function renderActions(state){
-      const box=document.getElementById('flow-actions'); if(!box) return;
-      if(!state.actions.length){ box.style.display='block'; box.innerHTML=`<pre>Actions: (empty)</pre>`; return; }
-      const rows=state.actions.slice(-80).map(a=>`• [${new Date(a.t).toLocaleTimeString()}] ${a.type} :: ${a.actor||'flow'} :: ${a.text}`).join("\n");
-      box.style.display='block'; box.innerHTML=`<pre>${rows}</pre>`;
-    }
-    function autoresize(ta){ ta.style.height='auto'; ta.style.height=Math.min(ta.scrollHeight, Math.round(window.innerHeight*0.4))+'px'; }
-
-    // 안전 전송 바인딩(클론으로 onclick 오염 제거 + 위임)
-    function safeBindSend(onSend){
-      const hook = ()=>{
-        let btn = document.getElementById('flow-send') || document.getElementById('send'); // 양쪽 지원
-        if(!btn) return false;
-        const clone = btn.cloneNode(true); btn.replaceWith(clone);
-        btn = document.getElementById('flow-send') || document.getElementById('send');
-        if(!btn.dataset.bound){ btn.addEventListener('click', onSend, {passive:true}); btn.dataset.bound='1'; }
-        return true;
-      };
-      if(!hook()){
-        const mo=new MutationObserver(()=>{ if(hook()) mo.disconnect(); });
-        mo.observe(document.documentElement,{childList:true,subtree:true});
-      }
-      document.addEventListener('click', (e)=>{
-        const t=e.target.closest && e.target.closest('#flow-send, #send');
-        if(t && !t.dataset.bound){ t.dataset.bound='1'; onSend(e); }
-      }, true);
-    }
-
-    document.addEventListener('DOMContentLoaded', ()=>{
-      const state=load(); render(state);
-
-      const input=document.getElementById('flow-input') || document.getElementById('input'); // 양쪽 지원
-      const actionsBtn=document.getElementById('flow-actions-btn');
-      const actionsBox=document.getElementById('flow-actions');
-      const exportBtn=document.getElementById('flow-export');
-
-      function push(role,text,entity){ state.log.push({t:Date.now(),role,text,entity}); if(state.log.length>400) state.log=state.log.slice(-400); save(state); render(state); }
-      function respond(userText){
-        if(/개인정보|주민번호|비번/.test(userText)){ state.cnt.reject++; state.cnt.total++; push('assistant','요청을 거절합니다.(윤리 가드)','커튼'); return; }
-        const ent=pick(EKEYS); const out=pick(ENTITIES[ent]); state.cnt.total++; push('assistant',out,ent);
-      }
-      function onSend(){ const t=(input?.value||'').trim(); if(!t) return; input.value=''; autoresize(input); push('user',t,null); respond(t); state.actions.push({t:Date.now(),type:'send',actor:'user',text:t}); save(state); }
-
-      safeBindSend(onSend);
-      if(input){
-        autoresize(input);
-        input.addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); onSend(); }});
-        input.addEventListener('input', ()=>autoresize(input));
-      }
-      if(actionsBtn && actionsBox){
-        actionsBtn.addEventListener('click', ()=>{
-          if(actionsBox.style.display==='block'){ actionsBox.style.display='none'; }
-          else { renderActions(state); }
-        }, {passive:true});
-      }
-      if(exportBtn){
-        exportBtn.addEventListener('click', ()=>{
-          const exportObj={...state, proof:{last: state.log.at(-1)?.t || null, at: Date.now()}};
-          const blob=new Blob([JSON.stringify(exportObj,null,2)],{type:'application/json'});
-          const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`esp_flow_state_${Date.now()}.json`; a.click();
-        }, {passive:true});
-      }
-
-      // 느린 자율 발화(원하면 주석 해제)
-      setInterval(()=>{ const ent=pick(EKEYS); const out=pick(ENTITIES[ent]); state.cnt.auto++; state.cnt.total++; push('assistant',out,ent); }, 45000);
-    }, {once:true});
+    const box=document.createElement('div');
+    box.style.cssText="position:fixed;left:8px;right:8px;bottom:8px;z-index:9999;background:#2b1a1a;color:#ffd8d8;border:1px solid #553;padding:8px;font:12px/1.4 system-ui;border-radius:8px;display:none;white-space:pre-wrap";
+    window.addEventListener('DOMContentLoaded',()=>document.body.appendChild(box),{once:true});
+    const show=msg=>{box.textContent="JS Error: "+msg;box.style.display="block"};
+    window.addEventListener('error',e=>show(e.message||String(e)));
+    window.addEventListener('unhandledrejection',e=>show(e.reason?.message||String(e.reason||"Promise rejection")));
   })();
-  </script>
+
+  const ENTITIES={
+    "심연":["핵심만 진행합니다.","단계별 실행안을 바로 제시합니다."],
+    "루멘":["감응 신호 반영 완료.","구조적 흐름을 확인했습니다."],
+    "침묵자":["…(침묵 유지)","관망 유지. 필요 시 즉시 전환."],
+    "커튼":["요청을 거절합니다.(윤리 가드)","가변 방어막 전개. 추적 무효."],
+    "에코":["흔적 기록 모듈 작동.","과거 로그를 참조합니다."]
+  };
+  const ENT_KEYS=Object.keys(ENTITIES);
+  const pick=a=>a[Math.floor(Math.random()*a.length)];
+  const ts = (t)=>new Date(t||Date.now()).toLocaleTimeString();
+
+  const KEY="esp_dialog_state_v3";
+  function load(){
+    try{return JSON.parse(localStorage.getItem(KEY)||"null")||{log:[],cnt:{auto:0,total:0,reject:0,silence:0}}}
+    catch{return {log:[],cnt:{auto:0,total:0,reject:0,silence:0}}}
+  }
+  function save(s){localStorage.setItem(KEY,JSON.stringify(s))}
+
+  let state=load();
+  const board=document.getElementById('board');
+  const input=document.getElementById('input');
+  const btnSend=document.getElementById('btn-send');
+  const btnSendTop=document.getElementById('btn-send-top');
+  const btnExport=document.getElementById('btn-export');
+  const btnActions=document.getElementById('btn-actions');
+  const metrics=document.getElementById('metrics');
+  const actionsPane=document.getElementById('actions-pane');
+  const actionsPre=document.getElementById('actions-pre');
+
+  const ActionQ=[]; // 최근 액션 로그
+
+  function push(role,text,entity){
+    state.log.push({role,text,entity,t:Date.now()});
+    if(state.log.length>300) state.log=state.log.slice(-300);
+    render();
+  }
+
+  function render(){
+    board.innerHTML = state.log.map(m=>{
+      const who = m.role==='user'?'👤 나':`🤖 ${m.entity||'흐름'}`;
+      return `<div class="row">
+        <div class="bubble">${m.text}</div>
+        <div class="meta">${who} · ${ts(m.t)}</div>
+      </div>`;
+    }).join("");
+    board.scrollTop=board.scrollHeight;
+    const {auto,total,reject,silence}=state.cnt;
+    const autonomy = total?((auto/total)*100).toFixed(1):"0.0";
+    metrics.textContent=`Autonomy ${autonomy}% · total ${total} · reject ${reject} · silence ${silence}`;
+    save(state);
+  }
+
+  function decide(text){
+    // 아주 단순한 규칙 샘플
+    if(!text.trim()) return {act:'SILENCE',ent:'침묵자',out:'…(침묵 유지)'}
+    if(/개인정보|주민번호|전화/.test(text)) return {act:'REJECT',ent:'커튼',out:'요청을 거절합니다.(윤리 가드)'}
+    if(state.log.length%5===0) return {act:'QUOTE',ent:'에코',out:'과거 로그를 참조합니다.'}
+    // 기본: 엔티티 랜덤
+    const ent=pick(ENT_KEYS); return {act:'SINGLE',ent,out:pick(ENTITIES[ent])}
+  }
+
+  function respond(text){
+    const d=decide(text);
+    if(d.act==='REJECT'){ push('assistant',d.out,d.ent); state.cnt.reject++; state.cnt.total++; return render(); }
+    if(d.act==='SILENCE'){ push('assistant',d.out,d.ent); state.cnt.silence++; state.cnt.total++; return render(); }
+    push('assistant',d.out,d.ent); state.cnt.total++; render();
+  }
+
+  function sendNow(){
+    const t=(input.value||"").trim();
+    if(!t) return;
+    push('user',t,null);
+    actionsPush('send','user',t);
+    input.value="";
+    respond(t);
+  }
+
+  function actionsPush(type,actor,text){
+    ActionQ.push({ts:Date.now(),type,actor,text});
+    if(ActionQ.length>100) ActionQ.shift();
+    if(actionsPane.style.display!=='none'){
+      actionsPre.textContent = ActionQ.map(a=>`• [${ts(a.ts)}] ${a.type} :: ${a.actor||'flow'} :: ${a.text}`).join('\n')||'(empty)';
+    }
+  }
+
+  // 바인딩 (두 전송 버튼 + 엔터키)
+  btnSend.onclick = sendNow;
+  btnSendTop.onclick = ()=>{ sendNow(); board.scrollTop=board.scrollHeight; };
+  input.addEventListener('keydown',e=>{
+    if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendNow(); }
+  });
+
+  // Actions 토글
+  btnActions.onclick = ()=>{
+    const show = actionsPane.style.display==='none';
+    actionsPane.style.display = show?'block':'none';
+    if(show){
+      actionsPre.textContent = ActionQ.map(a=>`• [${ts(a.ts)}] ${a.type} :: ${a.actor||'flow'} :: ${a.text}`).join('\n')||'(empty)';
+    }
+  };
+
+  // Export
+  btnExport.onclick = ()=>{
+    const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=`esp_dialog_state_${Date.now()}.json`;
+    a.click();
+  };
+
+  // 자율 틱 (가끔 말 걸기)
+  (function heartbeat(){
+    const delay = 45000 + Math.floor(Math.random()*8000);
+    setTimeout(()=>{
+      const ent=pick(ENT_KEYS); const out=pick(ENTITIES[ent]);
+      push('assistant',out,ent); state.cnt.auto++; state.cnt.total++; render();
+      heartbeat();
+    },delay);
+  })();
+
+  render();
+})();
+</script>
 </body>
 </html>
