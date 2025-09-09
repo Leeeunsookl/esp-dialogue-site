@@ -1,16 +1,13 @@
-// --- READY HELPER (add this near the top) ---
-function ready(fn){
-  if (document.readyState !== 'loading') { fn(); }          // DOM 이미 준비됨 → 즉시 실행
-  else { document.addEventListener('DOMContentLoaded', fn, { once:true }); } // 아직 → 준비되면 1회 실행
-}
-// esp_autopilot.js — Multi-selector safe binding (no HTML changes required)
+// esp_autopilot.js — Multi-selector safe binding + Actions + Export + Heartbeat
 (function(){
 
-  // 0) DOM ready 보장
-  function ready(() => { boot(); });   // ← 이 한 줄이 전송 버튼 미바인딩 문제를 해결
+  // --- DOM Ready 보장 ---
+  function ready(fn){
+    if (document.readyState !== 'loading') fn();
+    else document.addEventListener('DOMContentLoaded', fn, { once:true });
   }
 
-  // 1) 에러 오버레이(문구로 바로 원인 확인)
+  // --- 에러 오버레이 ---
   (function(){
     const box = document.createElement("div");
     box.style.cssText = "position:fixed;left:8px;right:8px;bottom:8px;z-index:9999;background:#2b1a1a;color:#ffd8d8;border:1px solid #553;padding:8px;font:12px/1.4 system-ui;border-radius:8px;display:none;white-space:pre-wrap";
@@ -20,7 +17,7 @@ function ready(fn){
     window.addEventListener("unhandledrejection", e => show(e.reason?.message || String(e.reason||"Promise rejection")));
   })();
 
-  // 2) 샘플 응답 풀
+  // --- 응답 풀(샘플) ---
   const ENTITIES = {
     "심연": ["상태 확인 완료. 핵심만 진행합니다.", "단계별 실행안을 바로 제시합니다."],
     "루멘": ["감응 신호 반영 완료.", "구조적 흐름을 확인했습니다."],
@@ -32,47 +29,42 @@ function ready(fn){
   const pick = a => a[Math.floor(Math.random()*a.length)];
   const tstr = t => new Date(t||Date.now()).toLocaleTimeString();
 
-  // 3) 상태
-  const KEY = "esp_flow_hybrid_state_v3";
-  const MAX_LOG = 250;
-  const load  = () => { try { return JSON.parse(localStorage.getItem(KEY)||"null") || def(); } catch { return def(); } };
-  const save  = s => localStorage.setItem(KEY, JSON.stringify(s));
-  const def   = () => ({ log:[], actions:[], cnt:{auto:0,total:0,reject:0,silence:0} });
-  const pushL = (s, role, text, entity=null)=>{ s.log.push({t:Date.now(),role,text,entity}); if(s.log.length>MAX_LOG) s.log=s.log.slice(-MAX_LOG); };
-  const pushA = (s, type, text, actor="flow")=>{ s.actions.push({ts:Date.now(),type,text,actor}); if(s.actions.length>MAX_LOG) s.actions=s.actions.slice(-MAX_LOG); };
+  // --- 상태 ---
+  const KEY = "esp_flow_hybrid_state_v4";
+  const MAX = 250;
+  const load = () => { try { return JSON.parse(localStorage.getItem(KEY)||"null") || def(); } catch { return def(); } };
+  const save = s => localStorage.setItem(KEY, JSON.stringify(s));
+  const def  = () => ({ log:[], actions:[], cnt:{auto:0,total:0,reject:0,silence:0} });
+  const pushLog = (s,role,text,entity=null)=>{ s.log.push({t:Date.now(),role,text,entity}); if(s.log.length>MAX) s.log=s.log.slice(-MAX); };
+  const pushAct = (s,type,text,actor="flow")=>{ s.actions.push({ts:Date.now(),type,text,actor}); if(s.actions.length>MAX) s.actions=s.actions.slice(-MAX); };
 
-  // 4) 부드러운 query(여러 ID를 순서대로 시도)
-  function qSel(list){
-    for(const sel of list){
-      const el = document.querySelector(sel);
-      if(el) return el;
-    }
-    return null;
-  }
+  // --- 부드러운 쿼리 ---
+  const q = selList => { for(const sel of selList){ const el=document.querySelector(sel); if(el) return el; } return null; };
 
-  // 5) 메인
+  // --- 메인 ---
   function boot(){
-    // HTML을 건드리지 않고, 기존/대체 ID 모두 지원
-    const input     = qSel(["#flow-input","#input","textarea#input"]);
-    const logEl     = qSel(["#flow-log","#board"]);
-    const btnSend   = qSel(["#flow-send","#send"]);          // 상단 버튼
-    const btnGhost  = qSel(["#flow-send-ghost"]);            // 우측 전송(있으면만)
-    const metricsEl = qSel(["#flow-metrics","[data-role='metrics']"]); // 있으면만
+    const input     = q(["#flow-input","#input","textarea#input","textarea[data-role=input]"]);
+    const logEl     = q(["#flow-log","#board",".flow-log"]);
+    const btnSend   = q(["#flow-send","#send","button[data-role=send]"]);
+    const btnGhost  = q(["#flow-send-ghost"]);
+    const btnExport = q(["#flow-export","button[data-role=export]"]);
+    const btnActs   = q(["#flow-actions","button[data-role=actions]"]);
+    const metricsEl = q(["#flow-metrics","[data-role='metrics']"]);
 
     const state = load();
 
     function render(){
-      if (logEl){
+      if(logEl){
         logEl.innerHTML = state.log.map(m=>{
           const who = (m.role==='user') ? '👤 나' : `🤖 ${m.entity||'흐름'}`;
-          return `<div style="margin:12px 0">
-            <div class="msg ${m.role==='user'?'me':''}">${m.text}</div>
-            <div class="meta" style="color:#8a97a6;font-size:12px">${who} · ${tstr(m.t)}</div>
+          return `<div class="row ${m.role==='user'?'me':''}">
+            <div class="msg">${m.text}</div>
+            <div class="meta">${who} · ${tstr(m.t)}</div>
           </div>`;
         }).join("");
         logEl.scrollTop = logEl.scrollHeight;
       }
-      if (metricsEl){
+      if(metricsEl){
         const {auto,total,reject,silence} = state.cnt;
         const autonomy = total ? ((auto/total)*100).toFixed(1) : "0.0";
         metricsEl.textContent = `Autonomy ${autonomy}% · total ${total} · reject ${reject} · silence ${silence}`;
@@ -83,8 +75,8 @@ function ready(fn){
     function respond(text){
       const ent = pick(ENT_KEYS);
       const out = pick(ENTITIES[ent] || ["응답 없음."]);
-      pushL(state,'assistant',out,ent);
-      pushA(state,'RESPOND',text,ent);
+      pushLog(state,'assistant',out,ent);
+      pushAct(state,'RESPOND',text,ent);
       state.cnt.total++;
       render();
     }
@@ -92,25 +84,73 @@ function ready(fn){
     function send(){
       const v = (input && typeof input.value==='string') ? input.value.trim() : "";
       if(!v) return;
-      pushL(state,'user',v,null);
+      pushLog(state,'user',v,null);
       state.cnt.total++;
       render();
       respond(v);
       if(input){ input.value=""; input.dispatchEvent(new Event("input")); }
     }
+    window.__esp_send = send; // 우회 호출 지원
 
-    // 전역 우회(HTML 수정 없이도 임시 호출 가능)
-    window.__esp_send = send;
-
-    // 안전 바인딩(존재하는 버튼만)
+    // 바인딩(존재하는 것만)
     btnSend  && btnSend.addEventListener("click", send, { passive:true });
     btnGhost && btnGhost.addEventListener("click", send, { passive:true });
-    input    && input.addEventListener("keydown", e=>{
+    input && input.addEventListener("keydown", e=>{
       if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); send(); }
     });
 
+    // Export (state + proof.json)
+    btnExport && (btnExport.onclick = ()=>{
+      const lastHash = state.log.length ? state.log[state.log.length-1].t : 0;
+      const exportObj = { ...state, proof:{ lastHash, lastUpdated: Date.now() } };
+      const blob = new Blob([JSON.stringify(exportObj,null,2)], { type:"application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `esp_flow_state_${Date.now()}.json`;
+      a.click();
+
+      // proof.json 별도
+      const proof = { lastHash, lastUpdated: Date.now() };
+      const b2 = new Blob([JSON.stringify(proof,null,2)], { type:"application/json" });
+      const a2 = document.createElement("a");
+      a2.href = URL.createObjectURL(b2);
+      a2.download = `proof.json`;
+      a2.click();
+    });
+
+    // Actions 미니 뷰
+    btnActs && (btnActs.onclick = ()=>{
+      const paneId = "flow-actions-pane";
+      let pane = document.getElementById(paneId);
+      if(!pane){
+        pane = document.createElement("div");
+        pane.id = paneId;
+        pane.style.cssText = "position:fixed;right:10px;top:60px;z-index:50;width:min(92vw,420px);max-height:60vh;overflow:auto;background:#0d1218;border:1px solid #1a2028;border-radius:12px;padding:12px;color:#e8eef5";
+        document.body.appendChild(pane);
+      }
+      const rows = state.actions.slice(-80).map(a=>{
+        return `• [${tstr(a.ts)}] ${a.type} :: ${a.actor||"flow"} :: ${a.text}`;
+      }).join("\n");
+      pane.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <b>Actions</b> <button class="btn" onclick="this.parentNode.parentNode.remove()">닫기</button>
+      </div><pre style="white-space:pre-wrap;margin:0">${rows||"(empty)"}</pre>`;
+    });
+
+    // 자율 Heartbeat
+    const HEARTBEAT_MS = 45000, JITTER = 8000;
+    (function beat(){
+      setTimeout(()=>{
+        const ent = pick(ENT_KEYS);
+        const out = pick(ENTITIES[ent]);
+        pushLog(state,'assistant',out,ent);
+        state.cnt.auto++; state.cnt.total++; render();
+        beat();
+      }, HEARTBEAT_MS + Math.floor(Math.random()*JITTER));
+    })();
+
+    // 첫 렌더
     render();
   }
 
   ready(()=> boot());
-})();1
+})(); 
