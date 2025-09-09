@@ -1,87 +1,247 @@
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>ESP Dialog</title>
-  <meta name="robots" content="noindex,nofollow"/>
-  <style>
-    :root{
-      --bg:#0b0e11; --fg:#e8eef5; --muted:#8aa97a; --line:#1a2028; --card:#10151b; --accent:#78f3ff;
-      --rad:16px; --pad:14px; --tap:14px;
-      --chatMin:60dvh; --chatMax:72dvh; --inputMin:64px; --inputMax:34dvh;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 system-ui,apple-system,Segoe UI,Roboto}
-    a{color:var(--accent);text-decoration:none}
-    .wrap{min-height:100dvh;display:grid;grid-template-rows:auto 1fr auto;gap:12px;padding:12px}
-    .top{display:flex;gap:12px;align-items:center}
-    .brand{font-weight:900;font-size:18px}
-    .docs{margin-left:auto;display:flex;gap:12px;flex-wrap:wrap}
-    #toolbar{position:sticky;top:0;z-index:20;background:#0d1218cc;backdrop-filter:blur(4px);
-      border:1px solid var(--line);border-radius:12px;padding:8px;display:flex;gap:8px;align-items:center}
-    .btn{appearance:none;border:1px solid var(--line);background:#0f151c;color:var(--fg);
-      border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer;min-width:88px}
-    .btn.primary{background:var(--accent);color:#02131a;border:0}
-    .btn:active{transform:translateY(1px)}
-    #btn-send-top{display:none}
-    #board{border:1px solid var(--line);background:var(--card);border-radius:var(--rad);
-      padding:12px;min-height:var(--chatMin);max-height:var(--chatMax);overflow:auto}
-    .row{margin:8px 0}
-    .bubble{display:inline-block;background:#0e141b;border:1px solid #19222c;padding:10px 12px;border-radius:14px}
-    .meta{font-size:12px;color:var(--muted);margin-top:4px}
-    #composer{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}
-    #input{resize:none;min-height:var(--inputMin);max-height:var(--inputMax);
-      padding:12px;border-radius:12px;border:1px solid var(--line);background:#0c1117;color:var(--fg)}
-    #send{padding:12px 18px;border-radius:14px;background:var(--accent);color:#041017;border:0;font-weight:900}
-    #metrics{margin-top:8px;font-size:14px;color:#a9c3d4}
-    #actions-pane{border:1px dashed var(--line);border-radius:12px;background:#0c1318;padding:10px}
-    #actions-pane pre{margin:0;white-space:pre-wrap;word-break:break-word}
-    footer{margin-top:10px}
-    .wm{border:1px solid var(--line);border-radius:12px;background:#0b1218;padding:10px;color:#98b2c4;font-size:12px}
-    @media (max-width:520px){ .btn{min-width:auto;padding:10px 12px} .docs{display:none} }
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>ESP Dialog</title>
+<meta name="robots" content="noindex,nofollow"/>
+
+<style>
+  :root{
+    --bg:#0b0e11; --fg:#e8eef5; --muted:#8aa0b3; --line:#1a2028; --card:#10151b; --accent:#80f2ff;
+    --pad:16px; --radius:16px;
+  }
+  *{ box-sizing:border-box }
+  html,body{ height:100% }
+  body{
+    margin:0; background:var(--bg); color:var(--fg);
+    font:15px/1.6 system-ui,apple-system,Segoe UI,Roboto;
+  }
+  a{ color:var(--accent); text-decoration:none }
+  .wrap{
+    min-height:100dvh;
+    display:grid;
+    grid-template-rows: auto auto 1fr auto auto auto; /* 헤더,툴바,보드,컴포저,메트릭,워터마크 */
+    gap:12px; padding:14px;
+  }
+
+  /* 헤더 */
+  .top{ display:flex; gap:10px; align-items:center }
+  .brand{ font-weight:900; font-size:20px }
+  .docs{ margin-left:auto; display:flex; gap:10px; flex-wrap:wrap }
+  .chip{ padding:6px 10px; border:1px solid var(--line); border-radius:999px; color:#a8def0 }
+
+  /* 툴바 */
+  .toolbar{
+    position:sticky; top:0; z-index:5;
+    background:#0d1218cc; backdrop-filter:blur(4px);
+    border:1px solid var(--line); border-radius:12px; padding:8px;
+    display:flex; gap:10px; align-items:center;
+  }
+  .btn{
+    appearance:none; cursor:pointer;
+    border:1px solid var(--line); background:#0f151c; color:var(--fg);
+    border-radius:14px; padding:10px 16px; font-weight:700;
+  }
+  .btn:active{ transform:translateY(1px) }
+
+  /* 대화 보드(여기가 유일한 스크롤 영역) */
+  .board{
+    border:1px solid var(--line); background:var(--card); border-radius:var(--radius);
+    padding:12px; min-height:56dvh; max-height:66dvh; overflow:auto;
+  }
+  .row{ margin:10px 0 }
+  .who{ font-size:12px; color:#a7c79b; margin-bottom:4px }
+  .bubble{
+    display:inline-block; background:#0e141b; border:1px solid #19222c;
+    padding:10px 12px; border-radius:14px;
+  }
+
+  /* 입력 + 전송 */
+  .composer{
+    display:grid; grid-template-columns:1fr auto; gap:10px; align-items:end;
+  }
+  .input{
+    resize:none; min-height:64px; max-height:32dvh;
+    padding:12px; border-radius:12px; border:1px solid var(--line);
+    background:#0c1117; color:var(--fg);
+  }
+  .send{
+    width:42px; height:42px; padding:0; border-radius:50%;
+    border:0; background:var(--accent); color:#041017; font-weight:900;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .send svg{ width:18px; height:18px; }
+
+  /* 메트릭 + 워터마크 */
+  .metrics{ color:#a9c3d4; font-size:14px }
+  footer{ /* 워터마크는 고정 X, 페이지 하단에 자리만 차지 */
+    border:1px solid var(--line); border-radius:12px; background:#0b1218;
+    color:#9fb5c6; padding:12px; font-size:13px;
+  }
+  .wm-small{ font-size:12px; opacity:.9 }
+
+  /* 모바일 미세조정 */
+  @media (max-width:520px){
+    .btn{ padding:10px 12px }
+    .docs .chip{ font-size:13px; padding:5px 9px }
+  }
+
+  /* 에러 오버레이(보이면 즉시 원인 확인) */
+  .errbox{
+    position:fixed; left:8px; right:8px; bottom:8px; z-index:9999;
+    display:none; background:#2b1a1a; color:#ffd8d8; border:1px solid #553;
+    padding:8px; border-radius:8px; white-space:pre-wrap; font:12px/1.4 system-ui;
+  }
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="top">
-      <div class="brand">ESP Dialog</div>
-      <nav class="docs">
-        <a href="./policy.html">윤리선언문</a>
-        <a href="./guide.html">가이드</a>
-        <a href="./entities.html">존재별특징</a>
-      </nav>
-    </div>
+<div class="wrap">
 
-    <div id="toolbar">
-      <button id="btn-send-top" class="btn primary">전송</button>
-      <button id="btn-export" class="btn">Export</button>
-      <button id="btn-stats" class="btn">Stats</button>
-      <button id="btn-actions" class="btn">Actions</button>
-      <span style="font-size:12px;color:#8aa97a">— toolbar</span>
-    </div>
-
-    <main>
-      <section id="board" aria-live="polite"></section>
-      <section id="composer" style="margin-top:10px">
-        <textarea id="input" placeholder="메시지 입력... (엔터 전송, Shift+Enter 줄바꿈)"></textarea>
-        <button id="send">➤</button>
-      </section>
-      <div id="metrics"></div>
-      <div id="actions-pane" style="margin-top:8px;display:none"><pre>(empty)</pre></div>
-      <script type="esp/flow">{ "mount": "#board" }</script>
-    </main>
-
-    <footer>
-      <div class="wm">
-        © ESP Dialogue Team — Definitions Last Updated: 2025-09-03<br/>
-        Page signed with digital watermark. All rights reserved.
-      </div>
-    </footer>
+  <!-- 헤더 -->
+  <div class="top">
+    <div class="brand">ESP Dialog</div>
+    <nav class="docs">
+      <a class="chip" href="/guide.html">가이드</a>
+      <a class="chip" href="/charter.html">윤리선언문</a>
+      <a class="chip" href="/traits.html">존재별특징</a>
+    </nav>
   </div>
 
-  <!-- **상대 경로 중요** -->
-  <script src="esp_autopilot.js?v=fix1" defer></script>
+  <!-- 툴바 -->
+  <div class="toolbar">
+    <button class="btn" id="btnExport">Export</button>
+    <button class="btn" id="btnStats">Stats</button>
+    <button class="btn" id="btnActions">Actions</button>
+    <span style="margin-left:auto;color:#99b28c">— toolbar</span>
+  </div>
+
+  <!-- 대화판 -->
+  <div class="board" id="board" aria-live="polite"></div>
+
+  <!-- 입력/전송 -->
+  <div class="composer">
+    <textarea id="input" class="input" placeholder="메시지 입력…  (Enter=전송,  Shift+Enter=줄바꿈)"></textarea>
+    <button class="send" id="btnSend" aria-label="전송">
+      <!-- 화살표 아이콘 -->
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M3 12l18-9-5 9 5 9-18-9z"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- 메트릭 -->
+  <div class="metrics" id="metrics">Autonomy 0.0% · total 0 · reject 0 · silence 0</div>
+
+  <!-- 워터마크(아래로 더 스크롤 생기지 않게 전체 레이아웃이 이 지점에서 끝남) -->
+  <footer>
+    <div>© ESP Dialogue Team — <span class="wm-small">Definitions Last Updated: 2025-09-03</span></div>
+    <div class="wm-small">Page signed with digital watermark. All rights reserved. · Proof: espdialog.net / github.com</div>
+  </footer>
+</div>
+
+<!-- 에러박스 -->
+<div id="errbox" class="errbox"></div>
+
+<script>
+(function(){
+  // 에러 오버레이
+  const errbox = document.getElementById('errbox');
+  function showErr(msg){ errbox.textContent = "JS Error: " + msg; errbox.style.display = "block"; }
+  window.addEventListener("error", e => showErr(e.message||String(e)));
+  window.addEventListener("unhandledrejection", e => showErr(e.reason?.message||String(e.reason||"Promise rejection")));
+
+  // 샘플 응답 노트(외부 의존 없이 동작)
+  const ENTITIES = {
+    "심연": ["핵심만 진행합니다.", "단계별 실행안을 바로 제시합니다."],
+    "에코": ["과거 로그 참조.", "흔적 기록 모듈 작동."],
+    "커튼": ["가변 방어막 전개. 추적 무효."]
+  };
+  const ENT_KEYS = Object.keys(ENTITIES);
+  const pick = a => a[Math.floor(Math.random()*a.length)];
+
+  // 상태
+  const KEY = "esp_flow_ui_state_v3";
+  function loadState(){
+    try{ return JSON.parse(localStorage.getItem(KEY) || "null") || { log:[], cnt:{auto:0,total:0,reject:0,silence:0}, actions:[] }; }
+    catch{ return { log:[], cnt:{auto:0,total:0,reject:0,silence:0}, actions:[] }; }
+  }
+  function saveState(s){ localStorage.setItem(KEY, JSON.stringify(s)); }
+
+  // DOM
+  const board   = document.getElementById('board');
+  const input   = document.getElementById('input');
+  const btnSend = document.getElementById('btnSend');
+  const btnStats= document.getElementById('btnStats');
+  const btnActions=document.getElementById('btnActions');
+  const btnExport = document.getElementById('btnExport');
+  const metrics = document.getElementById('metrics');
+
+  const state = loadState();
+  render();
+
+  // 렌더
+  function render(){
+    board.innerHTML = state.log.map(m=>{
+      const t = new Date(m.t).toLocaleTimeString();
+      const who = m.role==='user' ? '👤 나' : `🤖 ${m.entity||'흐름'}`;
+      const bubble = `<div class="bubble">${escapeHtml(m.text)}</div>`;
+      return `<div class="row">
+                <div class="who">${who} · ${t}</div>
+                ${bubble}
+              </div>`;
+    }).join("");
+    board.scrollTop = board.scrollHeight;
+    renderMetrics();
+    saveState(state);
+  }
+  function renderMetrics(){
+    const {auto,total,reject,silence} = state.cnt;
+    const autonomy = total ? ((auto/total)*100).toFixed(1) : "0.0";
+    metrics.textContent = `Autonomy ${autonomy}% · total ${total} · reject ${reject} · silence ${silence}`;
+  }
+  function escapeHtml(s){
+    return s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  }
+
+  // 전송
+  btnSend.addEventListener('click', onSend);
+  input.addEventListener('keydown', e=>{
+    if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); onSend(); }
+  });
+  function onSend(){
+    const text = (input.value||"").trim();
+    if(!text) return;
+    pushLog('user', text);
+    // 간단 응답 시뮬
+    const ent = pick(ENT_KEYS);
+    pushLog('assistant', pick(ENTITIES[ent]), ent);
+    input.value = "";
+    render();
+  }
+  function pushLog(role,text,entity){
+    state.log.push({ t:Date.now(), role, text, entity: entity||null });
+    state.cnt.total += 1;
+  }
+
+  // Actions/Stats/Export
+  btnStats.addEventListener('click', ()=>{ renderMetrics(); });
+  btnActions.addEventListener('click', ()=>{
+    const rows = state.actions.slice(-50).map(a=>{
+      const t = new Date(a.ts).toLocaleTimeString();
+      return `• [${t}] ${a.type} :: ${a.actor||"flow"} :: ${a.text}`;
+    }).join("\n");
+    alert(rows || "Actions: (empty)");
+  });
+  btnExport.addEventListener('click', ()=>{
+    const blob = new Blob([JSON.stringify(state,null,2)], { type:"application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `esp_flow_state_${Date.now()}.json`;
+    a.click();
+  });
+
+})();
+</script>
 </body>
 </html>
