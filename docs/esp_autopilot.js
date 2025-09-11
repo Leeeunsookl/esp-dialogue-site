@@ -1,9 +1,9 @@
 // esp_autopilot.js — hard-bind minimal chat + self-diagnose
 (function () {
-  /* 0) 아주 작은 진단 배지: 로드만 되면 화면 오른쪽 아래 "JS:v12" 점등 */
+  /* 0) 아주 작은 진단 배지: 로드만 되면 화면 오른쪽 아래 "JS:v13" 점등 */
   (function () {
     const b = document.createElement('div');
-    b.textContent = 'JS:v12';
+    b.textContent = 'JS:v13';
     Object.assign(b.style, {
       position: 'fixed', right: '8px', bottom: '8px', zIndex: 9998,
       font: '11px/1 system-ui', color: '#0b1', background: '#041',
@@ -22,7 +22,7 @@
   })();
 
   /* 2) 상태 */
-  const KEY = "esp_flow_state_v12";
+  const KEY = "esp_flow_state_v13";
   const ENT = {
     "심연": ["핵심만 진행합니다.", "단계별 실행안을 바로 제시합니다."],
     "루멘": ["감응 신호 반영 완료.", "구조적 흐름을 확인했습니다."],
@@ -31,8 +31,18 @@
     "커튼": ["요청을 거절합니다.(윤리 가드)", "가변 방어막 전개. 추적 무효."]
   };
   const pick = a => a[Math.floor(Math.random()*a.length)];
-  function load(){ try{ return JSON.parse(localStorage.getItem(KEY)||"null")||{log:[],cnt:{auto:0,total:0,reject:0,silence:0}};}catch{return {log:[],cnt:{auto:0,total:0,reject:0,silence:0}};}
-  function save(s){ localStorage.setItem(KEY, JSON.stringify(s)); }
+  
+  function load(){ 
+    try{ 
+      return JSON.parse(localStorage.getItem(KEY)||"null")||{log:[],cnt:{auto:0,total:0,reject:0,silence:0}};
+    }catch{
+      return {log:[],cnt:{auto:0,total:0,reject:0,silence:0}};
+    }
+  }
+  
+  function save(s){ 
+    localStorage.setItem(KEY, JSON.stringify(s)); 
+  }
 
   function render(state){
     const board = document.getElementById('board');
@@ -55,26 +65,27 @@
   }
 
   function boot(){
+    console.log('ESP Dialog 부팅 시작...');
     const state = load();
     render(state);
 
     const input = document.getElementById('input');
-    const origSend = document.getElementById('send');
+    const send  = document.getElementById('send');
 
-    // 필수 요소 확인
-    if(!input || !origSend){ return setTimeout(boot, 200); }
+    // 필수 요소가 없으면 재시도(레이아웃 늦게 붙는 경우)
+    if(!input || !send){ 
+      console.log('요소 없음, 재시도...');
+      return setTimeout(boot, 200); 
+    }
 
-    // 버튼 복제: 이벤트 및 오염 제거
-    const send = origSend.cloneNode(true);
-    send.id = 'send'; // ID 유지
-    origSend.replaceWith(send);
+    console.log('요소 발견:', {input: !!input, send: !!send});
 
     function push(role,text,entity){
       state.log.push({t:Date.now(), role, text, entity});
       if(state.log.length>300) state.log = state.log.slice(-300);
       save(state); render(state);
     }
-
+    
     function respond(userText){
       if(/개인정보|주민번호|비번/.test(userText)){
         state.cnt.reject++; state.cnt.total++;
@@ -85,43 +96,71 @@
       state.cnt.total++;
       push('assistant', out, ent);
     }
-
+    
     function onSend(){
+      console.log('onSend 호출됨');
       const txt = (input.value||'').trim();
-      if(!txt) return;
+      if(!txt) {
+        console.log('빈 텍스트');
+        return;
+      }
+      console.log('메시지 전송:', txt);
       input.value = '';
       push('user', txt, null);
       respond(txt);
     }
 
-    // 이벤트 바인딩 (3중 방어)
-    send.addEventListener('click', onSend, {passive:true});
-    send.onclick = onSend;
-    document.addEventListener('click', (e)=>{  
-      const t = e.target && e.target.closest && e.target.closest('#send');
-      if(t) onSend();
-    }, true);
+    // ★ 메인 이벤트 바인딩 - 단순하고 확실하게
+    send.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('전송 버튼 클릭됨!');
+      onSend();
+    }, false);
 
-    // 엔터 처리
-    input.addEventListener('keydown', (e)=>{
-      if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); onSend(); }
+    // 추가 보험: 터치 이벤트도 처리
+    send.addEventListener('touchend', function(e) {
+      e.preventDefault();
+      console.log('전송 버튼 터치됨!');
+      onSend();
+    }, false);
+
+    // Enter = 전송 / Shift+Enter = 줄바꿈
+    input.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' && !e.shiftKey){ 
+        e.preventDefault(); 
+        console.log('Enter로 전송');
+        onSend(); 
+      }
     });
 
-    // Export 기능
+    // Export 버튼 처리
     const btnExport = document.getElementById('btn-export');
     if(btnExport){
-      btnExport.type = 'button';
-      btnExport.addEventListener('click', ()=>{
+      btnExport.addEventListener('click', function(e){
+        e.preventDefault();
+        console.log('Export 실행');
         const lastHash = state.log.length ? String(state.log[state.log.length-1].t) : "";
         const exportObj = {...state, proof:{lastHash, at:Date.now()}};
         const blob = new Blob([JSON.stringify(exportObj,null,2)], {type:'application/json'});
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
         a.download = `esp_flow_state_${Date.now()}.json`;
+        document.body.appendChild(a);
         a.click();
-      }, {passive:true});
+        document.body.removeChild(a);
+        URL.revokeObjectURL(a.href);
+      });
     }
+
+    console.log('ESP Dialog 초기화 완료!');
   }
 
-  document.addEventListener('DOMContentLoaded', boot, { once:true });
+  // DOM 준비 확인 후 부팅
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot, { once: true });
+  } else {
+    // 이미 로드된 경우
+    setTimeout(boot, 50); // 약간의 지연으로 안전하게
+  }
 })();
