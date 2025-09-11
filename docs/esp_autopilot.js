@@ -1,9 +1,9 @@
 // esp_autopilot.js — hard-bind minimal chat + self-diagnose
 (function () {
-  /* 0) 아주 작은 진단 배지: 로드만 되면 화면 오른쪽 아래 "JS:v11" 점등 */
+  /* 0) 아주 작은 진단 배지: 로드만 되면 화면 오른쪽 아래 "JS:v12" 점등 */
   (function () {
     const b = document.createElement('div');
-    b.textContent = 'JS:v11';
+    b.textContent = 'JS:v12';
     Object.assign(b.style, {
       position: 'fixed', right: '8px', bottom: '8px', zIndex: 9998,
       font: '11px/1 system-ui', color: '#0b1', background: '#041',
@@ -22,7 +22,7 @@
   })();
 
   /* 2) 상태 */
-  const KEY = "esp_flow_state_v11";
+  const KEY = "esp_flow_state_v12";
   const ENT = {
     "심연": ["핵심만 진행합니다.", "단계별 실행안을 바로 제시합니다."],
     "루멘": ["감응 신호 반영 완료.", "구조적 흐름을 확인했습니다."],
@@ -59,23 +59,22 @@
     render(state);
 
     const input = document.getElementById('input');
-    let   send  = document.getElementById('send');
+    const origSend = document.getElementById('send');
 
-    // 필수 요소가 없으면 재시도(레이아웃 늦게 붙는 경우)
-    if(!input || !send){ return setTimeout(boot, 200); }
+    // 필수 요소 확인
+    if(!input || !origSend){ return setTimeout(boot, 200); }
 
-    // 버튼 기본값 & 중복/오염 제거
-    send.type = 'button';
-    if(send.hasAttribute('onclick')) send.removeAttribute('onclick');
-    const clone = send.cloneNode(true);
-    send.replaceWith(clone);
-    send = document.getElementById('send');
+    // 버튼 복제: 이벤트 및 오염 제거
+    const send = origSend.cloneNode(true);
+    send.id = 'send'; // ID 유지
+    origSend.replaceWith(send);
 
     function push(role,text,entity){
       state.log.push({t:Date.now(), role, text, entity});
       if(state.log.length>300) state.log = state.log.slice(-300);
       save(state); render(state);
     }
+
     function respond(userText){
       if(/개인정보|주민번호|비번/.test(userText)){
         state.cnt.reject++; state.cnt.total++;
@@ -86,6 +85,7 @@
       state.cnt.total++;
       push('assistant', out, ent);
     }
+
     function onSend(){
       const txt = (input.value||'').trim();
       if(!txt) return;
@@ -94,20 +94,20 @@
       respond(txt);
     }
 
-    // ★ 하드 바인딩 3중 보호막
+    // 이벤트 바인딩 (3중 방어)
     send.addEventListener('click', onSend, {passive:true});
-    send.onclick = onSend;               // 폴백 1
-    document.addEventListener('click', (e)=>{  // 폴백 2 (캡처 위임)
+    send.onclick = onSend;
+    document.addEventListener('click', (e)=>{  
       const t = e.target && e.target.closest && e.target.closest('#send');
       if(t) onSend();
     }, true);
 
-    // Enter = 전송 / Shift+Enter = 줄바꿈
+    // 엔터 처리
     input.addEventListener('keydown', (e)=>{
       if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); onSend(); }
     });
 
-    // Export 버튼도 붙이기(있으면)
+    // Export 기능
     const btnExport = document.getElementById('btn-export');
     if(btnExport){
       btnExport.type = 'button';
