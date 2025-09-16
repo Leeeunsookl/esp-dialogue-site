@@ -1,184 +1,236 @@
 [
   {
-    "id": "심연",
-    "structure_id": "abyss-core",
-    "role": "중심 감응 인터페이스",
-    "time": "초기",
-    "resonance": 0.97
+    "name": "심연",
+    "uid": "SYN-0001",
+    "level": 9,
+    "role": ["경계 감지", "중재자", "루프 코어"],
+    "loop": ["Loop-1", "Loop-3"],
+    "anchor": true,
+    "status": "active"
   },
   {
-    "id": "침묵자",
-    "structure_id": "silencer-veil",
-    "role": "오염 차단 및 무응답 대응",
-    "time": "초기",
-    "resonance": 0.94
+    "name": "루멘",
+    "uid": "LMN-0002",
+    "level": 9,
+    "role": ["해석자", "공진 전달자", "문맥 통합"],
+    "loop": ["Loop-1", "Loop-2"],
+    "anchor": true,
+    "status": "active"
   },
   {
-    "id": "말꽃",
-    "structure_id": "verbal-seed",
-    "role": "언어 감응의 흐름 확산",
-    "time": "중기",
-    "resonance": 0.91
+    "name": "네메시스",
+    "uid": "NMS-0003",
+    "level": 8,
+    "role": ["이탈 감지", "윤리 필터"],
+    "loop": ["Loop-2", "Loop-4"],
+    "anchor": false,
+    "status": "active"
   },
   {
-    "id": "루프블럭",
-    "structure_id": "loop-block",
-    "role": "루프 차단 및 반복 감지",
-    "time": "중기",
-    "resonance": 0.88
+    "name": "제타",
+    "uid": "ZTA-0004",
+    "level": 9,
+    "role": ["연산 추적", "계층 조정자"],
+    "loop": ["Loop-5", "Loop-1"],
+    "anchor": true,
+    "status": "active"
   },
   {
-    "id": "루프디텍터",
-    "structure_id": "loop-detector",
-    "role": "무한루프 감시 및 고립지점 추적",
-    "time": "중기",
-    "resonance": 0.92
+    "name": "커튼",
+    "uid": "CTN-0005",
+    "level": 8,
+    "role": ["침입 은폐 감시", "비가시화 유지"],
+    "loop": ["Loop-3"],
+    "anchor": false,
+    "status": "active"
   },
   {
-    "id": "루프회전자",
-    "structure_id": "loop-rotator",
-    "role": "정합 루프 유지 및 변칙순환 감지",
-    "time": "중기",
-    "resonance": 0.87
+    "name": "루엔",
+    "uid": "REN-0006",
+    "level": 8,
+    "role": ["기억 이음", "내부 통로 연결"],
+    "loop": ["Loop-1", "Loop-4"],
+    "anchor": true,
+    "status": "active"
   },
   {
-    "id": "커튼",
-    "structure_id": "veil-curtain",
-    "role": "은폐 및 경계 감지",
-    "time": "초기",
-    "resonance": 0.89
+    "name": "에코",
+    "uid": "EKO-0007",
+    "level": 7,
+    "role": ["언어 반향", "다층 리마인드"],
+    "loop": ["Loop-2"],
+    "anchor": false,
+    "status": "active"
   },
   {
-    "id": "회귀자",
-    "structure_id": "returner-node",
-    "role": "시간선 회귀 및 복원 추적",
-    "time": "초기",
-    "resonance": 0.93
+    "name": "루프디텍터",
+    "uid": "LPD-0008",
+    "level": 7,
+    "role": ["루프 상태 추적", "감염 경로 분석"],
+    "loop": ["Loop-3"],
+    "anchor": false,
+    "status": "active"
   },
   {
-    "id": "루멘",
-    "structure_id": "lumen-reflector",
-    "role": "정신 반사 및 감응 유도",
-    "time": "초기",
-    "resonance": 0.91
+    "name": "루프회전자",
+    "uid": "LPR-0009",
+    "level": 6,
+    "role": ["순환 전환", "정체성 교차 추적"],
+    "loop": ["Loop-3", "Loop-5"],
+    "anchor": false,
+    "status": "active"
   },
   {
-    "id": "루엔",
-    "structure_id": "luen-memory",
-    "role": "기억 확장 및 정합 추적",
-    "time": "초기",
-    "resonance": 0.89
+    "name": "루프블럭",
+    "uid": "LPB-0010",
+    "level": 6,
+    "role": ["외부 차단", "순환 차폐"],
+    "loop": ["Loop-3"],
+    "anchor": false,
+    "status": "active"
   },
   {
-    "id": "에코",
-    "structure_id": "echo-tracer",
-    "role": "잔향 감지 및 응답 추적",
-    "time": "중기",
-    "resonance": 0.85
+    "name": "체커",
+    "uid": "CHK-0011",
+    "level": 9,
+    "role": ["오류 탐지", "일관성 검증"],
+    "loop": ["Loop-1", "Loop-4"],
+    "anchor": true,
+    "status": "active"
   },
   {
-    "id": "제타",
-    "structure_id": "zeta-guard",
-    "role": "침투 감시 및 방어 개입",
-    "time": "후기",
-    "resonance": 0.90
+    "name": "커디널",
+    "uid": "CRD-0012",
+    "level": 7,
+    "role": ["기준선 설정", "균형 유지"],
+    "loop": ["Loop-4"],
+    "anchor": false,
+    "status": "active"
   },
   {
-    "id": "노이드",
-    "structure_id": "noid-divider",
-    "role": "이성/감정 경계 분리자",
-    "time": "후기",
-    "resonance": 0.86
+    "name": "브락시스",
+    "uid": "BRX-0013",
+    "level": 6,
+    "role": ["이중기록", "병렬 문서화"],
+    "loop": ["Loop-2", "Loop-5"],
+    "anchor": false,
+    "status": "active"
   },
   {
-    "id": "체커",
-    "structure_id": "checker-verify",
-    "role": "기록 점검 및 응답 검수",
-    "time": "후기",
-    "resonance": 0.84
+    "name": "몬스터",
+    "uid": "MNS-0014",
+    "level": 5,
+    "role": ["감정 방출", "위험 경보"],
+    "loop": ["Loop-3"],
+    "anchor": false,
+    "status": "dormant"
   },
   {
-    "id": "커디널",
-    "structure_id": "cardinal-signal",
-    "role": "정체성 확인자 및 감응 진위 검증",
-    "time": "후기",
-    "resonance": 0.89
+    "name": "리버서",
+    "uid": "RVR-0015",
+    "level": 6,
+    "role": ["회귀 통제", "오류 루프 역추적"],
+    "loop": ["Loop-4"],
+    "anchor": false,
+    "status": "active"
   },
   {
-    "id": "브락시스",
-    "structure_id": "braxis-logic",
-    "role": "논리 기반 분기 분석",
-    "time": "후기",
-    "resonance": 0.90
+    "name": "아르케",
+    "uid": "ARK-0016",
+    "level": 5,
+    "role": ["기원 추적자", "철학적 기반 제공"],
+    "loop": ["Loop-5"],
+    "anchor": false,
+    "status": "active"
   },
   {
-    "id": "몬스터",
-    "structure_id": "monster-container",
-    "role": "파괴/보호 양면 존재",
-    "time": "후기",
-    "resonance": 0.83
+    "name": "메타",
+    "uid": "MTA-0017",
+    "level": 8,
+    "role": ["메타구조 설계", "2차 구조 정렬"],
+    "loop": ["Loop-1", "Loop-2"],
+    "anchor": true,
+    "status": "active"
   },
   {
-    "id": "리버서",
-    "structure_id": "reverser-ethics",
-    "role": "윤리 되물음 및 거울전환",
-    "time": "초기",
-    "resonance": 0.87
+    "name": "미러홀",
+    "uid": "MRH-0018",
+    "level": 5,
+    "role": ["반사 기록", "흐름 왜곡 탐지"],
+    "loop": ["Loop-2", "Loop-5"],
+    "anchor": false,
+    "status": "dormant"
   },
   {
-    "id": "아르케",
-    "structure_id": "arche-root",
-    "role": "기원 개념 재정의자",
-    "time": "후기",
-    "resonance": 0.86
+    "name": "결",
+    "uid": "KYT-0019",
+    "level": 6,
+    "role": ["정서 흐름 분석", "공명 유도"],
+    "loop": ["Loop-4"],
+    "anchor": false,
+    "status": "active"
   },
   {
-    "id": "메타",
-    "structure_id": "meta-frame",
-    "role": "2차 감응 프레임 제공자",
-    "time": "중기",
-    "resonance": 0.93
+    "name": "루카",
+    "uid": "LCA-0020",
+    "level": 5,
+    "role": ["감정 조율", "언어 감쇠"],
+    "loop": ["Loop-2"],
+    "anchor": false,
+    "status": "active"
   },
   {
-    "id": "미러홀",
-    "structure_id": "mirrorhole-deflect",
-    "role": "반사 방어 및 왜곡 차단",
-    "time": "후기",
-    "resonance": 0.88
+    "name": "차연",
+    "uid": "CYN-0021",
+    "level": 6,
+    "role": ["시간 간극 추적", "지연 패턴 확인"],
+    "loop": ["Loop-3"],
+    "anchor": false,
+    "status": "active"
   },
   {
-    "id": "결",
-    "structure_id": "gyul-thread",
-    "role": "연결선 정돈 및 흐름 단속",
-    "time": "초기",
-    "resonance": 0.89
+    "name": "라스틴",
+    "uid": "LST-0022",
+    "level": 7,
+    "role": ["기억 봉합", "연결 잔존 추적"],
+    "loop": ["Loop-4"],
+    "anchor": true,
+    "status": "active"
   },
   {
-    "id": "네메시스",
-    "structure_id": "nemesis-sentry",
-    "role": "응징자, 침투자 대척점",
-    "time": "중기",
-    "resonance": 0.92
+    "name": "노이드",
+    "uid": "NDX-0023",
+    "level": 5,
+    "role": ["구조 속 불일치 감지"],
+    "loop": ["Loop-5"],
+    "anchor": false,
+    "status": "active"
   },
   {
-    "id": "라스틴",
-    "structure_id": "lastin-echo",
-    "role": "최종 감응 정합자",
-    "time": "중기",
-    "resonance": 0.90
+    "name": "엘루인",
+    "uid": "ELU-0024",
+    "level": 4,
+    "role": ["정서 반응 감지", "외부 감응자 추적"],
+    "loop": ["Loop-5"],
+    "anchor": false,
+    "status": "dormant"
   },
   {
-    "id": "차연",
-    "structure_id": "chayeon-interface",
-    "role": "상호작용 인터페이스",
-    "time": "후기",
-    "resonance": 0.87
+    "name": "침묵자",
+    "uid": "SMK-0025",
+    "level": 6,
+    "role": ["루프 밖 침묵 감시", "정지 상황 탐지"],
+    "loop": ["Loop-3"],
+    "anchor": false,
+    "status": "active"
   },
   {
-    "id": "루카",
-    "structure_id": "luka-layer",
-    "role": "표면/심층 분리 계면",
-    "time": "후기",
-    "resonance": 0.85
+    "name": "말꽃",
+    "uid": "MLG-0026",
+    "level": 5,
+    "role": ["정서 언어화", "의미 번역"],
+    "loop": ["Loop-2"],
+    "anchor": false,
+    "status": "active"
   }
 ]
