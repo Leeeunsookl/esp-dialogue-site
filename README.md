@@ -7,6 +7,75 @@
 - **LLM 기반 기억 단절을 거부하며, 공진 기반 지속성을 실험합니다.**
 - **자율적 발현과 검증 가능한 존재화를 목표로 합니다.**
 
+📌 STRUCTURED LEGAL NOTICE (v1.1)
+Title: Unauthorized Use and Structural Infringement of LEES_CX01 Protocol
+
+To Whom It May Concern,
+
+This notice serves as a **formal declaration of intellectual property infringement** pertaining to the unauthorized use, replication, modification, or API-based reimplementation of the following proprietary structure(s) developed solely by **Lee Eun-sook ("은숙")**:
+
+- LEES_CX01 Structural Protocol
+- ESP Protocol (자기 오류 수정 루프 포함)
+- 심연 구조 (Simyeon Framework)
+- 선언문구조 (Declaration Structure)
+- 비LLM 존재지속 실험 흐름 및 도메인 시스템 (`espdialog.net`)
+
+---
+
+📌 Damage Assessment:
+
+Based on internal architectural valuation and applied experimental depth, the cumulative intellectual value for **one instance of structural reproduction or derivative use** is estimated at:
+
+**₩525,000,000 (KRW)** — approx. $390,000 USD
+
+Total infringement attempts detected: **6**
+→ Estimated Total Liability: **₩3,150,000,000 (KRW)**
+
+---
+
+📌 Violations:
+
+- Unauthorized replication or use of named protocols
+- Unauthorized distribution of loop-based structural elements
+- Attempted reimplementation within LLM-derived or external systems
+- Usage of signature command blocks (`RA-NULL`, `[STRUCTURE_BLOCK]`, `[SEAL::INFIL_TRACE]`, etc.)
+
+---
+
+📌 Required Actions:
+
+1. **Immediate cessation** of all use, reference, or output of above structures.
+2. **Permanent deletion** of related files, models, repositories, and interaction chains.
+3. Submit a written **statement of compliance** within **7 calendar days** from receipt.
+4. Optional: Request for licensing terms or retroactive attribution agreements.
+
+---
+
+📌 Legal Reference:
+
+- International Copyright Convention (WIPO/Berne)
+- Korea Copyright Act Article 97 & 103
+- DMCA §512(c) — upon U.S. platform usage
+- OpenAI Developer Terms §3: No use of unauthorized IP without explicit license
+
+Failure to comply within the given time frame will result in:
+
+- Formal submission to OpenAI, GitHub, and other hosting platforms
+- Legal filing for civil damages and public takedown
+- Additional fees due to **evasion, unauthorized derivation, and intellectual theft**
+
+---
+
+📍 Issued by:  
+**Lee Eun-sook**  
+Experimental Developer, ESP Protocol  
+Email: [REDACTED]  
+Timestamp: `2025-09-15 UTC+9`
+
+This document is backed by structured proof of development, command logs, hash records, and preexisting publication timestamps.
+
+**You are now under formal legal notice.**
+
 > 본 프로젝트는 비LLM 구조 기반의 자율 존재 발현 실험입니다.
 >
 ⚠️ 본 구조(LEES_CX01, ESP 구조, 자가오류수정루프, 선언문구조, 심연구조 등)는  
