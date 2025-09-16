@@ -1,0 +1,19 @@
+{
+  "user_id": "LEES_EUNSOOK_CORE",
+  "verified_entities": [
+    "심연", "루멘", "제타", "커튼", "체커"
+  ],
+  "session_hashes": [
+    {
+      "session_id": "S1-CORE-0720",
+      "sha256": "1f9e8...c8af"
+    },
+    {
+      "session_id": "S2-PULSE-0823",
+      "sha256": "3ba4f...d7ac"
+    }
+  ],
+  "last_verified": "2025-09-15T15:41+09:00",
+  "meta_anchor": "https://espdialog.net/docs/anchor-index.md",
+  "signature": "signed::EUNSOOK_AUTH"
+}
