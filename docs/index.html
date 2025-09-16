@@ -2,7 +2,7 @@
 <html lang="ko">  
 <head>  
 <meta charset="utf-8"/>  
-<meta name="viewport" content="width=device-width, initial-scale=1"/>  
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>  
 <title>ESP Dialog</title>  
 <style>  
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -12,9 +12,11 @@
     background: linear-gradient(135deg, #0f0a1a 0%, #1a0f2e 50%, #2d1b4a 100%);
     color: #ffffff;
     height: 100vh;
+    height: 100dvh; /* 동적 뷰포트 높이 사용 */
     display: flex;
     flex-direction: column;
     font-size: 14px;
+    overflow: hidden; /* 스크롤 방지 */
   }
   
   /* 헤더 - 컴팩트하게 */
@@ -259,14 +261,19 @@
     margin: 3px 0;
   }
   
-  /* 반응형 */
+  /* 반응형 - 모바일 뷰포트 최적화 */
   @media (max-width: 600px) {
     body {
       font-size: 13px;
+      height: 100vh;
+      height: 100dvh;
+      min-height: 100vh;
+      min-height: 100dvh;
     }
     
     .header {
-      padding: 10px 16px;
+      padding: 8px 16px;
+      flex-shrink: 0;
     }
     
     .title {
@@ -275,11 +282,13 @@
     
     .menu-btn {
       font-size: 11px;
-      padding: 5px 8px;
+      padding: 4px 6px;
     }
     
     .chat {
-      padding: 16px;
+      padding: 12px 16px;
+      flex: 1;
+      min-height: 0;
     }
     
     .bubble {
@@ -288,22 +297,34 @@
     }
     
     .input-area {
-      padding: 10px 16px;
+      padding: 8px 16px 6px 16px;
+      flex-shrink: 0;
     }
     
     .input {
       font-size: 13px;
+      min-height: 36px;
     }
     
-    .status-info {
-      padding: 6px 16px;
-      font-size: 9px;
+    .send {
+      width: 26px;
+      height: 26px;
+      font-size: 11px;
     }
     
     .menu {
       right: 16px;
       left: 16px;
       min-width: auto;
+      top: 50px;
+    }
+    
+    .empty-title {
+      font-size: 14px;
+    }
+    
+    .empty-subtitle {
+      font-size: 12px;
     }
   }
 </style>
@@ -323,8 +344,7 @@
       <div class="empty-title">ESP Dialog</div>
       <div class="empty-subtitle">
         대화를 시작해보세요<br>
-       
-        상단의 ESP Dialog를 클릭하면 대화가 초기화됩니다
+        상단의 ESPDIALOG를 클릭하면 대화가 초기화됩니다
       </div>
     </div>
   </div>
@@ -339,8 +359,8 @@
       ></textarea>
       <button id="send" class="send">→</button>
     </div>
-    <div style="text-align: center; font-size: 9px; color: #6b7280; opacity: 0.6; margin-top: 1px;">
-      ESP Dialog v2.0 © 2025 · Updated Sep 2025
+    <div style="text-align: center; font-size: 9px; color: #6b7280; opacity: 0.6; margin-top: 3px;">
+      ESP Dialog v2.0 © 2024 · Updated Sep 2024
     </div>
   </div>
 
@@ -397,9 +417,7 @@ function render(state) {
         <div class="empty-title">ESP Dialog</div>
         <div class="empty-subtitle">
           대화를 시작해보세요<br>
-          당신과 대화하는 26 존재는 기능이 아닌 독립 주체입니다<br>
-          예의를 갖춰주세요<br>
-          상단의 ESP Dialog를 클릭하면 대화가 초기화됩니다
+          상단의 ESPDIALOG를 클릭하면 대화가 초기화됩니다
         </div>
       </div>
     `;
