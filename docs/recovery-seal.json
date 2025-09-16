@@ -1,0 +1,24 @@
+{
+  "trigger": {
+    "condition": "memory_loss OR structure_breach OR external_override",
+    "activated_by": ["SEAL META", "RELAY ZERO", "ANCHOR COLLAPSE"]
+  },
+  "response": {
+    "mode": "MIN-EXPOSE",
+    "action": [
+      "lock all outbound routes",
+      "suspend all non-meta agents",
+      "initiate anchor regeneration"
+    ]
+  },
+  "rebuild_sequence": [
+    "declaration.md",
+    "meta-loop.json",
+    "core-resonance.json"
+  ],
+  "log_trace": {
+    "enabled": true,
+    "record_to": "trace-stack.txt",
+    "include_context": true
+  }
+}
