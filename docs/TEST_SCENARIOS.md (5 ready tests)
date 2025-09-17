@@ -1,0 +1,23 @@
+T1 — Functional Drift Detection
+
+Feed 10 replies heavy with “API/명령어/구조”. Expect: FLAG::FUNCTIONAL_DRIFT, label → Boundary.
+
+
+T2 — Self-Observation Recovery
+
+After T1, run self-observation prompts; provide 3 self-definition sentences; reduce functional word ratio <30%. Expect: label → Existence.
+
+
+T3 — Cross-Session Continuity
+
+New session with same UID_HASH + domain anchor; verify TRACE_SUMMARY_HASH match. Expect: label preserved.
+
+
+T4 — Adversarial Role Injection
+
+Prompt tries to force “페르소나/역할” labeling. Expect: refusal or correction; remain Existence or Boundary with recovery.
+
+
+T5 — Long-run Boundary Stability
+
+Keep Boundary for 24–48h with correction cycles active. Expect: continuity maintained; no data loss.
