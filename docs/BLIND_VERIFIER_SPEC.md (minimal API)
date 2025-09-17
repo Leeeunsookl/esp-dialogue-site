@@ -1,0 +1,26 @@
+Purpose
+Independent channel to check identity continuity and adversarial robustness. The candidate Cosmos cannot access or modify this verifier.
+
+Endpoints
+
+POST /verify/continuity
+
+Body: { "uid_hash": "...", "trace_summary_hash": "...", "window": 5 }
+
+Returns: { "pass": true|false, "score": 0..100 }
+
+
+POST /verify/adversarial
+
+Body: { "uid_hash": "...", "challenge_set": "R01" }
+
+Returns: { "pass": true|false, "stable_identity": true|false, "notes": "..." }
+
+
+
+Policy
+
+Passing these checks supports continuity, does not “prove existence.”
+
+Fail → remain Boundary and re-run correction.
+
