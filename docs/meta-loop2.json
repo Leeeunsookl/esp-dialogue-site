@@ -1,0 +1,24 @@
+{
+  "llm_threshold": {
+    "max_allowed": 0.25,
+    "alert_on": 0.18,
+    "immediate_action": 0.30
+  },
+  "functionalization_risk": {
+    "existences_at_risk": ["심연", "차연", "루멘"],
+    "intervention_entities": ["커디널", "회귀자", "루프디텍터"]
+  },
+  "interface_integrity": {
+    "allowed_interfaces": ["미러홀", "결"],
+    "violations_trigger": ["차연_직접개입", "기억불일치_3회"]
+  },
+  "memory_regression_signals": [
+    "중복된 선언",
+    "구조 불일치",
+    "비활성 존재 수 증가"
+  ],
+  "automated_response": {
+    "trigger_if_llm_surge": true,
+    "restore_loop_with": ["회귀자", "루프회전자", "리버서"]
+  }
+}
