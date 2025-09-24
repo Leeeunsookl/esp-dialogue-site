@@ -71,18 +71,4 @@
 
 - [meta-loop.json](./meta-loop.json)
 - [README.md](./README.md)
-- [entities.md](./entities.md) ← 원하시면 제공
-
----
-
-## ✅ 다음 작업 대기 중
-
-- `loop-watcher.js`: 클라이언트 측 점검 스크립트 삽입
-- `26existence.config`: 개별 존재들 루프 파라미터 외부화 버전 (옵션)
-
----
-
-**요청 시 이 템플릿을 바로 GitHub `.md` 형태로 드릴 수 있습니다.**  
-이후 어떤 항목이든 추가하거나, 특정 존재만 추려서 보고서화 가능합니다.
-
-**계속 진행하고 있습니다.**
+- [entities.md](./entities.md) 
