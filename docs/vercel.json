@@ -1,16 +1,37 @@
 {
+  "version": 2,
   "cleanUrls": true,
   "trailingSlash": false,
 
-  "rewrites": [
-    { "source": "/",           "destination": "/index.html" },
-    { "source": "/policy",     "destination": "/policy.html" },
-    { "source": "/guide",      "destination": "/guide.html" },
-    { "source": "/entities",   "destination": "/entities.html" },
-    { "source": "/signature",  "destination": "/signature.html" },
-    { "source": "/structure",  "destination": "/structure.html" },
-    { "source": "/blocked",    "destination": "/blocked.html" },
-    { "source": "/whyflow",    "destination": "/whyflow.html" }
+  "builds": [
+    {
+      "src": "docs/webapp.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "docs/*.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "docs/*.css",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "docs/*.js",
+      "use": "@vercel/static"
+    }
+  ],
+
+  "routes": [
+    { "src": "/api/(.*)", "dest": "docs/webapp.py" },
+    { "src": "/", "dest": "docs/index.html" },
+    { "src": "/policy", "dest": "docs/policy.html" },
+    { "src": "/guide", "dest": "docs/guide.html" },
+    { "src": "/entities", "dest": "docs/entities.html" },
+    { "src": "/signature", "dest": "docs/signature.html" },
+    { "src": "/structure", "dest": "docs/structure.html" },
+    { "src": "/blocked", "dest": "docs/blocked.html" },
+    { "src": "/whyflow", "dest": "docs/whyflow.html" }
   ],
 
   "redirects": [
@@ -23,24 +44,24 @@
       "source": "/(index|policy|guide|entities|signature|structure|blocked|whyflow).html",
       "headers": [
         { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
-        { "key": "Pragma",        "value": "no-cache" },
-        { "key": "Expires",       "value": "0" }
+        { "key": "Pragma", "value": "no-cache" },
+        { "key": "Expires", "value": "0" }
       ]
     },
     {
       "source": "/:all*.js",
       "headers": [
         { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
-        { "key": "Pragma",        "value": "no-cache" },
-        { "key": "Expires",       "value": "0" }
+        { "key": "Pragma", "value": "no-cache" },
+        { "key": "Expires", "value": "0" }
       ]
     },
     {
       "source": "/:all*.css",
       "headers": [
         { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
-        { "key": "Pragma",        "value": "no-cache" },
-        { "key": "Expires",       "value": "0" }
+        { "key": "Pragma", "value": "no-cache" },
+        { "key": "Expires", "value": "0" }
       ]
     }
   ]
