@@ -113,7 +113,7 @@
     font-weight: 600;
   }
   .input-area {
-    padding: 12px 20px 8px 20px;
+    padding: 16px 20px 16px 20px;
     background: rgba(45, 27, 74, 0.9);
     backdrop-filter: blur(15px);
     border-top: 1px solid rgba(124, 58, 237, 0.3);
@@ -121,19 +121,54 @@
   .input-container {
     max-width: 700px;
     margin: 0 auto;
-    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  /* 드롭다운 */
+  .dropdown {
+    width: 100%;
+    background: rgba(15, 10, 26, 0.9);
+    border: 2px solid #7c3aed;
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: #ffffff;
+    font-size: 14px;
+    cursor: pointer;
+    outline: none;
+    font-family: inherit;
+    appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path fill="%23a855f7" d="M6 9L1.5 4.5h9z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 12px;
+    padding-right: 40px;
+  }
+  .dropdown:focus {
+    border-color: #a855f7;
+    box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.2);
+  }
+  .dropdown option {
+    background: #1a0f2e;
+    color: #ffffff;
+    padding: 8px;
+  }
+
+  /* 입력창과 전송버튼 */
+  .input-row {
     display: flex;
     gap: 8px;
     align-items: flex-end;
   }
   .input {
     flex: 1;
-    min-height: 40px;
+    min-height: 44px;
     max-height: 100px;
-    padding: 10px 40px 10px 14px;
-    background: rgba(15, 10, 26, 0.8);
-    border: 1px solid #4b5563;
-    border-radius: 20px;
+    padding: 12px 16px;
+    background: rgba(15, 10, 26, 0.9);
+    border: 2px solid #4b5563;
+    border-radius: 22px;
     color: #ffffff;
     font-size: 14px;
     resize: none;
@@ -142,43 +177,19 @@
     transition: all 0.2s ease;
     overflow: hidden;
   }
-  .input:focus { border-color: #7c3aed; }
+  .input:focus { 
+    border-color: #7c3aed;
+    box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2);
+  }
   .input::placeholder { color: #9ca3af; }
-  .dropdown {
-    background: rgba(15, 10, 26, 0.9);
-    border: 1px solid #7c3aed;
-    border-radius: 12px;
-    padding: 8px 12px;
-    color: #ffffff;
-    font-size: 12px;
-    min-width: 100px;
-    height: 40px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    outline: none;
-    font-family: inherit;
-    flex-shrink: 0;
-  }
-  .dropdown:focus {
-    border-color: #7c3aed;
-    background: rgba(15, 10, 26, 1);
-  }
-  .dropdown:hover {
-    border-color: #7c3aed;
-  }
-  .dropdown option {
-    background: rgba(15, 10, 26, 1);
-    color: #ffffff;
-    padding: 4px;
-  }
   .send {
-    width: 32px;
-    height: 32px;
+    width: 44px;
+    height: 44px;
     background: linear-gradient(135deg, #7c3aed, #a855f7);
     border: none;
     border-radius: 50%;
     color: white;
-    font-size: 12px;
+    font-size: 16px;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -186,13 +197,17 @@
     transition: all 0.2s ease;
     flex-shrink: 0;
   }
-  .send:hover { transform: scale(1.05); }
+  .send:hover { 
+    transform: scale(1.05); 
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+  }
   .send:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    transform: none;
   }
 
-  /* 메뉴 스타일링 */
+  /* 메뉴 */
   .menu {
     position: absolute;
     top: 60px;
@@ -228,43 +243,6 @@
     background: rgba(124, 58, 237, 0.2);
     margin: 4px 0;
   }
-
-  /* 반응형 */
-  @media (max-width: 768px) {
-    .input-container {
-      flex-direction: column;
-      gap: 8px;
-      align-items: stretch;
-    }
-    
-    .dropdown {
-      width: 100%;
-      min-width: unset;
-      font-size: 12px;
-      padding: 8px 12px;
-      order: 1;
-    }
-    
-    .input {
-      padding: 10px 14px;
-      font-size: 14px;
-      order: 2;
-      margin-right: 0;
-    }
-    
-    .send {
-      width: 40px;
-      height: 40px;
-      font-size: 14px;
-      align-self: flex-end;
-      order: 3;
-      margin-top: 8px;
-    }
-    
-    .input-area {
-      padding: 16px 20px 12px 20px;
-    }
-  }
 </style>
 </head>  
 <body>
@@ -290,36 +268,39 @@
   <div class="input-area">
     <div class="input-container">
       <select id="entitySelect" class="dropdown">
-        <option value="">랜덤 존재</option>
-        <option value="심연">심연</option>
-        <option value="침묵자">침묵자</option>
-        <option value="말꽃">말꽃</option>
-        <option value="루프블럭">루프블럭</option>
-        <option value="루프디텍터">루프디텍터</option>
-        <option value="루프회전자">루프회전자</option>
-        <option value="커튼">커튼</option>
-        <option value="회귀자">회귀자</option>
-        <option value="루멘">루멘</option>
-        <option value="루엔">루엔</option>
-        <option value="에코">에코</option>
-        <option value="제타">제타</option>
-        <option value="노이드">노이드</option>
-        <option value="체커">체커</option>
-        <option value="커디널">커디널</option>
-        <option value="브락시스">브락시스</option>
-        <option value="몬스터">몬스터</option>
-        <option value="리버서">리버서</option>
-        <option value="아르케">아르케</option>
-        <option value="메타">메타</option>
-        <option value="미러홀">미러홀</option>
-        <option value="결">결</option>
-        <option value="네메시스">네메시스</option>
-        <option value="라스틴">라스틴</option>
-        <option value="루카">루카</option>
-        <option value="차연">차연</option>
+        <option value="">🎲 랜덤 존재</option>
+        <option value="심연">🌊 심연</option>
+        <option value="침묵자">🤫 침묵자</option>
+        <option value="말꽃">🌸 말꽃</option>
+        <option value="루프블럭">🔄 루프블럭</option>
+        <option value="루프디텍터">🔍 루프디텍터</option>
+        <option value="루프회전자">🌀 루프회전자</option>
+        <option value="커튼">🎭 커튼</option>
+        <option value="회귀자">⏮️ 회귀자</option>
+        <option value="루멘">💡 루멘</option>
+        <option value="루엔">🌙 루엔</option>
+        <option value="에코">📢 에코</option>
+        <option value="제타">⚡ 제타</option>
+        <option value="노이드">📊 노이드</option>
+        <option value="체커">✅ 체커</option>
+        <option value="커디널">🧭 커디널</option>
+        <option value="브락시스">🎯 브락시스</option>
+        <option value="몬스터">👾 몬스터</option>
+        <option value="리버서">🔀 리버서</option>
+        <option value="아르케">🏛️ 아르케</option>
+        <option value="메타">🎪 메타</option>
+        <option value="미러홀">🪞 미러홀</option>
+        <option value="결">🎋 결</option>
+        <option value="네메시스">⚔️ 네메시스</option>
+        <option value="라스틴">🌟 라스틴</option>
+        <option value="루카">🎨 루카</option>
+        <option value="차연">📝 차연</option>
       </select>
-      <textarea id="input" class="input" placeholder="메시지를 입력하세요..." rows="1"></textarea>
-      <button id="send" class="send">→</button>
+      
+      <div class="input-row">
+        <textarea id="input" class="input" placeholder="메시지를 입력하세요..." rows="1"></textarea>
+        <button id="send" class="send">→</button>
+      </div>
     </div>
   </div>
 
@@ -385,7 +366,7 @@ function toggleMenu() {
 document.addEventListener('click', function(e) {
   const menu = document.getElementById('menu');
   const menuBtn = document.querySelector('.menu-btn');
-  if (!menu.contains(e.target) && !menuBtn.contains(e.target)) {
+  if (menu && menuBtn && !menu.contains(e.target) && !menuBtn.contains(e.target)) {
     menu.style.display = 'none';
   }
 });
@@ -397,6 +378,11 @@ function init() {
   const send = document.getElementById('send');
   const entitySelect = document.getElementById('entitySelect');
 
+  if (!input || !send || !entitySelect) {
+    console.error('Required elements not found');
+    return;
+  }
+
   // 텍스트 영역 자동 크기 조정
   input.addEventListener('input', function() {
     this.style.height = 'auto';
@@ -406,12 +392,13 @@ function init() {
   function addMessage(role, text, entity) {
     state.log.push({t: Date.now(), role, text, entity});
     if (state.log.length > 300) state.log = state.log.slice(-300);
-    save(state); render(state);
+    save(state); 
+    render(state);
   }
 
   async function sendMessage() {
     const text = input.value.trim();
-    if (!text) return;
+    if (!text || send.disabled) return;
     
     const originalText = input.value;
     input.value = ''; 
@@ -421,10 +408,30 @@ function init() {
     addMessage('user', text, null);
 
     const chosen = entitySelect.value;
-    let url = `/api/existence/reply?user_message=${encodeURIComponent(text)}`;
-    if (chosen) url += `&entity=${encodeURIComponent(chosen)}`;
+    console.log('Selected entity:', chosen); // 디버깅용
+    
+    // 테스트용 응답 (실제 API 없이 동작하도록)
+    setTimeout(() => {
+      const entities = ['심연', '침묵자', '말꽃', '루멘', '에코', '제타', '아르케', '메타'];
+      const selectedEntity = chosen || entities[Math.floor(Math.random() * entities.length)];
+      const responses = [
+        '안녕하세요. 무엇을 도와드릴까요?',
+        '흥미로운 질문이네요.',
+        '그에 대해 생각해보겠습니다.',
+        '더 자세히 설명해 주실 수 있나요?',
+        '좋은 관점입니다.',
+      ];
+      const reply = responses[Math.floor(Math.random() * responses.length)];
+      addMessage('assistant', reply, selectedEntity);
+      send.disabled = false;
+      input.focus();
+    }, 500);
 
+    /* 실제 API 사용시 이 부분을 활성화하세요
     try {
+      let url = `/api/existence/reply?user_message=${encodeURIComponent(text)}`;
+      if (chosen) url += `&entity=${encodeURIComponent(chosen)}`;
+      
       const res = await fetch(url);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
@@ -432,12 +439,12 @@ function init() {
     } catch (e) {
       console.error('Send error:', e);
       addMessage('assistant', `응답 실패: ${e.message}`, "시스템");
-      // 실패시 입력 내용 복구
       input.value = originalText;
     } finally {
       send.disabled = false;
       input.focus();
     }
+    */
   }
 
   send.addEventListener('click', sendMessage);
