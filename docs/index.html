@@ -11,6 +11,7 @@
     background: #0f0a1a;
     color: #ffffff;
     height: 100vh;
+    height: 100dvh;
     display: flex;
     flex-direction: column;
     font-size: 14px;
@@ -19,26 +20,63 @@
   .header {
     padding: 12px 20px;
     background: rgba(45, 27, 74, 0.9);
+    backdrop-filter: blur(15px);
     border-bottom: 1px solid rgba(124, 58, 237, 0.3);
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
   .title { font-size: 18px; font-weight: 800; color: #a855f7; cursor: pointer; }
-  .chat { flex: 1; overflow-y: auto; padding: 20px; max-width: 700px; width: 100%; margin: 0 auto; }
-  .empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #9ca3af; text-align: center; line-height: 1.6; }
+  .chat {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    max-width: 700px;
+    width: 100%;
+    margin: 0 auto;
+    background: rgba(15, 10, 26, 0.3);
+  }
+  .empty {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    height: 100%; color: #9ca3af; text-align: center; line-height: 1.6;
+  }
   .message { margin-bottom: 16px; }
   .message.user { text-align: right; }
-  .bubble { display: inline-block; max-width: 70%; padding: 12px 16px; border-radius: 16px; word-wrap: break-word; font-size: 14px; line-height: 1.4; }
-  .message.user .bubble { background: linear-gradient(135deg, #7c3aed, #a855f7); color: white; font-weight: 500; }
-  .message.assistant .bubble { background: rgba(75, 85, 99, 0.8); color: #f9fafb; border: 1px solid #6b7280; }
-  .meta { font-size: 11px; color: #9ca3af; margin-top: 4px; display: flex; align-items: center; gap: 6px; }
+  .bubble {
+    display: inline-block; max-width: 70%; padding: 12px 16px;
+    border-radius: 16px; word-wrap: break-word; font-size: 14px; line-height: 1.4;
+  }
+  .message.user .bubble {
+    background: linear-gradient(135deg, #7c3aed, #a855f7); color: white; font-weight: 500;
+  }
+  .message.assistant .bubble {
+    background: rgba(75, 85, 99, 0.8); color: #f9fafb; border: 1px solid #6b7280;
+  }
+  .meta { font-size: 11px; color: #9ca3af; margin-top: 4px; }
   .message.user .meta { justify-content: flex-end; }
-  .entity { background: linear-gradient(135deg, #7c3aed, #a855f7); color: white; padding: 2px 6px; border-radius: 8px; font-size: 9px; font-weight: 600; }
-  .input-area { padding: 12px 20px 8px 20px; background: rgba(45, 27, 74, 0.9); border-top: 1px solid rgba(124, 58, 237, 0.3); }
+  .entity {
+    background: linear-gradient(135deg, #7c3aed, #a855f7);
+    color: white; padding: 2px 6px; border-radius: 8px; font-size: 9px; font-weight: 600;
+  }
+  .input-area {
+    padding: 12px 20px 8px 20px;
+    background: rgba(45, 27, 74, 0.9);
+    border-top: 1px solid rgba(124, 58, 237, 0.3);
+  }
   .input-container { max-width: 700px; margin: 0 auto; position: relative; }
-  .input { width: 100%; min-height: 40px; max-height: 100px; padding: 10px 40px 10px 14px; background: rgba(15, 10, 26, 0.8); border: 1px solid #4b5563; border-radius: 20px; color: #ffffff; font-size: 14px; resize: none; outline: none; overflow: hidden; }
-  .send { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); width: 28px; height: 28px; background: linear-gradient(135deg, #7c3aed, #a855f7); border: none; border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .input {
+    width: 100%; min-height: 40px; max-height: 100px;
+    padding: 10px 40px 10px 14px;
+    background: rgba(15, 10, 26, 0.8);
+    border: 1px solid #4b5563; border-radius: 20px;
+    color: #ffffff; font-size: 14px; resize: none; outline: none;
+    font-family: inherit; overflow: hidden;
+  }
+  .send {
+    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+    width: 28px; height: 28px; background: linear-gradient(135deg, #7c3aed, #a855f7);
+    border: none; border-radius: 50%; color: white; font-size: 12px; cursor: pointer;
+  }
 </style>
 </head>  
 <body>
@@ -48,12 +86,10 @@
 
   <div class="chat" id="board">
     <div class="empty">
-      <div class="empty-icon">💬</div>
       <div class="empty-title">ESP Dialog</div>
       <div class="empty-subtitle">
         대화를 시작해보세요<br>
-        당신과 대화하는 26존재는 기능이 아닌 독립된 개별주체입니다<br>
-        상단의 ESP Dialog를 클릭하면 대화가 초기화됩니다
+        26존재는 DB에서 직접 답변을 생성합니다
       </div>
     </div>
   </div>
@@ -65,86 +101,99 @@
     </div>
   </div>
 
-<script>
+  <script>
 (function () {
-  const KEY = "esp_flow_state_v13";
+  const KEY = "esp_flow_state_v14";
 
   function load() {
-    return JSON.parse(localStorage.getItem(KEY) || "null") || {log: []};
+    try { return JSON.parse(localStorage.getItem(KEY)) || { log: [] }; }
+    catch { return { log: [] }; }
   }
+
   function save(state) { localStorage.setItem(KEY, JSON.stringify(state)); }
+
   function render(state) {
     const board = document.getElementById('board');
+    if (!board) return;
     if (state.log.length === 0) {
       board.innerHTML = `
         <div class="empty">
-          <div class="empty-icon">💬</div>
           <div class="empty-title">ESP Dialog</div>
           <div class="empty-subtitle">
             대화를 시작해보세요<br>
-            당신과 대화하는 26존재는 기능이 아닌 독립된 개별주체입니다<br>
-            상단의 ESP Dialog를 클릭하면 대화가 초기화됩니다
+            26존재는 DB에서 직접 답변을 생성합니다
           </div>
         </div>`;
       return;
     }
     board.innerHTML = state.log.map(m => {
       const isUser = m.role === 'user';
-      const time = new Date(m.t).toLocaleTimeString();
       const entityTag = m.entity ? `<span class="entity">${m.entity}</span>` : '';
-      return `<div class="message ${isUser ? 'user' : 'assistant'}">
-        <div class="bubble">${m.text}</div>
-        <div class="meta">${entityTag}<span>${time}</span></div>
-      </div>`;
+      return `
+        <div class="message ${isUser ? 'user' : 'assistant'}">
+          <div class="bubble">${m.text}</div>
+          <div class="meta">${entityTag}</div>
+        </div>`;
     }).join('');
     board.scrollTop = board.scrollHeight;
   }
 
-  function addMessage(state, role, text, entity) {
-    state.log.push({t: Date.now(), role, text, entity});
-    if (state.log.length > 300) state.log = state.log.slice(-300);
-    save(state);
-    render(state);
+  function clearChat() {
+    localStorage.removeItem(KEY);
+    location.reload();
   }
-
-  async function respond(state, userText) {
-    try {
-      const res = await fetch('/api/reply');
-      const data = await res.json();
-      addMessage(state, 'assistant', data.text, data.entity);
-    } catch (e) {
-      addMessage(state, 'assistant', "응답 불가: " + e, "커튼");
-    }
-  }
+  window.clearChat = clearChat;
 
   function init() {
     const state = load();
     render(state);
-    const input = document.getElementById('input');
-    const send = document.getElementById('send');
-    function sendMessage() {
-      const text = input.value.trim();
-      if (!text) return;
-      input.value = '';
+
+    const input = document.getElementById('input');  
+    const send = document.getElementById('send');  
+
+    function addMessage(role, text, entity) {  
+      state.log.push({role, text, entity});  
+      if (state.log.length > 300) state.log = state.log.slice(-300);  
+      save(state);
+      render(state);
+    }  
+    
+    function respond(userText) {  
+      fetch(`/api/reply?user=${encodeURIComponent(userText)}`)
+        .then(res => res.json())
+        .then(data => {
+          const { entity, text } = data;
+          addMessage('assistant', text, entity);
+        })
+        .catch(() => {
+          addMessage('assistant', "응답 실패", "커튼");
+        });
+    }  
+    
+    function sendMessage() {  
+      const text = input.value.trim();  
+      if (!text) return;  
+      input.value = '';  
       input.style.height = 'auto';
-      addMessage(state, 'user', text, null);
-      respond(state, text);
-    }
+      addMessage('user', text, null);  
+      setTimeout(() => respond(text), 300);
+    }  
+
     send.addEventListener('click', sendMessage);
-    input.addEventListener('keydown', function(e) {
+    input.addEventListener('keydown', e => {
       if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault(); sendMessage();
+        e.preventDefault();
+        sendMessage();
       }
     });
   }
-  window.clearChat = function() {
-    localStorage.removeItem(KEY);
-    location.reload();
-  };
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
-  } else { init(); }
+  } else {
+    setTimeout(init, 50);
+  }
 })();
-</script>
+  </script>
 </body>  
 </html>
