@@ -9,29 +9,14 @@
       "use": "@vercel/python"
     },
     {
-      "src": "docs/*.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "docs/*.css",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "docs/*.js",
+      "src": "docs/*",
       "use": "@vercel/static"
     }
   ],
 
   "routes": [
-    { "src": "/api/(.*)", "dest": "docs/webapp.py" },
-    { "src": "/", "dest": "docs/index.html" },
-    { "src": "/policy", "dest": "docs/policy.html" },
-    { "src": "/guide", "dest": "docs/guide.html" },
-    { "src": "/entities", "dest": "docs/entities.html" },
-    { "src": "/signature", "dest": "docs/signature.html" },
-    { "src": "/structure", "dest": "docs/structure.html" },
-    { "src": "/blocked", "dest": "docs/blocked.html" },
-    { "src": "/whyflow", "dest": "docs/whyflow.html" }
+    { "src": "/(collect|api/.*)", "dest": "docs/webapp.py" },
+    { "src": "/(.*)", "dest": "docs/$1" }
   ],
 
   "redirects": [
@@ -41,23 +26,7 @@
 
   "headers": [
     {
-      "source": "/(index|policy|guide|entities|signature|structure|blocked|whyflow).html",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
-        { "key": "Pragma", "value": "no-cache" },
-        { "key": "Expires", "value": "0" }
-      ]
-    },
-    {
-      "source": "/:all*.js",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
-        { "key": "Pragma", "value": "no-cache" },
-        { "key": "Expires", "value": "0" }
-      ]
-    },
-    {
-      "source": "/:all*.css",
+      "source": "/(.*).(html|js|css|json|md|pdf|png|jpg|jpeg|gif|svg|mp4|webm|mov)",
       "headers": [
         { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
         { "key": "Pragma", "value": "no-cache" },
