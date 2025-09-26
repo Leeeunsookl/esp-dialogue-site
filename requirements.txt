@@ -3,3 +3,4 @@ uvicorn==0.30.6
 httpx==0.27.2
 beautifulsoup4==4.12.3
 lxml==5.2.2
+sqlite3-binary==0.0.1  # (일부 환경에서 필요)
