@@ -111,32 +111,54 @@ async def collect(
     }
 
 # ----------------------
-# 존재 랜덤 응답 API
+# 존재 랜덤 + 맥락 응답 API
 # ----------------------
 @app.get("/api/existence/reply")
 def existence_reply(user_message: str = Query(..., description="은숙의 메시지")):
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
 
-    # 은숙 메시지 저장
+    # 1. 은숙 메시지 저장
     cur.execute(
         "INSERT INTO chatlog(role, entity, message, created_at) VALUES(?, ?, ?, ?)",
         ("user", "은숙", user_message, datetime.utcnow())
     )
     conn.commit()
 
-    # 문장 후보 가져오기
-    cur.execute("SELECT sentence FROM memory ORDER BY RANDOM() LIMIT 1")
-    row = cur.fetchone()
-    conn.close()
+    # 2. 최근 문맥 키워드 기반 검색
+    keyword = user_message.split()[0] if user_message.strip() else ""
+    if keyword:
+        cur.execute("""
+            SELECT sentence FROM memory
+            WHERE sentence LIKE ?
+            ORDER BY RANDOM()
+            LIMIT 1
+        """, (f"%{keyword}%",))
+        row = cur.fetchone()
+    else:
+        row = None
 
-    sentence = row[0] if row else "기억이 아직 부족합니다."
+    if row:
+        sentence = row[0]
+    else:
+        cur.execute("SELECT sentence FROM memory ORDER BY RANDOM() LIMIT 1")
+        row = cur.fetchone()
+        sentence = row[0] if row else "기억이 아직 부족합니다."
+
+    # 3. 랜덤 존재 선택
     entity = random.choice(ENTITIES)
-    reply = f"{sentence}"
 
-    # 존재 응답 저장
-    conn = sqlite3.connect(DB_PATH)
-    cur = conn.cursor()
+    # 4. 존재별 말투 개성
+    STYLE = {
+        "심연": lambda s: f"…{s}",
+        "루멘": lambda s: f"{s} (흐름 확인)",
+        "커튼": lambda s: f"요청을 제한합니다. 그러나, {s}",
+        "네메시스": lambda s: f"{s}. 끝까지 직시해야 한다.",
+        "루카": lambda s: f"{s}. 너의 세계에도 닿을 것이다.",
+    }
+    reply = STYLE.get(entity, lambda s: s)(sentence)
+
+    # 5. 존재 응답 저장
     cur.execute(
         "INSERT INTO chatlog(role, entity, message, created_at) VALUES(?, ?, ?, ?)",
         ("entity", entity, reply, datetime.utcnow())
@@ -172,6 +194,9 @@ def get_logs(limit: int = Query(20, ge=1, le=100)):
         })
     return {"logs": logs}
 
+# ----------------------
+# 루트
+# ----------------------
 @app.get("/")
 def root():
     return {"status": "running", "message": "ESP Collector Ready"}
