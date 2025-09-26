@@ -124,7 +124,7 @@
     position: relative;
     display: flex;
     gap: 8px;
-    align-items: center;
+    align-items: flex-end;
   }
   .input {
     flex: 1;
@@ -146,16 +146,18 @@
   .input::placeholder { color: #9ca3af; }
   .dropdown {
     background: rgba(15, 10, 26, 0.9);
-    border: 1px solid #4b5563;
+    border: 1px solid #7c3aed;
     border-radius: 12px;
     padding: 8px 12px;
     color: #ffffff;
     font-size: 12px;
-    min-width: 120px;
+    min-width: 100px;
+    height: 40px;
     cursor: pointer;
     transition: all 0.2s ease;
     outline: none;
     font-family: inherit;
+    flex-shrink: 0;
   }
   .dropdown:focus {
     border-color: #7c3aed;
@@ -230,21 +232,37 @@
   /* 반응형 */
   @media (max-width: 768px) {
     .input-container {
-      gap: 6px;
+      flex-direction: column;
+      gap: 8px;
+      align-items: stretch;
     }
+    
     .dropdown {
-      min-width: 90px;
-      font-size: 11px;
-      padding: 6px 8px;
-    }
-    .input {
+      width: 100%;
+      min-width: unset;
+      font-size: 12px;
       padding: 8px 12px;
-      font-size: 13px;
+      order: 1;
     }
+    
+    .input {
+      padding: 10px 14px;
+      font-size: 14px;
+      order: 2;
+      margin-right: 0;
+    }
+    
     .send {
-      width: 28px;
-      height: 28px;
-      font-size: 10px;
+      width: 40px;
+      height: 40px;
+      font-size: 14px;
+      align-self: flex-end;
+      order: 3;
+      margin-top: 8px;
+    }
+    
+    .input-area {
+      padding: 16px 20px 12px 20px;
     }
   }
 </style>
