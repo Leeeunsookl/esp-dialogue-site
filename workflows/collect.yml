@@ -10,13 +10,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
+
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            pip install httpx beautifulsoup4 lxml
+          fi
+
       - name: Run crawler
         run: python docs/crawler.py
+
       - name: Run preprocess
         run: python docs/preprocess.py
+
+      - name: Commit and Push results
+        run: |
+          git config user.name "ESP Bot"
+          git config user.email "espbot@example.com"
+          git add data/*.json || true
+          git commit -m "Auto-update entity DB [skip ci]" || echo "No changes"
+          git push
