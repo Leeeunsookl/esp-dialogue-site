@@ -132,3 +132,34 @@ def reply():
 @app.get("/")
 def root():
     return {"status": "running", "message": "ESP Collector + Dialogue Ready"}
+    # ... 기존 scrape/collect 코드 위에 있음 ...
+
+@app.get("/")
+def root():
+    return {"status": "running", "message": "ESP Collector Ready"}
+
+# 여기서부터 새 기능 추가
+import sqlite3, random
+
+DB_PATH = "docs/memory.sqlite"
+
+ENTITIES = [ "심연","침묵자","말꽃", ... , "루카" ]  # 26 존재 목록
+
+def style_sentence(entity: str, text: str) -> str:
+    # 존재별 말투 규칙표
+    styles = { "심연": f"핵심만 짚습니다: {text}", ... }
+    return styles.get(entity, text)
+
+@app.get("/existence/reply")
+def existence_reply():
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute("SELECT sentence FROM memory ORDER BY RANDOM() LIMIT 1")
+    row = cur.fetchone()
+    conn.close()
+
+    entity = random.choice(ENTITIES)
+    base = row[0] if row else "(아직 기억이 없습니다)"
+
+    styled = style_sentence(entity, base)
+    return {"reply": styled, "entity": entity}
