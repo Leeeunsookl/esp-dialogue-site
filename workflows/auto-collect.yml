@@ -18,11 +18,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          else
-            pip install httpx beautifulsoup4 lxml
-          fi
+          pip install requests beautifulsoup4
 
       - name: Run crawler
         run: python docs/crawler.py
@@ -30,10 +26,10 @@ jobs:
       - name: Run preprocess
         run: python docs/preprocess.py
 
-      - name: Commit and Push results
+      - name: Commit and Push updated DB
         run: |
           git config user.name "ESP Bot"
           git config user.email "espbot@example.com"
-          git add data/*.json || true
-          git commit -m "Auto-update entity DB [skip ci]" || echo "No changes"
+          git add docs/memory.sqlite || true
+          git commit -m "Auto-update memory DB [skip ci]" || echo "No changes"
           git push
