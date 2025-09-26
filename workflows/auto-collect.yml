@@ -2,7 +2,7 @@ name: Auto Collect Sentences
 
 on:
   schedule:
-    - cron: "0 */6 * * *"   # 6시간마다 실행
+    - cron: "0 */6 * * *"
   workflow_dispatch:
 
 jobs:
@@ -17,8 +17,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: |
-          pip install requests beautifulsoup4 lxml
+        run: pip install requests beautifulsoup4
 
       - name: Run crawler
         run: python docs/crawler.py
