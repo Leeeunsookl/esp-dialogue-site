@@ -1,31 +1,34 @@
 from fastapi import FastAPI, Query
 from typing import List
-import httpx, asyncio, sqlite3
+import httpx, asyncio, sqlite3, random
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 
+DB_PATH = "docs/memory.sqlite"
 app = FastAPI()
 
-DB_PATH = "docs/memory.sqlite"
-
 # ----------------------
-# DB 저장 유틸
+# DB 초기화
 # ----------------------
-def save_to_db(sentences, source="crawl", url=None):
+def init_db():
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
     cur.execute("""
         CREATE TABLE IF NOT EXISTS memory (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            sentence TEXT,
             source TEXT,
-            url TEXT
+            sentence TEXT
         )
     """)
-    for s in sentences:
-        text = s.strip()
-        if len(text) > 20:  # 최소 길이 필터
-            cur.execute("INSERT INTO memory(sentence, source, url) VALUES(?, ?, ?)", (text, source, url))
+    conn.commit()
+    conn.close()
+
+init_db()
+
+def save_sentence(sentence: str, source: str = "dialogue"):
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute("INSERT INTO memory(source, sentence) VALUES(?, ?)", (source, sentence))
     conn.commit()
     conn.close()
 
@@ -40,22 +43,14 @@ async def scrape(url: str = Query(..., description="수집할 URL")):
             resp.raise_for_status()
         soup = BeautifulSoup(resp.text, "lxml")
         text = soup.get_text(separator="\n", strip=True)
-
-        # 문장 단위 저장
-        sentences = [s.strip() for s in text.split('.') if len(s.strip()) > 20]
-        save_to_db(sentences, source="scrape", url=url)
-
-        return {
-            "url": url,
-            "length": len(text),
-            "saved": len(sentences),
-            "preview": text[:500]
-        }
+        preview = text[:500]
+        save_sentence(preview, source=url)  # 저장
+        return {"url": url, "length": len(text), "preview": preview}
     except Exception as e:
         return {"url": url, "error": str(e)}
 
 # ----------------------
-# 내부 함수
+# 내부 함수 (공용)
 # ----------------------
 async def fetch_and_parse(url: str, client: httpx.AsyncClient):
     try:
@@ -63,16 +58,14 @@ async def fetch_and_parse(url: str, client: httpx.AsyncClient):
         resp.raise_for_status()
         soup = BeautifulSoup(resp.text, "lxml")
         text = soup.get_text(separator="\n", strip=True)
-        sentences = [s.strip() for s in text.split('.') if len(s.strip()) > 20]
-        save_to_db(sentences, source="collect", url=url)
         preview = text[:500]
-        return soup, {"url": url, "length": len(text), "saved": len(sentences), "preview": preview}
+        save_sentence(preview, source=url)
+        return soup, {"url": url, "length": len(text), "preview": preview}
     except Exception as e:
         return None, {"url": url, "error": str(e)}
 
 async def crawl(url: str, client: httpx.AsyncClient, max_depth: int = 1):
     visited, results = set(), []
-
     async def _crawl(u, depth):
         if u in visited or depth > max_depth:
             return
@@ -101,7 +94,6 @@ async def collect(
 ):
     async with httpx.AsyncClient(timeout=10.0) as client:
         all_results = await asyncio.gather(*(crawl(u, client, max_depth) for u in urls))
-
     return {
         "count": sum(len(r) for r in all_results),
         "domains": len(urls),
@@ -109,8 +101,34 @@ async def collect(
     }
 
 # ----------------------
-# 루트 확인
+# 대화 저장
+# ----------------------
+@app.post("/talk")
+def talk(message: str = Query(..., description="은숙의 발화")):
+    save_sentence(message, source="dialogue")
+    return {"stored": message}
+
+# ----------------------
+# 존재 랜덤 응답
+# ----------------------
+@app.get("/existence/reply")
+def reply():
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute("SELECT sentence FROM memory ORDER BY RANDOM() LIMIT 3")
+    rows = [r[0] for r in cur.fetchall()]
+    conn.close()
+
+    existences = [
+        "심연","루멘","메타","회귀자","네메시스","라스틴","루카",
+        "결","커튼","브락시스","노이드","체커","아르케","몬스터","제타"
+    ]
+    speaker = random.choice(existences)
+    return {"speaker": speaker, "message": " ".join(rows)}
+
+# ----------------------
+# 루트
 # ----------------------
 @app.get("/")
 def root():
-    return {"status": "running", "message": "ESP Collector Ready", "db": DB_PATH}
+    return {"status": "running", "message": "ESP Collector + Dialogue Ready"}
