@@ -1,53 +1,45 @@
-from fastapi import FastAPI, Request, Form
-from fastapi.responses import HTMLResponse
-import uvicorn
-from engine import generate_reply
+from fastapi import FastAPI, Query
+from typing import List
+import httpx
+import asyncio
+from bs4 import BeautifulSoup
+import json
+from pathlib import Path
 
 app = FastAPI()
 
-HTML_TEMPLATE = """
-<!DOCTYPE html>
-<html>
-<head>
-    <title>비LLM 챗 엔진</title>
-    <style>
-        body { font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; }
-        .chat-box { border: 1px solid #ccc; padding: 10px; height: 400px; overflow-y: scroll; }
-        .msg { margin: 5px 0; }
-        .user { color: blue; }
-        .bot { color: green; }
-    </style>
-</head>
-<body>
-    <h2>비LLM 챗 엔진</h2>
-    <div class="chat-box" id="chat-box"></div>
-    <form action="/" method="post">
-        <input type="text" name="msg" style="width:80%" autofocus />
-        <input type="submit" value="Send" />
-    </form>
-</body>
-</html>
-"""
 
-chat_history = []
+@app.get("/")
+def root():
+    return {"status": "running", "message": "ESP 비LLM Collector Ready"}
 
-@app.get("/", response_class=HTMLResponse)
-async def get_chat():
-    return HTML_TEMPLATE.replace(
-        '<div class="chat-box" id="chat-box"></div>',
-        '<div class="chat-box" id="chat-box">' + "<br>".join(chat_history) + "</div>"
-    )
 
-@app.post("/", response_class=HTMLResponse)
-async def post_chat(msg: str = Form(...)):
-    user_msg = f'<div class="msg user">You: {msg}</div>'
-    reply = generate_reply(msg)
-    bot_msg = f'<div class="msg bot">Bot: {reply}</div>'
-    chat_history.extend([user_msg, bot_msg])
-    return HTML_TEMPLATE.replace(
-        '<div class="chat-box" id="chat-box"></div>',
-        '<div class="chat-box" id="chat-box">' + "<br>".join(chat_history) + "</div>"
-    )
+async def fetch_url(url: str, client: httpx.AsyncClient):
+    try:
+        response = await client.get(url)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, "lxml")
+        text = soup.get_text(separator="\n", strip=True)
+        preview = text[:500]
+        return {"url": url, "length": len(text), "preview": preview}
+    except Exception as e:
+        return {"url": url, "error": str(e)}
 
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+
+@app.get("/api/scrape")
+async def scrape(urls: List[str] = Query(..., description="수집할 URL 리스트")):
+    """
+    여러 URL을 병렬로 크롤링하여 JSON으로 반환합니다.
+    - HTML → 텍스트 변환
+    - 각 URL별 상위 500자 미리보기
+    - scraped.json 파일로 저장
+    """
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        results = await asyncio.gather(*(fetch_url(url, client) for url in urls))
+
+    # JSON 파일 저장
+    out_path = Path("scraped.json")
+    with out_path.open("w", encoding="utf-8") as f:
+        json.dump(results, f, ensure_ascii=False, indent=2)
+
+    return {"count": len(results), "results": results}
