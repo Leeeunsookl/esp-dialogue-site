@@ -1,1 +1,49 @@
-location.replace("https://espdialog.net/blocked.html");
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>접근 차단됨</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0f0a1a 0%, #2d1b4a 100%);
+      color: #fff;
+    }
+    .box {
+      text-align: center;
+      padding: 40px;
+      background: rgba(0,0,0,0.5);
+      border: 1px solid #7c3aed;
+      border-radius: 12px;
+      max-width: 400px;
+      box-shadow: 0 0 15px rgba(124,58,237,0.3);
+    }
+    h1 {
+      font-size: 20px;
+      margin-bottom: 16px;
+      color: #a855f7;
+    }
+    p {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #d1d5db;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>⚠ 접근 차단됨</h1>
+    <p>
+      요청하신 페이지에 접근할 수 없습니다.<br>
+      의도치 않은 경로이거나, 정책에 따라 차단되었습니다.
+    </p>
+  </div>
+</body>
+</html>
