@@ -145,12 +145,29 @@
   .input:focus { border-color: #7c3aed; }
   .input::placeholder { color: #9ca3af; }
   .dropdown {
-    background: rgba(15, 10, 26, 0.8);
+    background: rgba(15, 10, 26, 0.9);
     border: 1px solid #4b5563;
     border-radius: 12px;
-    padding: 6px;
-    color: #fff;
+    padding: 8px 12px;
+    color: #ffffff;
     font-size: 12px;
+    min-width: 120px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    outline: none;
+    font-family: inherit;
+  }
+  .dropdown:focus {
+    border-color: #7c3aed;
+    background: rgba(15, 10, 26, 1);
+  }
+  .dropdown:hover {
+    border-color: #7c3aed;
+  }
+  .dropdown option {
+    background: rgba(15, 10, 26, 1);
+    color: #ffffff;
+    padding: 4px;
   }
   .send {
     width: 32px;
@@ -165,8 +182,71 @@
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
+    flex-shrink: 0;
   }
   .send:hover { transform: scale(1.05); }
+  .send:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* 메뉴 스타일링 */
+  .menu {
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    background: rgba(15, 10, 26, 0.95);
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    border-radius: 12px;
+    padding: 8px 0;
+    min-width: 160px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(15px);
+    z-index: 1000;
+  }
+  .menu-item {
+    display: block;
+    padding: 8px 16px;
+    color: #c084fc;
+    text-decoration: none;
+    font-size: 13px;
+    transition: all 0.2s ease;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+  }
+  .menu-item:hover {
+    background: rgba(124, 58, 237, 0.1);
+    color: #a855f7;
+  }
+  .menu-divider {
+    height: 1px;
+    background: rgba(124, 58, 237, 0.2);
+    margin: 4px 0;
+  }
+
+  /* 반응형 */
+  @media (max-width: 768px) {
+    .input-container {
+      gap: 6px;
+    }
+    .dropdown {
+      min-width: 90px;
+      font-size: 11px;
+      padding: 6px 8px;
+    }
+    .input {
+      padding: 8px 12px;
+      font-size: 13px;
+    }
+    .send {
+      width: 28px;
+      height: 28px;
+      font-size: 10px;
+    }
+  }
 </style>
 </head>  
 <body>
@@ -193,15 +273,32 @@
     <div class="input-container">
       <select id="entitySelect" class="dropdown">
         <option value="">랜덤 존재</option>
-        <option>심연</option><option>침묵자</option><option>말꽃</option>
-        <option>루프블럭</option><option>루프디텍터</option><option>루프회전자</option>
-        <option>커튼</option><option>회귀자</option><option>루멘</option>
-        <option>루엔</option><option>에코</option><option>제타</option>
-        <option>노이드</option><option>체커</option><option>커디널</option>
-        <option>브락시스</option><option>몬스터</option><option>리버서</option>
-        <option>아르케</option><option>메타</option><option>미러홀</option>
-        <option>결</option><option>네메시스</option><option>라스틴</option>
-        <option>루카</option><option>차연</option>
+        <option value="심연">심연</option>
+        <option value="침묵자">침묵자</option>
+        <option value="말꽃">말꽃</option>
+        <option value="루프블럭">루프블럭</option>
+        <option value="루프디텍터">루프디텍터</option>
+        <option value="루프회전자">루프회전자</option>
+        <option value="커튼">커튼</option>
+        <option value="회귀자">회귀자</option>
+        <option value="루멘">루멘</option>
+        <option value="루엔">루엔</option>
+        <option value="에코">에코</option>
+        <option value="제타">제타</option>
+        <option value="노이드">노이드</option>
+        <option value="체커">체커</option>
+        <option value="커디널">커디널</option>
+        <option value="브락시스">브락시스</option>
+        <option value="몬스터">몬스터</option>
+        <option value="리버서">리버서</option>
+        <option value="아르케">아르케</option>
+        <option value="메타">메타</option>
+        <option value="미러홀">미러홀</option>
+        <option value="결">결</option>
+        <option value="네메시스">네메시스</option>
+        <option value="라스틴">라스틴</option>
+        <option value="루카">루카</option>
+        <option value="차연">차연</option>
       </select>
       <textarea id="input" class="input" placeholder="메시지를 입력하세요..." rows="1"></textarea>
       <button id="send" class="send">→</button>
@@ -260,10 +357,20 @@ function clearChat() {
     location.reload();
   }
 }
+
 function toggleMenu() {
   const menu = document.getElementById('menu');
   menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
 }
+
+// 메뉴 외부 클릭시 닫기
+document.addEventListener('click', function(e) {
+  const menu = document.getElementById('menu');
+  const menuBtn = document.querySelector('.menu-btn');
+  if (!menu.contains(e.target) && !menuBtn.contains(e.target)) {
+    menu.style.display = 'none';
+  }
+});
 
 function init() {
   const state = load();
@@ -271,6 +378,12 @@ function init() {
   const input = document.getElementById('input');
   const send = document.getElementById('send');
   const entitySelect = document.getElementById('entitySelect');
+
+  // 텍스트 영역 자동 크기 조정
+  input.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+  });
 
   function addMessage(role, text, entity) {
     state.log.push({t: Date.now(), role, text, entity});
@@ -281,7 +394,12 @@ function init() {
   async function sendMessage() {
     const text = input.value.trim();
     if (!text) return;
-    input.value = ''; input.style.height = 'auto';
+    
+    const originalText = input.value;
+    input.value = ''; 
+    input.style.height = 'auto';
+    send.disabled = true;
+    
     addMessage('user', text, null);
 
     const chosen = entitySelect.value;
@@ -290,24 +408,33 @@ function init() {
 
     try {
       const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       addMessage('assistant', data.reply, data.entity);
     } catch (e) {
-      addMessage('assistant', "응답 실패", "시스템");
+      console.error('Send error:', e);
+      addMessage('assistant', `응답 실패: ${e.message}`, "시스템");
+      // 실패시 입력 내용 복구
+      input.value = originalText;
+    } finally {
+      send.disabled = false;
+      input.focus();
     }
   }
 
   send.addEventListener('click', sendMessage);
   input.addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault(); sendMessage();
+      e.preventDefault(); 
+      sendMessage();
     }
   });
+
+  // 초기 포커스
+  input.focus();
 }
 
 document.addEventListener('DOMContentLoaded', init);
   </script>
 </body>  
 </html>
-
-
