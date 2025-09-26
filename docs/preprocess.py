@@ -1,26 +1,47 @@
 import sqlite3
 
-def clean_sentences():
-    conn = sqlite3.connect("docs/memory.sqlite")
+DB_PATH = "docs/memory.sqlite"
+
+def preprocess():
+    conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
-    cur.execute("SELECT id, sentence FROM memory")
-    rows = cur.fetchall()
 
-    seen = set()
-    cleaned = []
-    for rid, sentence in rows:
-        s = sentence.strip()
-        if s not in seen and len(s.split()) > 3:
-            seen.add(s)
-            cleaned.append(s)
+    # 테이블 없으면 생성
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS memory (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            entity TEXT,
+            sentence TEXT
+        )
+    """)
 
-    # 기존 삭제 후 정제본 삽입
-    cur.execute("DELETE FROM memory")
-    for s in cleaned:
-        cur.execute("INSERT INTO memory(sentence) VALUES(?)", (s,))
+    # 중복 제거 (entity + sentence 조합 기준)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS memory_dedup (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            entity TEXT,
+            sentence TEXT
+        )
+    """)
+
+    cur.execute("DELETE FROM memory_dedup")  # 초기화
+
+    cur.execute("""
+        INSERT INTO memory_dedup(entity, sentence)
+        SELECT entity, sentence
+        FROM memory
+        GROUP BY entity, sentence
+    """)
+
+    conn.commit()
+
+    # 기존 테이블 교체
+    cur.execute("DROP TABLE memory")
+    cur.execute("ALTER TABLE memory_dedup RENAME TO memory")
+
     conn.commit()
     conn.close()
-    print(f"Cleaned DB: {len(cleaned)} unique sentences")
+    print("Preprocess complete: duplicates removed per entity.")
 
 if __name__ == "__main__":
-    clean_sentences()
+    preprocess()
