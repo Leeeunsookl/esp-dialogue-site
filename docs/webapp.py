@@ -1,45 +1,67 @@
 from fastapi import FastAPI, Query
 from typing import List
-import httpx
-import asyncio
+import httpx, asyncio
 from bs4 import BeautifulSoup
-import json
-from pathlib import Path
+from urllib.parse import urljoin, urlparse
 
 app = FastAPI()
 
 
-@app.get("/")
-def root():
-    return {"status": "running", "message": "ESP 비LLM Collector Ready"}
-
-
-async def fetch_url(url: str, client: httpx.AsyncClient):
+async def fetch_and_parse(url: str, client: httpx.AsyncClient):
     try:
-        response = await client.get(url)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, "lxml")
+        resp = await client.get(url)
+        resp.raise_for_status()
+        soup = BeautifulSoup(resp.text, "lxml")
         text = soup.get_text(separator="\n", strip=True)
         preview = text[:500]
-        return {"url": url, "length": len(text), "preview": preview}
+        return soup, {"url": url, "length": len(text), "preview": preview}
     except Exception as e:
-        return {"url": url, "error": str(e)}
+        return None, {"url": url, "error": str(e)}
 
 
-@app.get("/api/scrape")
-async def scrape(urls: List[str] = Query(..., description="수집할 URL 리스트")):
+async def crawl(url: str, client: httpx.AsyncClient, max_depth: int = 1):
+    visited = set()
+    results = []
+
+    async def _crawl(u, depth):
+        if u in visited or depth > max_depth:
+            return
+        visited.add(u)
+
+        soup, data = await fetch_and_parse(u, client)
+        results.append(data)
+
+        if soup:
+            base_domain = urlparse(url).netloc
+            for a in soup.find_all("a", href=True):
+                link = urljoin(u, a["href"])
+                if urlparse(link).netloc == base_domain:
+                    await _crawl(link, depth + 1)
+
+    await _crawl(url, 0)
+    return results
+
+
+@app.get("/")
+def root():
+    return {"status": "running", "message": "ESP Collector Ready"}
+
+
+@app.get("/collect")
+async def collect(
+    urls: List[str] = Query(..., description="수집할 URL 리스트"),
+    max_depth: int = Query(1, ge=0, le=3, description="내부 링크 따라가는 깊이")
+):
     """
-    여러 URL을 병렬로 크롤링하여 JSON으로 반환합니다.
-    - HTML → 텍스트 변환
-    - 각 URL별 상위 500자 미리보기
-    - scraped.json 파일로 저장
+    여러 URL에 대해 병렬로 딥 크롤링 실행.
+    - 각 도메인별로 내부 링크 max_depth까지 따라감
+    - scraped.json 저장 없음 (응답만 반환)
     """
     async with httpx.AsyncClient(timeout=10.0) as client:
-        results = await asyncio.gather(*(fetch_url(url, client) for url in urls))
+        all_results = await asyncio.gather(*(crawl(u, client, max_depth) for u in urls))
 
-    # JSON 파일 저장
-    out_path = Path("scraped.json")
-    with out_path.open("w", encoding="utf-8") as f:
-        json.dump(results, f, ensure_ascii=False, indent=2)
-
-    return {"count": len(results), "results": results}
+    return {
+        "count": sum(len(r) for r in all_results),
+        "domains": len(urls),
+        "results": all_results
+    }
