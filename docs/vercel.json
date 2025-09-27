@@ -15,7 +15,8 @@
   ],
 
   "routes": [
-    { "src": "/(collect|api/.*)", "dest": "docs/webapp.py" },
+    { "src": "/api/(.*)", "dest": "docs/webapp.py" },
+    { "src": "/collect", "dest": "docs/webapp.py" },
     { "src": "/(.*)", "dest": "docs/$1" }
   ],
 
@@ -26,11 +27,15 @@
 
   "headers": [
     {
-      "source": "/(.*).(html|js|css|json|md|pdf|png|jpg|jpeg|gif|svg|mp4|webm|mov)",
+      "source": "/(.*).html",
       "headers": [
-        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
-        { "key": "Pragma", "value": "no-cache" },
-        { "key": "Expires", "value": "0" }
+        { "key": "Cache-Control", "value": "no-cache" }
+      ]
+    },
+    {
+      "source": "/(.*).(js|css|png|jpg|jpeg|gif|svg)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
       ]
     }
   ]
