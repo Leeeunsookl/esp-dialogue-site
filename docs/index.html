@@ -43,7 +43,7 @@
   .dropdown option { background: #1a0f2e; color: #ffffff; padding: 8px; }
   .input-row { display: flex; gap: 8px; align-items: flex-end; }
   .input { flex: 1; min-height: 44px; max-height: 100px; padding: 12px 16px; background: rgba(15, 10, 26, 0.9); border: 2px solid #4b5563; border-radius: 22px; color: #ffffff; font-size: 14px; resize: none; outline: none; font-family: inherit; transition: all 0.2s ease; overflow: hidden; }
-  .input:focus { border-color: #7c3aed; box-shadow: 0 0 0 2px rgba(124, 58, 247, 0.2); }
+  .input:focus { border-color: #7c3aed; box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2); }
   .input::placeholder { color: #9ca3af; }
   .send { width: 44px; height: 44px; background: linear-gradient(135deg, #7c3aed, #a855f7); border: none; border-radius: 50%; color: white; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; flex-shrink: 0; }
   .send:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4); }
@@ -62,7 +62,7 @@
     <div class="input-container">
       <select id="entitySelect" class="dropdown">
         <option value="">🎲 랜덤 존재</option>
-        <!-- 26 존재 전부 리스트 -->
+        <!-- 26 존재 전부 -->
         <option value="심연">🌊 심연</option>
         <option value="침묵자">🤫 침묵자</option>
         <option value="말꽃">🌸 말꽃</option>
@@ -98,14 +98,14 @@
   </div>
 
   <script>
-const KEY="esp_flow_state_v26";
+const KEY="esp_flow_state_v27";
 
 function load(){ try{return JSON.parse(localStorage.getItem(KEY))||{log:[]};}catch{return{log:[]};}}
 function save(state){ localStorage.setItem(KEY, JSON.stringify(state));}
 function render(state){
   const board=document.getElementById('board');
   if(state.log.length===0){
-    board.innerHTML="<div class='empty'><div class='empty-icon'>💬</div><div class='empty-title'>ESP Dialog</div><div class='empty-subtitle'>대화를 시작해보세요<br>26 존재는 기능이 아닌 독립된 개체입니다<br>상단 ESP Dialog를 클릭하면 초기화됩니다</div></div>";
+    board.innerHTML="<div class='empty'><div class='empty-icon'>💬</div><div class='empty-title'>ESP Dialog</div><div class='empty-subtitle'>대화를 시작해보세요<br>26 존재는 독립된 개체입니다<br>ESP Dialog 클릭 시 초기화됩니다</div></div>";
     return;
   }
   board.innerHTML=state.log.map(m=>{
@@ -119,69 +119,27 @@ function clearChat(){ localStorage.removeItem(KEY); location.reload(); }
 
 function randomPick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 
-const tonePools={
-  "심연":["깊은 데서 말하듯","잔잔히 퍼지듯","가라앉는 느낌으로"],
-  "침묵자":["조용히 건네듯","숨죽여서","낮게"],
-  "말꽃":["가볍게 피어나듯","산뜻하게","은유처럼"],
-  "루프블럭":["되풀이하며","끊어내듯","순환 속에서"],
-  "루프디텍터":["주의 깊게","살펴보듯","꼼꼼히"],
-  "루프회전자":["빙글 돌듯","흐름을 돌리며","원으로 퍼지듯"],
-  "커튼":["가려진 채로","뒤에서 속삭이듯","은근히"],
-  "회귀자":["되돌아가듯","옛길을 따라","익숙하게"],
-  "루멘":["밝게","비춰내며","선명하게"],
-  "루엔":["고요히","달빛처럼","차분하게"],
-  "에코":["메아리치듯","반사하듯","돌려주며"],
-  "제타":["빠르게","전기가 튀듯","순간적으로"],
-  "노이드":["계산하듯","분석적으로","수치처럼"],
-  "체커":["검증하듯","체크하며","점검하듯"],
-  "커디널":["방향을 잡듯","길잡이처럼","차분히"],
-  "브락시스":["집중해서","목표를 겨누듯","곧장"],
-  "몬스터":["투박하게","강렬하게","거칠게"],
-  "리버서":["뒤집듯","반대로","뒤바꿔서"],
-  "아르케":["근원에서","근본적으로","기초부터"],
-  "메타":["겹겹이","관찰하듯","해설하듯"],
-  "미러홀":["비추듯","반사해서","거울 속처럼"],
-  "결":["섬세하게","결을 따라","부드럽게"],
-  "네메시스":["날카롭게","맞서듯","단호히"],
-  "라스틴":["빛나듯","희망적으로","환하게"],
-  "루카":["그려내듯","창의적으로","색을 입히듯"],
-  "차연":["정리하듯","풀어내며","덧붙이듯"],
-  "기본":["생각해보면","어쩌면","지금처럼"]
-};
-
 async function loadMemory(){
   try{
-    const res=await fetch("docs/memory.json");
+    const res=await fetch("docs/conversation.json");
     if(!res.ok) return [];
     return await res.json();
   }catch{return [];}
 }
 
-function generateReply(entity,userMessage,memory){
-  const pool=tonePools[entity]||tonePools["기본"];
-  const parts=[];
-  parts.push(randomPick(pool));
-  parts.push(`"${userMessage}"`);
-  if(memory.length) parts.push(randomPick(memory));
-  return parts.join(" ");
+async function loadToneSources(){
+  try{
+    const res=await fetch("docs/tone_sources.json");
+    if(!res.ok) return {};
+    return await res.json();
+  }catch{return {};}
 }
 
-// === 체커 + 회귀자 보정 루프 ===
-const CHECK_KEY="esp_checker_state_v1";
-function loadChecker(){ try{return JSON.parse(localStorage.getItem(CHECK_KEY))||{lastUser:null,lastReply:null};}catch{return{lastUser:null,lastReply:null};}}
-function saveChecker(state){ localStorage.setItem(CHECK_KEY, JSON.stringify(state));}
-function runChecker(userText,replyText){
-  const state=loadChecker(); let warnings=[];
-  if(state.lastUser && state.lastUser===userText){ warnings.push("⚠️ 같은 질문이 반복됨"); }
-  if(state.lastReply && state.lastReply===replyText){ warnings.push("⚠️ 같은 답변이 반복됨"); }
-  state.lastUser=userText; state.lastReply=replyText; saveChecker(state);
-  return warnings;
-}
-function runReturner(userText,replyText,memory){
-  let adjusted=replyText;
-  if(replyText.length<15 && memory && memory.length){ adjusted+=" "+randomPick(memory); }
-  if(replyText===loadChecker().lastReply){ adjusted=randomPick(memory)||replyText+" (다른 시각에서)"; }
-  return adjusted;
+function generateReply(entity,userMessage,memory,tones){
+  const pool=tones[entity]||tones["기본"]||["그냥","지금","아마도"];
+  let reply=randomPick(pool)+" "+`"${userMessage}"`;
+  if(memory.length) reply+=" "+randomPick(memory);
+  return reply;
 }
 
 function init(){
@@ -193,16 +151,12 @@ function init(){
     input.value=''; input.style.height='auto';
     state.log.push({t:Date.now(),role:"user",text,entity:null}); save(state); render(state);
 
-    const chosen=entitySelect.value||randomPick(Object.keys(tonePools));
+    const chosen=entitySelect.value||randomPick(Object.keys(await loadToneSources()));
     const memory=await loadMemory();
-    let reply=generateReply(chosen,text,memory);
-
-    // 보정 루프
-    const warnings=runChecker(text,reply);
-    reply=runReturner(text,reply,memory);
+    const tones=await loadToneSources();
+    const reply=generateReply(chosen,text,memory,tones);
 
     state.log.push({t:Date.now(),role:"assistant",text:reply,entity:chosen}); 
-    if(warnings.length){ state.log.push({t:Date.now(),role:"system",text:warnings.join(" / "),entity:"체커"}); }
     save(state); render(state);
   }
 
