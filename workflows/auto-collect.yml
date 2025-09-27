@@ -1,15 +1,22 @@
-name: Auto Collect Sentences
+name: ESP Memory Collector
 
 on:
   schedule:
-    - cron: "0 */6 * * *"   # 6시간마다 실행
-  workflow_dispatch:
+    - cron: "0 */6 * * *"  # 6시간마다 실행
+  workflow_dispatch:  # 수동 실행 가능
+  push:
+    paths:
+      - "*.zip"  # ZIP 파일이 푸시되면 실행
 
 jobs:
-  build:
+  collect:
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # 전체 히스토리 필요
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -17,15 +24,61 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install requests beautifulsoup4
-
-      - name: Run collector
-        run: python collector.py
-
-      - name: Commit and Push updated DB
         run: |
-          git config user.name "ESP Bot"
-          git config user.email "espbot@example.com"
-          git add docs/memory.json docs/memory.sqlite || true
-          git commit -m "Auto-update memory DB [skip ci]" || echo "No changes"
-          git push
+          pip install requests beautifulsoup4
+
+      - name: Check for ZIP files
+        id: check_zip
+        run: |
+          if ls *.zip 1> /dev/null 2>&1; then
+            echo "zip_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "zip_exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Process ZIP files
+        if: steps.check_zip.outputs.zip_exists == 'true'
+        run: |
+          echo "Processing ZIP files..."
+          python zip_to_memory.py
+
+      - name: Run web collector
+        run: |
+          echo "Running web collector..."
+          python docs/collector.py
+
+      - name: Verify memory.json
+        run: |
+          if [ -f "docs/memory.json" ]; then
+            echo "memory.json created successfully"
+            echo "File size: $(wc -c < docs/memory.json) bytes"
+            echo "Lines count: $(wc -l < docs/memory.json)"
+          else
+            echo "ERROR: memory.json not created"
+            exit 1
+          fi
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          # ZIP 파일들 삭제
+          rm -f *.zip
+          
+          git add docs/memory.json
+          git add -A  # 삭제된 ZIP 파일들도 반영
+          
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Auto-update memory database $(date '+%Y-%m-%d %H:%M')"
+            git push
+          fi
+
+      - name: Summary
+        run: |
+          echo "Collection completed at $(date)"
+          if [ -f "docs/memory.json" ]; then
+            echo "Memory database updated with $(jq '. | length' docs/memory.json) sentences"
+          fi
