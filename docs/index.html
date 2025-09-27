@@ -165,6 +165,24 @@ function generateReply(entity,userMessage,memory){
   return parts.join(" ");
 }
 
+// === 체커 + 회귀자 보정 루프 추가 ===
+const CHECK_KEY="esp_checker_state_v1";
+function loadChecker(){ try{return JSON.parse(localStorage.getItem(CHECK_KEY))||{lastUser:null,lastReply:null};}catch{return{lastUser:null,lastReply:null};}}
+function saveChecker(state){ localStorage.setItem(CHECK_KEY, JSON.stringify(state));}
+function runChecker(userText,replyText){
+  const state=loadChecker(); let warnings=[];
+  if(state.lastUser && state.lastUser===userText){ warnings.push("⚠️ 같은 질문이 반복됨"); }
+  if(state.lastReply && state.lastReply===replyText){ warnings.push("⚠️ 같은 답변이 반복됨"); }
+  state.lastUser=userText; state.lastReply=replyText; saveChecker(state);
+  return warnings;
+}
+function runReturner(userText,replyText,memory){
+  let adjusted=replyText;
+  if(replyText.length<15 && memory && memory.length){ adjusted+=" "+randomPick(memory); }
+  if(replyText===loadChecker().lastReply){ adjusted=randomPick(memory)||replyText+" (다른 시각에서)"; }
+  return adjusted;
+}
+
 function init(){
   const state=load(); render(state);
   const input=document.getElementById('input'); const send=document.getElementById('send'); const entitySelect=document.getElementById('entitySelect');
@@ -176,8 +194,15 @@ function init(){
 
     const chosen=entitySelect.value||randomPick(Object.keys(tonePools));
     const memory=await loadMemory();
-    const reply=generateReply(chosen,text,memory);
-    state.log.push({t:Date.now(),role:"assistant",text:reply,entity:chosen}); save(state); render(state);
+    let reply=generateReply(chosen,text,memory);
+
+    // 체커 + 회귀자 보정
+    const warnings=runChecker(text,reply);
+    reply=runReturner(text,reply,memory);
+
+    state.log.push({t:Date.now(),role:"assistant",text:reply,entity:chosen}); 
+    if(warnings.length){ state.log.push({t:Date.now(),role:"system",text:warnings.join(" / "),entity:"체커"}); }
+    save(state); render(state);
   }
 
   send.addEventListener('click',sendMessage);
