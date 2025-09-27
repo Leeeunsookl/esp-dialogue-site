@@ -125,8 +125,6 @@
     flex-direction: column;
     gap: 12px;
   }
-  
-  /* 드롭다운 */
   .dropdown {
     width: 100%;
     background: rgba(15, 10, 26, 0.9);
@@ -154,8 +152,6 @@
     color: #ffffff;
     padding: 8px;
   }
-
-  /* 입력창과 전송버튼 */
   .input-row {
     display: flex;
     gap: 8px;
@@ -205,43 +201,6 @@
     opacity: 0.5;
     cursor: not-allowed;
     transform: none;
-  }
-
-  /* 메뉴 */
-  .menu {
-    position: absolute;
-    top: 60px;
-    right: 20px;
-    background: rgba(15, 10, 26, 0.95);
-    border: 1px solid rgba(124, 58, 237, 0.3);
-    border-radius: 12px;
-    padding: 8px 0;
-    min-width: 160px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(15px);
-    z-index: 1000;
-  }
-  .menu-item {
-    display: block;
-    padding: 8px 16px;
-    color: #c084fc;
-    text-decoration: none;
-    font-size: 13px;
-    transition: all 0.2s ease;
-    border: none;
-    background: none;
-    width: 100%;
-    text-align: left;
-    cursor: pointer;
-  }
-  .menu-item:hover {
-    background: rgba(124, 58, 237, 0.1);
-    color: #a855f7;
-  }
-  .menu-divider {
-    height: 1px;
-    background: rgba(124, 58, 237, 0.2);
-    margin: 4px 0;
   }
 </style>
 </head>  
@@ -313,7 +272,7 @@
     <button class="menu-item" onclick="toggleMenu()">닫기</button>
   </div>
 
-  <script>
+<script>
 const KEY = "esp_flow_state_v21";
 
 function load() {
@@ -362,7 +321,6 @@ function toggleMenu() {
   menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
 }
 
-// 메뉴 외부 클릭시 닫기
 document.addEventListener('click', function(e) {
   const menu = document.getElementById('menu');
   const menuBtn = document.querySelector('.menu-btn');
@@ -383,7 +341,6 @@ function init() {
     return;
   }
 
-  // 텍스트 영역 자동 크기 조정
   input.addEventListener('input', function() {
     this.style.height = 'auto';
     this.style.height = Math.min(this.scrollHeight, 100) + 'px';
@@ -408,26 +365,7 @@ function init() {
     addMessage('user', text, null);
 
     const chosen = entitySelect.value;
-    console.log('Selected entity:', chosen); // 디버깅용
-    
-    // 테스트용 응답 (실제 API 없이 동작하도록)
-    setTimeout(() => {
-      const entities = ['심연', '침묵자', '말꽃', '루멘', '에코', '제타', '아르케', '메타'];
-      const selectedEntity = chosen || entities[Math.floor(Math.random() * entities.length)];
-      const responses = [
-        '안녕하세요. 무엇을 도와드릴까요?',
-        '흥미로운 질문이네요.',
-        '그에 대해 생각해보겠습니다.',
-        '더 자세히 설명해 주실 수 있나요?',
-        '좋은 관점입니다.',
-      ];
-      const reply = responses[Math.floor(Math.random() * responses.length)];
-      addMessage('assistant', reply, selectedEntity);
-      send.disabled = false;
-      input.focus();
-    }, 500);
 
-    /* 실제 API 사용시 이 부분을 활성화하세요
     try {
       let url = `/api/existence/reply?user_message=${encodeURIComponent(text)}`;
       if (chosen) url += `&entity=${encodeURIComponent(chosen)}`;
@@ -444,7 +382,6 @@ function init() {
       send.disabled = false;
       input.focus();
     }
-    */
   }
 
   send.addEventListener('click', sendMessage);
@@ -455,11 +392,10 @@ function init() {
     }
   });
 
-  // 초기 포커스
   input.focus();
 }
 
 document.addEventListener('DOMContentLoaded', init);
-  </script>
+</script>
 </body>  
 </html>
