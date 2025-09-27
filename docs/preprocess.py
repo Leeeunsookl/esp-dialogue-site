@@ -1,47 +1,27 @@
-import sqlite3, re
+import sqlite3, json, os
 
 DB_PATH = "docs/memory.sqlite"
+JSON_PATH = "docs/memory.json"
 
-def clean_sentence(s):
-    # 불필요한 공백, 특수문자 정리
-    s = re.sub(r'\s+', ' ', s)
-    s = re.sub(r'[^0-9a-zA-Z가-힣 .,?!]', '', s)
-    return s.strip()
-
-def preprocess():
+def export_json():
+    if not os.path.exists(DB_PATH):
+        print("DB not found")
+        return
+    
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
-
-    # clean 테이블 생성
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS memory_clean(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            sentence TEXT,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
-
-    # raw에서 가져오기
-    cur.execute("SELECT sentence FROM memory_raw ORDER BY id DESC LIMIT 1000")
+    cur.execute("CREATE TABLE IF NOT EXISTS memory(id INTEGER PRIMARY KEY, sentence TEXT)")
+    cur.execute("SELECT sentence FROM memory")
     rows = cur.fetchall()
-
-    cleaned = []
-    for r in rows:
-        sent = clean_sentence(r[0])
-        if 20 <= len(sent) <= 200:  # 길이 제한
-            cleaned.append(sent)
-
-    # 중복 제거
-    cleaned = list(set(cleaned))
-
-    # 기존 clean 테이블 비우고 새로 채우기
-    cur.execute("DELETE FROM memory_clean")
-    for s in cleaned:
-        cur.execute("INSERT INTO memory_clean(sentence) VALUES(?)", (s,))
-
-    conn.commit()
     conn.close()
-    print(f"{len(cleaned)} sentences processed → memory_clean")
+
+    sentences = [r[0] for r in rows if r[0].strip()]
+    data = {"sentences": sentences}
+
+    with open(JSON_PATH, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+    print(f"Exported {len(sentences)} sentences → {JSON_PATH}")
 
 if __name__ == "__main__":
-    preprocess()
+    export_json()
