@@ -9,20 +9,29 @@
       "use": "@vercel/python"
     },
     {
-      "src": "docs/*",
+      "src": "docs/*.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "docs/*.css",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "docs/*.js",
       "use": "@vercel/static"
     }
   ],
 
   "routes": [
-    { "src": "/api/(.*)", "dest": "docs/webapp.py" },
-    { "src": "/collect", "dest": "docs/webapp.py" },
-    { "src": "/(.*)", "dest": "docs/$1" }
+    { "src": "/api/(.*)", "dest": "/docs/webapp.py" },
+    { "src": "/collect", "dest": "/docs/webapp.py" },
+    { "src": "/(.*)\\.html", "dest": "/docs/$1.html" },
+    { "src": "/", "dest": "/docs/index.html" },
+    { "src": "/(.*)", "dest": "/docs/$1" }
   ],
 
   "redirects": [
-    { "source": "/chat", "destination": "/", "permanent": true },
-    { "source": "/backend/:path*", "destination": "https://espdialog.net", "permanent": false }
+    { "source": "/chat", "destination": "/", "permanent": true }
   ],
 
   "headers": [
