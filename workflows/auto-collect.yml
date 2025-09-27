@@ -1,9 +1,8 @@
-name: Auto Collect & Clean
+name: Auto Collect Sentences
 
 on:
   schedule:
-    - cron: "0 */6 * * *"   # 6시간마다 Collector 실행
-    - cron: "0 3 * * *"     # 매일 새벽 3시 Preprocess 실행
+    - cron: "0 */6 * * *"   # 6시간마다 실행
   workflow_dispatch:
 
 jobs:
@@ -18,25 +17,21 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install requests beautifulsoup4 lxml
+        run: pip install requests beautifulsoup4
 
       - name: Ensure docs dir exists
         run: mkdir -p docs
 
-      # Collector 실행 (6시간마다)
-      - name: Run collector
-        if: github.event.schedule == '0 */6 * * *'
-        run: python docs/collector.py
+      - name: Run crawler
+        run: python docs/crawler.py
 
-      # Preprocess 실행 (하루 1번)
-      - name: Run preprocess
-        if: github.event.schedule == '0 3 * * *'
+      - name: Run preprocess (sqlite → json)
         run: python docs/preprocess.py
 
-      - name: Commit and Push updated DB
+      - name: Commit and Push updated DB + JSON
         run: |
           git config user.name "ESP Bot"
           git config user.email "espbot@example.com"
-          git add docs/memory.sqlite || true
-          git commit -m "Auto-update memory DB [skip ci]" || echo "No changes"
+          git add docs/memory.sqlite docs/memory.json || true
+          git commit -m "Auto-update memory DB+JSON [skip ci]" || echo "No changes"
           git push
