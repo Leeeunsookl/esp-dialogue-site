@@ -43,7 +43,7 @@
   .dropdown option { background: #1a0f2e; color: #ffffff; padding: 8px; }
   .input-row { display: flex; gap: 8px; align-items: flex-end; }
   .input { flex: 1; min-height: 44px; max-height: 100px; padding: 12px 16px; background: rgba(15, 10, 26, 0.9); border: 2px solid #4b5563; border-radius: 22px; color: #ffffff; font-size: 14px; resize: none; outline: none; font-family: inherit; transition: all 0.2s ease; overflow: hidden; }
-  .input:focus { border-color: #7c3aed; box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2); }
+  .input:focus { border-color: #7c3aed; box-shadow: 0 0 0 2px rgba(124, 58, 247, 0.2); }
   .input::placeholder { color: #9ca3af; }
   .send { width: 44px; height: 44px; background: linear-gradient(135deg, #7c3aed, #a855f7); border: none; border-radius: 50%; color: white; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; flex-shrink: 0; }
   .send:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4); }
@@ -160,13 +160,30 @@ async function loadMemory(){
   }catch{return [];}
 }
 
-function generateReply(entity,userMessage,memory){
-  const pool=tonePools[entity]||tonePools["기본"];
-  const parts=[];
-  parts.push(randomPick(pool));
-  parts.push(`"${userMessage}"`);
-  if(memory.length) parts.push(randomPick(memory));
-  return parts.join(" ");
+// 📌 핵심: 앵커 → 확장 → 정리 패턴
+function generateReply(entity, userMessage, memory) {
+  const pool = tonePools[entity] || tonePools["기본"];
+  const replyParts = [];
+
+  // 1. 앵커
+  replyParts.push(randomPick(pool));
+  replyParts.push(`"${userMessage}"라는 물음을 두고`);
+
+  // 2. 확장 (memory 문장 2개 정도)
+  if (memory.length) {
+    let filtered = memory.filter(s => s.length > 20 && s.length < 150);
+    const connectors = ["따라서", "그러나", "즉", "결국", "한편"];
+    for (let i = 0; i < 2 && filtered.length > 0; i++) {
+      let part = randomPick(filtered);
+      let connector = randomPick(connectors);
+      replyParts.push(connector + " " + part);
+    }
+  }
+
+  // 3. 정리
+  replyParts.push("이 흐름 속에서 다시 " + randomPick(pool));
+
+  return replyParts.join(" ");
 }
 
 async function handleZipUpload(file){
@@ -187,7 +204,6 @@ async function handleZipUpload(file){
       else memory.push(parsed);
     }catch{ memory.push(t); }
   });
-  await fetch("docs/memory.json",{method:"POST",body:JSON.stringify(memory)});
   alert("집파일이 memory에 병합되었습니다.");
 }
 
