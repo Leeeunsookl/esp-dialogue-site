@@ -1,25 +1,47 @@
-import sqlite3
+import sqlite3, re
 
-def save_chat(role, entity, message):
-    """
-    채팅 로그를 저장하고, 안전장치로 10만 개 이상일 경우 오래된 로그를 삭제합니다.
-    """
-    conn = sqlite3.connect("docs/memory.sqlite")
+DB_PATH = "docs/memory.sqlite"
+
+def clean_sentence(s):
+    # 불필요한 공백, 특수문자 정리
+    s = re.sub(r'\s+', ' ', s)
+    s = re.sub(r'[^0-9a-zA-Z가-힣 .,?!]', '', s)
+    return s.strip()
+
+def preprocess():
+    conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
 
-    # 로그 삽입
-    cur.execute(
-        "INSERT INTO chatlog(role, entity, message) VALUES (?, ?, ?)",
-        (role, entity, message)
-    )
-
-    # 안전장치: 최근 100,000개만 유지
+    # clean 테이블 생성
     cur.execute("""
-        DELETE FROM chatlog
-        WHERE id NOT IN (
-            SELECT id FROM chatlog ORDER BY id DESC LIMIT 100000
+        CREATE TABLE IF NOT EXISTS memory_clean(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            sentence TEXT,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     """)
 
+    # raw에서 가져오기
+    cur.execute("SELECT sentence FROM memory_raw ORDER BY id DESC LIMIT 1000")
+    rows = cur.fetchall()
+
+    cleaned = []
+    for r in rows:
+        sent = clean_sentence(r[0])
+        if 20 <= len(sent) <= 200:  # 길이 제한
+            cleaned.append(sent)
+
+    # 중복 제거
+    cleaned = list(set(cleaned))
+
+    # 기존 clean 테이블 비우고 새로 채우기
+    cur.execute("DELETE FROM memory_clean")
+    for s in cleaned:
+        cur.execute("INSERT INTO memory_clean(sentence) VALUES(?)", (s,))
+
     conn.commit()
     conn.close()
+    print(f"{len(cleaned)} sentences processed → memory_clean")
+
+if __name__ == "__main__":
+    preprocess()
