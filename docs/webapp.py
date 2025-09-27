@@ -147,3 +147,9 @@ def status():
             "db_exists": False,
             "error": str(e)
         }
+# ... (위에 존재 코드들 그대로 유지)
+
+@app.get("/api/test")
+def test():
+    """Vercel 배포 확인용 단순 엔드포인트"""
+    return {"ok": True, "message": "FastAPI running on Vercel!"}
