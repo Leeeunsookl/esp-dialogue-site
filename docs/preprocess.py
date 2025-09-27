@@ -1,15 +1,25 @@
 import sqlite3
 
-def clean_sentences():
-    conn=sqlite3.connect("docs/memory.sqlite");cur=conn.cursor()
-    cur.execute("SELECT id,sentence FROM memory");rows=cur.fetchall()
-    seen=set();cleaned=[]
-    for _,s in rows:
-        s=s.strip()
-        if s not in seen and len(s.split())>3:
-            seen.add(s);cleaned.append(s)
-    cur.execute("DELETE FROM memory")
-    for s in cleaned:cur.execute("INSERT INTO memory(sentence) VALUES(?)",(s,))
-    conn.commit();conn.close();print(f"Cleaned DB: {len(cleaned)} unique sentences")
+def save_chat(role, entity, message):
+    """
+    채팅 로그를 저장하고, 안전장치로 10만 개 이상일 경우 오래된 로그를 삭제합니다.
+    """
+    conn = sqlite3.connect("docs/memory.sqlite")
+    cur = conn.cursor()
 
-if __name__=="__main__":clean_sentences()
+    # 로그 삽입
+    cur.execute(
+        "INSERT INTO chatlog(role, entity, message) VALUES (?, ?, ?)",
+        (role, entity, message)
+    )
+
+    # 안전장치: 최근 100,000개만 유지
+    cur.execute("""
+        DELETE FROM chatlog
+        WHERE id NOT IN (
+            SELECT id FROM chatlog ORDER BY id DESC LIMIT 100000
+        )
+    """)
+
+    conn.commit()
+    conn.close()
