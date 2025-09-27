@@ -1,37 +1,31 @@
-name: Auto Collect Sentences
+import sqlite3, json, os
 
-on:
-  schedule:
-    - cron: "0 */6 * * *"   # 6시간마다 실행
-  workflow_dispatch:
+DB_PATH = "docs/memory.sqlite"
+OUT_PATH = "docs/memory.json"
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
+def fetch_memory():
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute("SELECT sentence FROM memory")
+    mem = [r[0] for r in cur.fetchall()]
+    conn.close()
+    return mem
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
+def fetch_chatlogs():
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute("SELECT message FROM chatlog")
+    logs = [r[0] for r in cur.fetchall() if r[0]]
+    conn.close()
+    return logs
 
-      - name: Install dependencies
-        run: pip install requests beautifulsoup4
-
-      - name: Ensure docs dir exists
-        run: mkdir -p docs
-
-      - name: Run crawler
-        run: python docs/crawler.py
-
-      - name: Run preprocess (sqlite → json)
-        run: python docs/preprocess.py
-
-      - name: Commit and Push updated DB + JSON
-        run: |
-          git config user.name "ESP Bot"
-          git config user.email "espbot@example.com"
-          git add docs/memory.sqlite docs/memory.json || true
-          git commit -m "Auto-update memory DB+JSON [skip ci]" || echo "No changes"
-          git push
+if __name__ == "__main__":
+    memory = fetch_memory()
+    chats = fetch_chatlogs()
+    all_data = list(set(memory + chats))  # 중복 제거
+    
+    os.makedirs("docs", exist_ok=True)
+    with open(OUT_PATH, "w", encoding="utf-8") as f:
+        json.dump(all_data, f, ensure_ascii=False, indent=2)
+    
+    print(f"Exported {len(all_data)} sentences (memory + chatlogs) → {OUT_PATH}")
