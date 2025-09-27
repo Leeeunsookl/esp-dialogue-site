@@ -1,43 +1,28 @@
-import requests, random, json
-from bs4 import BeautifulSoup
+import requests, json, random
 
-# ✅ 수집할 사이트 (위키, 뉴스, 레딧류)
 SOURCES = {
-    "wiki": "https://en.wikipedia.org/wiki/Special:Random",
-    "news": "https://news.ycombinator.com/",
-    "reddit": "https://www.reddit.com/r/all/"
+    "reddit_ai": "https://www.reddit.com/r/ArtificialIntelligence.json",
+    "wiki_ai": "https://en.wikipedia.org/api/rest_v1/page/summary/Artificial_intelligence",
 }
 
-def fetch_sentences():
-    collected = []
-    headers={"User-Agent":"Mozilla/5.0"}
-    for name, url in SOURCES.items():
-        try:
-            r=requests.get(url,headers=headers,timeout=10)
-            if r.status_code==200:
-                soup=BeautifulSoup(r.text,"html.parser")
-                text=" ".join([p.get_text(" ",strip=True) for p in soup.find_all("p")])
-                for sent in text.split("."):
-                    sent=sent.strip()
-                    if 20 < len(sent) < 200:
-                        collected.append(f"[{name}] {sent}")
-        except Exception as e:
-            print("ERR",name,e)
-    return collected
+def fetch_reddit(url):
+    headers = {"User-Agent": "ESPCollector/1.0"}
+    data = requests.get(url, headers=headers).json()
+    posts = [p["data"]["title"] for p in data["data"]["children"]]
+    return posts
 
-def save_to_json(data,path="docs/conversation.json"):
-    try:
-        old=[]
-        try:
-            with open(path,"r",encoding="utf-8") as f:
-                old=json.load(f)
-        except: pass
-        merged=old+data
-        with open(path,"w",encoding="utf-8") as f:
-            json.dump(merged,f,ensure_ascii=False,indent=2)
-    except Exception as e:
-        print("SAVE ERR",e)
+def fetch_wiki(url):
+    return [requests.get(url).json().get("extract", "")]
+
+def collect_all():
+    dataset = []
+    for name,url in SOURCES.items():
+        if "reddit" in name: dataset += fetch_reddit(url)
+        elif "wiki" in name: dataset += fetch_wiki(url)
+    return dataset
 
 if __name__=="__main__":
-    sents=fetch_sentences()
-    save_to_json(sents)
+    data = collect_all()
+    with open("docs/memory.json","w",encoding="utf-8") as f:
+        json.dump(data,f,ensure_ascii=False,indent=2)
+    print(f"수집 {len(data)}개 완료 → docs/memory.json")
