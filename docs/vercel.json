@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "cleanUrls": true,
+  "trailingSlash": false,
+
+  "builds": [
+    {
+      "src": "webapp.py",
+      "use": "@vercel/python"
+    }
+  ],
+
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/webapp.py" },
+    { "src": "/collect", "dest": "/webapp.py" },
+    { "src": "/(.*)", "dest": "/$1" }
+  ]
+}
