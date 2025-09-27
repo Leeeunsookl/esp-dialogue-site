@@ -1,0 +1,42 @@
+{
+  "version": 2,
+  "cleanUrls": true,
+  "trailingSlash": false,
+
+  "builds": [
+    {
+      "src": "docs/webapp.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "docs/*",
+      "use": "@vercel/static"
+    }
+  ],
+
+  "routes": [
+    { "src": "/api/(.*)", "dest": "docs/webapp.py" },
+    { "src": "/collect", "dest": "docs/webapp.py" },
+    { "src": "/(.*)", "dest": "docs/$1" }
+  ],
+
+  "redirects": [
+    { "source": "/chat", "destination": "/", "permanent": true },
+    { "source": "/backend/:path*", "destination": "https://espdialog.net", "permanent": false }
+  ],
+
+  "headers": [
+    {
+      "source": "/(.*).html",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache" }
+      ]
+    },
+    {
+      "source": "/(.*).(js|css|png|jpg|jpeg|gif|svg)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    }
+  ]
+}
