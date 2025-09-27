@@ -1,8 +1,9 @@
-name: Auto Collect Sentences
+name: Auto Collect & Clean
 
 on:
   schedule:
-    - cron: "0 */6 * * *"   # 6시간마다 실행
+    - cron: "0 */6 * * *"   # 6시간마다 Collector 실행
+    - cron: "0 3 * * *"     # 매일 새벽 3시 Preprocess 실행
   workflow_dispatch:
 
 jobs:
@@ -17,15 +18,19 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install requests beautifulsoup4
+        run: pip install requests beautifulsoup4 lxml
 
       - name: Ensure docs dir exists
         run: mkdir -p docs
 
-      - name: Run crawler
-        run: python docs/crawler.py
+      # Collector 실행 (6시간마다)
+      - name: Run collector
+        if: github.event.schedule == '0 */6 * * *'
+        run: python docs/collector.py
 
+      # Preprocess 실행 (하루 1번)
       - name: Run preprocess
+        if: github.event.schedule == '0 3 * * *'
         run: python docs/preprocess.py
 
       - name: Commit and Push updated DB
