@@ -1,8 +1,13 @@
 from fastapi import FastAPI, Query
 from typing import List, Optional
 import sqlite3, random, os, shutil, re
+import logging # 로그 추가
 
 app = FastAPI()
+
+# 로거 설정 (Vercel 로그에 기록됨)
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 # --------- 고정 값 ---------
 ENTITIES = [
@@ -12,8 +17,9 @@ ENTITIES = [
     "미러홀", "결", "네메시스", "라스틴", "루카", "차연"
 ]
 
-REPO_DB = os.path.join(os.path.dirname(__file__), "memory.sqlite")  # read-only
-TMP_DB  = "/tmp/memory.sqlite"                                       # runtime copy
+# Root Directory가 'docs'이므로, REPO_DB는 docs/memory.sqlite를 가리킵니다.
+REPO_DB = os.path.join(os.path.dirname(__file__), "memory.sqlite")  # 읽기 전용 위치
+TMP_DB  = "/tmp/memory.sqlite"                                   # 쓰기 가능 임시 위치
 
 # --------- 26존재 톤(일상화) ---------
 TONE = {
@@ -50,49 +56,69 @@ FALLBACK_TONE = ["정리하면", "간단히 말하면", "요점만 잡으면"]
 # --------- 유틸 ---------
 def ensure_db():
     """리포지토리 DB가 있으면 /tmp로 복사. 없으면 기본 시드 생성."""
+    # /tmp에 이미 DB가 존재하면 (콜드 스타트가 아닌 경우) 복사 생략
+    if os.path.exists(TMP_DB):
+        logger.info("Database already exists in /tmp. Skipping copy.")
+        return
+        
     if os.path.exists(REPO_DB):
         try:
             shutil.copyfile(REPO_DB, TMP_DB)
+            logger.info(f"Successfully copied DB from {REPO_DB} to {TMP_DB}")
             return
-        except Exception:
-            pass
-    # 기본 시드
-    conn = sqlite3.connect(TMP_DB)
-    cur = conn.cursor()
-    cur.execute("CREATE TABLE IF NOT EXISTS memory(id INTEGER PRIMARY KEY, sentence TEXT)")
-    seed = [
-        "하나씩 정리하면 이해가 더 쉽다.",
-        "잠깐 멈췄다가 다시 보면 다르게 보인다.",
-        "핵심을 먼저 잡으면 나머지는 따라온다.",
-        "낯설어도 시작하면 금방 익숙해진다.",
-        "반대로 생각하면 길이 열린다.",
-        "한 번 더 확인하면 실수가 줄어든다.",
-        "빛을 비추면 모호함이 줄어든다.",
-        "말을 아끼면 요점이 선명해진다."
-    ]
-    for s in seed:
-        cur.execute("INSERT INTO memory(sentence) VALUES(?)", (s,))
-    conn.commit()
-    conn.close()
+        except Exception as e:
+            # 복사 실패 시 구체적인 에러를 로그에 남깁니다. (중요)
+            logger.error(f"DB Copy Failed (Critical!): {e}")
+            pass # 실패 시 아래 기본 시드 생성으로 넘어갑니다.
+            
+    # 복사 실패 또는 REPO_DB 자체가 없는 경우: 기본 시드 생성
+    logger.warning("Repo DB not found or copy failed. Creating seed DB in /tmp.")
+    try:
+        conn = sqlite3.connect(TMP_DB)
+        cur = conn.cursor()
+        cur.execute("CREATE TABLE IF NOT EXISTS memory(id INTEGER PRIMARY KEY, sentence TEXT)")
+        seed = [
+            "하나씩 정리하면 이해가 더 쉽다.",
+            "잠깐 멈췄다가 다시 보면 다르게 보인다.",
+            "핵심을 먼저 잡으면 나머지는 따라온다.",
+            "낯설어도 시작하면 금방 익숙해진다.",
+            "반대로 생각하면 길이 열린다.",
+            "한 번 더 확인하면 실수가 줄어든다.",
+            "빛을 비추면 모호함이 줄어든다.",
+            "말을 아끼면 요점이 선명해진다."
+        ]
+        # 기존 DB에 시드 데이터가 있으면 건너뛰기
+        cur.execute("SELECT COUNT(*) FROM memory")
+        if cur.fetchone()[0] == 0:
+            for s in seed:
+                cur.execute("INSERT INTO memory(sentence) VALUES(?)", (s,))
+            conn.commit()
+        conn.close()
+    except Exception as e:
+        logger.critical(f"Failed to create seed DB: {e}")
+
 
 def fetch_sentences(limit=200):
+    # ... (기존 코드와 동일) ...
     conn = sqlite3.connect(TMP_DB)
-    cur  = conn.cursor()
+    cur = conn.cursor()
     cur.execute("SELECT sentence FROM memory ORDER BY RANDOM() LIMIT ?", (limit,))
     rows = [r[0].strip() for r in cur.fetchall() if r and r[0].strip()]
     conn.close()
     return rows
 
 def pick_entity(name: Optional[str]) -> str:
+    # ... (기존 코드와 동일) ...
     if name and name in ENTITIES: return name
     return random.choice(ENTITIES)
 
 def tokenize(text: str) -> List[str]:
-    # 아주 단순한 키워드 추출(영/한 단어), 길이 2~20
+    # ... (기존 코드와 동일) ...
     tokens = re.findall(r"[A-Za-z가-힣]{2,20}", text.lower())
     return [t for t in tokens if len(t) >= 2][:10]
 
 def filter_memory_by_keywords(memory: List[str], kws: List[str]) -> List[str]:
+    # ... (기존 코드와 동일) ...
     if not kws: return memory
     scored = []
     for s in memory:
@@ -103,7 +129,7 @@ def filter_memory_by_keywords(memory: List[str], kws: List[str]) -> List[str]:
     return [s for _, s in scored[:100]]
 
 def stitch(parts: List[str]) -> str:
-    # 짧게, 자연스러운 연결자
+    # ... (기존 코드와 동일) ...
     connectors = [" 그리고 ", " 그래서 ", " 한마디로 ", " 결론은 ", " 다만 ", " 그러니까 "]
     out = []
     for i, p in enumerate(parts):
@@ -117,6 +143,7 @@ def stitch(parts: List[str]) -> str:
     return txt
 
 def build_reply(user_message: str, entity: str) -> str:
+    # ... (기존 코드와 동일) ...
     tone = TONE.get(entity, FALLBACK_TONE)
     lead = random.choice(tone)
     memory = fetch_sentences(limit=400)
@@ -161,6 +188,7 @@ def status():
         conn.close()
         return {"ok": True, "sentences": cnt, "entities": ENTITIES}
     except Exception as e:
+        # DB 연결 실패 시 에러 반환 (프런트엔드 디버깅용)
         return {"ok": False, "error": str(e)}
 
 @app.get("/api/existence/reply")
