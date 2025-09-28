@@ -2,32 +2,34 @@ import zipfile, json, os, re
 from pathlib import Path
 
 def process_zip_files():
-    """현재 디렉토리의 모든 zip 파일을 처리"""
+    """현재 디렉토리의 모든 zip 파일을 처리하여 docs/memory.json에 통합"""
     
-    # docs 폴더 생성
+    # Vercel 루트 디렉토리 설정(docs)에 맞춰 경로를 조정합니다.
+    memory_file = "docs/memory.json"
+    
+    # docs 폴더가 없으면 생성 (로컬 실행 시)
     os.makedirs("docs", exist_ok=True)
     
     # 기존 memory.json 로드
-    memory_file = "docs/memory.json"
     existing_memory = []
     
     if os.path.exists(memory_file):
         try:
             with open(memory_file, "r", encoding="utf-8") as f:
-                existing_memory = json.load(f)
-                if not isinstance(existing_memory, list):
-                    existing_memory = []
+                data = json.load(f)
+                if isinstance(data, list):
+                    existing_memory = data
         except:
             existing_memory = []
-    
+            
     print(f"기존 메모리: {len(existing_memory)}개 항목")
     
-    # 현재 디렉토리의 모든 ZIP 파일 찾기
+    # 현재 디렉토리(최상위)의 모든 ZIP 파일 찾기
     zip_files = list(Path(".").glob("*.zip"))
     
     if not zip_files:
-        print("처리할 ZIP 파일이 없습니다.")
-        return
+        print("처리할 ZIP 파일이 없습니다. (gpt1.zip 확인 요망)")
+        # ZIP 파일이 없더라도 기존 메모리 정리 후 저장하는 단계로 이동
     
     new_sentences = []
     
@@ -37,6 +39,7 @@ def process_zip_files():
         try:
             with zipfile.ZipFile(zip_path, "r") as z:
                 for file_name in z.namelist():
+                    # ZIP 파일 내에서 .txt, .json, .md 파일만 추출합니다.
                     if file_name.endswith(('.txt', '.json', '.md')):
                         print(f"  추출: {file_name}")
                         
@@ -44,40 +47,34 @@ def process_zip_files():
                             with z.open(file_name) as f:
                                 content = f.read().decode("utf-8", errors="ignore")
                                 
-                                # JSON 파일인 경우
                                 if file_name.endswith('.json'):
                                     try:
                                         json_data = json.loads(content)
+                                        # JSON 배열 또는 딕셔너리에서 문장 추출 로직 (기존 로직 유지)
                                         if isinstance(json_data, list):
                                             new_sentences.extend(json_data)
                                         elif isinstance(json_data, dict):
-                                            # 딕셔너리의 값들을 문장으로 추출
                                             for value in json_data.values():
                                                 if isinstance(value, str) and len(value) > 10:
                                                     new_sentences.append(value)
                                         else:
                                             new_sentences.append(str(json_data))
                                     except:
-                                        # JSON 파싱 실패시 텍스트로 처리
-                                        sentences = extract_sentences_from_text(content)
-                                        new_sentences.extend(sentences)
-                                
-                                # 텍스트 파일인 경우
+                                        # JSON 파싱 실패 시 텍스트로 처리
+                                        new_sentences.extend(extract_sentences_from_text(content))
+                                        
                                 else:
-                                    sentences = extract_sentences_from_text(content)
-                                    new_sentences.extend(sentences)
+                                    # 텍스트 파일 처리
+                                    new_sentences.extend(extract_sentences_from_text(content))
                                     
                         except Exception as e:
-                            print(f"    오류: {e}")
+                            print(f"  오류: {e}")
                             continue
-        
+            
         except Exception as e:
             print(f"ZIP 파일 처리 실패: {e}")
             continue
-        
-        # 처리 완료된 ZIP 파일 삭제 (선택사항)
-        # zip_path.unlink()
-    
+            
     print(f"\n새로 추출된 문장: {len(new_sentences)}개")
     
     # 데이터 정리 및 병합
@@ -85,27 +82,26 @@ def process_zip_files():
     cleaned_sentences = clean_and_deduplicate(all_sentences)
     
     # 저장
-    with open(memory_file, "w", encoding="utf-8") as f:
-        json.dump(cleaned_sentences, f, ensure_ascii=False, indent=2)
-    
-    print(f"완료: {len(cleaned_sentences)}개 문장이 memory.json에 저장되었습니다.")
+    try:
+        with open(memory_file, "w", encoding="utf-8") as f:
+            json.dump(cleaned_sentences, f, ensure_ascii=False, indent=2)
+        print(f"✅ 완료: {len(cleaned_sentences)}개 문장이 memory.json에 저장되었습니다.")
+    except Exception as e:
+        print(f"❌ 저장 실패: {e}")
+
 
 def extract_sentences_from_text(text):
-    """텍스트에서 문장 추출"""
+    """텍스트에서 문장 추출 및 정리"""
     sentences = []
-    
-    # 문장 분리 (마침표, 느낌표, 물음표 기준)
     parts = re.split(r'[.!?]\s+', text)
     
     for part in parts:
-        # 정리
         clean_part = re.sub(r'\s+', ' ', part).strip()
         clean_part = re.sub(r'[^\w\s가-힣,.!?~·…\-]', '', clean_part)
         
-        # 적절한 길이의 문장만 선택
         if 15 <= len(clean_part) <= 300:
             sentences.append(clean_part)
-    
+            
     return sentences
 
 def clean_and_deduplicate(sentences):
@@ -116,23 +112,20 @@ def clean_and_deduplicate(sentences):
     for sentence in sentences:
         if not isinstance(sentence, str):
             sentence = str(sentence)
-        
-        # 기본 정리
+            
         clean = re.sub(r'\s+', ' ', sentence).strip()
         
-        # 너무 짧거나 긴 문장 제외
         if len(clean) < 10 or len(clean) > 500:
             continue
-        
-        # 중복 제거
+            
         if clean not in seen:
             seen.add(clean)
             cleaned.append(clean)
-    
-    # 최대 개수 제한 (최신 데이터 우선)
-    if len(cleaned) > 100000:
-        cleaned = cleaned[-100000:]
-    
+            
+    # 👇 Vercel 메모리 한계 극복을 위한 데이터 축소
+    if len(cleaned) > 50000: # 50,000개로 최종 제한
+        cleaned = cleaned[-50000:]
+        
     return cleaned
 
 if __name__ == "__main__":
