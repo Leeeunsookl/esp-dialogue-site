@@ -95,7 +95,7 @@
   .dropdown:focus { border-color: #a855f7; box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.2); }
   .dropdown option { background: #1a0f2e; color: #ffffff; padding: 8px; }
   .input-row { display: flex; gap: 8px; align-items: flex-end; }
-  .input { flex: 1; min-height: 44px; max-height: 120px; padding: 12px 16px; background: rgba(15, 10, 26, 0.9); border: 2px solid #4b5563; border-radius: 22px; color: #ffffff; font-size: 14px; resize: none; outline: none; font-family: inherit; transition: all 0.2s ease; overflow-y: auto; line-height: 1.4; }
+  .input { flex: 1; min-height: 44px; max-height: 120px; padding: 12px 16px; background: rgba(15, 10, 26, 0.9); border: 2px solid #4b5563; border-radius: 22px; color: #ffffff; font-size: 14px; resize: none; outline: none; font-family: inherit; transition: height 0.1s ease; overflow-y: hidden; line-height: 1.4; }
   .input:focus { border-color: #7c3aed; box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2); }
   .input::placeholder { color: #9ca3af; }
   .send { width: 44px; height: 44px; background: linear-gradient(135deg, #7c3aed, #a855f7); border: none; border-radius: 50%; color: white; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; flex-shrink: 0; }
@@ -304,7 +304,8 @@ async function sendMessage() {
   save(state); render(state);
   
   input.value = ''; 
-  input.style.height = '44px'; // 리셋
+  input.style.height = '44px'; // 높이 리셋
+  input.style.overflowY = 'hidden'; // 스크롤 리셋
   
   // 존재 선택 (랜덤 또는 지정)
   const entities = Object.keys(entityCharacteristics);
@@ -342,10 +343,8 @@ function init() {
   const send = document.getElementById('send');
 
   input.addEventListener('input', function() {
-    this.style.height = 'auto';
-    const scrollHeight = this.scrollHeight;
-    const maxHeight = 120;
-    this.style.height = Math.min(scrollHeight, maxHeight) + 'px';
+    this.style.height = '44px';
+    this.style.height = this.scrollHeight + 'px';
   });
 
   send.addEventListener('click', sendMessage);
