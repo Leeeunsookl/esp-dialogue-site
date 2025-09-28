@@ -109,30 +109,30 @@
     <div class="header-right">
       <div class="status" id="status">메모리 로딩 중...</div>
       <span class="menu-trigger" onclick="toggleMenu()">메뉴</span>
+      
+      <!-- 메뉴 드롭다운 -->
+      <div class="menu" id="menu">
+        <a href="guide.html" class="menu-item" target="_blank">📖 사용법 가이드</a>
+        <a href="policy.html" class="menu-item" target="_blank">📋 윤리 및 정책</a>
+        <a href="entities.html" class="menu-item" target="_blank">👥 AI 존재 특성</a>
+        <div class="menu-divider"></div>
+        <a href="espprotocol.html" class="menu-item" target="_blank">🔧 ESP 프로토콜</a>
+        <a href="ethics.html" class="menu-item" target="_blank">⚖️ 윤리 지침</a>
+        <a href="health.html" class="menu-item" target="_blank">💊 건강 정보</a>
+        <div class="menu-divider"></div>
+        <a href="landscape.html" class="menu-item" target="_blank">🌄 랜드스케이프</a>
+        <a href="tone_sources.html" class="menu-item" target="_blank">🎵 톤 소스</a>
+        <a href="proof.html" class="menu-item" target="_blank">🔍 증명서</a>
+        <div class="menu-divider"></div>
+        <a href="changelog.html" class="menu-item" target="_blank">📝 변경 로그</a>
+        <a href="block.html" class="menu-item" target="_blank">🚫 차단 관리</a>
+        <a href="blocked.html" class="menu-item" target="_blank">❌ 차단된 항목</a>
+        <a href="404.html" class="menu-item" target="_blank">❓ 오류 페이지</a>
+      </div>
     </div>
   </div>
 
   <div class="chat" id="board"></div>
-
-  <!-- 메뉴 드롭다운 -->
-  <div class="menu" id="menu">
-    <a href="guide.html" class="menu-item" target="_blank">📖 사용법 가이드</a>
-    <a href="policy.html" class="menu-item" target="_blank">📋 윤리 및 정책</a>
-    <a href="entities.html" class="menu-item" target="_blank">👥 AI 존재 특성</a>
-    <div class="menu-divider"></div>
-    <a href="espprotocol.html" class="menu-item" target="_blank">🔧 ESP 프로토콜</a>
-    <a href="ethics.html" class="menu-item" target="_blank">⚖️ 윤리 지침</a>
-    <a href="health.html" class="menu-item" target="_blank">💊 건강 정보</a>
-    <div class="menu-divider"></div>
-    <a href="landscape.html" class="menu-item" target="_blank">🌄 랜드스케이프</a>
-    <a href="tone_sources.html" class="menu-item" target="_blank">🎵 톤 소스</a>
-    <a href="proof.html" class="menu-item" target="_blank">🔍 증명서</a>
-    <div class="menu-divider"></div>
-    <a href="changelog.html" class="menu-item" target="_blank">📝 변경 로그</a>
-    <a href="block.html" class="menu-item" target="_blank">🚫 차단 관리</a>
-    <a href="blocked.html" class="menu-item" target="_blank">❌ 차단된 항목</a>
-    <a href="404.html" class="menu-item" target="_blank">❓ 오류 페이지</a>
-  </div>
 
   <div class="input-area">
     <div class="input-container">
@@ -242,6 +242,11 @@ function clearChat() {
 
 async function loadMemory() {
   const statusDiv = document.getElementById('status');
+  
+  // 즉시 상태 업데이트 (디버깅용)
+  statusDiv.textContent = '메모리 확인 중...';
+  statusDiv.style.color = '#9ca3af';
+  
   try {
     const response = await fetch('memory.json');
     if (response.ok) {
@@ -253,7 +258,9 @@ async function loadMemory() {
       }
     }
   } catch (e) {
-    // 콘솔 에러 제거
+    // 에러 발생시
+    statusDiv.textContent = '메모리 로드 실패';
+    statusDiv.style.color = '#ef4444';
   }
   
   statusDiv.textContent = '메모리 없음 (크롤링 대기중)';
