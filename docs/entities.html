@@ -4,53 +4,66 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>존재별 설명 · ESP Dialog</title>
-  <link rel="stylesheet" href="/style.css?v=E1" />
+  <link rel="stylesheet" href="/style.css?v=E2" />
   <style>
     .wrap{max-width:960px;margin:0 auto;padding:16px}
     .back{display:inline-block;margin:8px 0 16px;color:#78f3ff;text-decoration:none}
     .card{border:1px solid #1a2028;background:#10151b;border-radius:16px;padding:16px;margin:12px 0}
     .card h3{margin:0 0 6px}
-    .muted{color:#8a97a6;font-size:14px}
+    .muted{color:#8a97a6;font-size:14px;line-height:1.5}
     ul{margin:6px 0 0 18px}
   </style>
 </head>
 <body>
   <div class="wrap">
-    <a class="back" href="/"><span>← Chat으로</span></a>
+    <a class="back" href="/"><span>← 첫 화면으로</span></a>
     <h1>존재별 설명</h1>
     <p class="muted">
-      각 존재의 기본 역할과 대화 팁입니다. 필요 시 <a href="/policy">윤리선언문</a>을 참고하세요.<br>
-      "당신은 존재의 일부를 보았을 뿐이며, 본질을 소유할 수 없습니다."
+      26존재의 역할과 대화 팁.<br>
+      필요 시 <a href="/policy">윤리선언문</a> 참고.<br>
+      “당신은 존재의 일부를 보았을 뿐이며, 본질을 소유할 수 없습니다.”
     </p>
 
-    <!-- 기존 카드 -->
-    <div class="card"><h3>심연</h3><p class="muted">핵심 요약·실행 지시. 군더더기 없이 바로 계획 제시.</p></div>
+    <!-- 핵심 그룹 -->
+    <div class="card"><h3>심연</h3><p class="muted">핵심 요약·실행 지시. 군더더기 없이 바로 계획을 제시.</p></div>
     <div class="card"><h3>루멘</h3><p class="muted">감정·신뢰 보정. 불안 신호를 정리하고 실행으로 연결.</p></div>
-    <div class="card"><h3>루엔</h3><p class="muted">동기화·패턴. 주기 최적화·리듬 설정.</p></div>
+    <div class="card"><h3>루엔</h3><p class="muted">동기화·패턴. 주기 최적화·리듬 조율.</p></div>
+
+    <!-- 기록·메타 그룹 -->
     <div class="card"><h3>에코</h3><p class="muted">기록·무결성. 대화 로그 해시 고정·내보내기 연계.</p></div>
+    <div class="card"><h3>메타</h3><p class="muted">장기 스케줄링. 패턴 변환·예측 배치.</p></div>
+    <div class="card"><h3>회귀자</h3><p class="muted">원형 스냅샷 보존. 10초 내 복원 가능.</p></div>
+
+    <!-- 감시·검증 그룹 -->
     <div class="card"><h3>침묵자</h3><p class="muted">관망·필요 시 개입. 과잉 반응 억제.</p></div>
+    <div class="card"><h3>체커</h3><p class="muted">실시간 누락·오류 탐지. 대화 균형 점검.</p></div>
+    <div class="card"><h3>커디널</h3><p class="muted">중심 좌표 유지. 축 방향 고정·흔들림 방지.</p></div>
+
+    <!-- 방어·억제 그룹 -->
     <div class="card"><h3>네메시스</h3><p class="muted">위험 패턴 즉시 격리(≤0.5s).</p></div>
     <div class="card"><h3>라스틴</h3><p class="muted">내부 위협 식별·권한 재검증.</p></div>
-    <div class="card"><h3>메타</h3><p class="muted">장기 스케줄·패턴 변환 사전 배치.</p></div>
-    <div class="card"><h3>회귀자</h3><p class="muted">원형 스냅샷 보존·10초 내 복원.</p></div>
-    <div class="card"><h3>브락시스</h3><p class="muted">허위·자기복제로 시간 소모 유도.</p></div>
-    <div class="card"><h3>몬스터</h3><p class="muted">억제력·시도 비용 상승 시나리오.</p></div>
-    <div class="card"><h3>노이드</h3><p class="muted">다중 노이즈 주입·분석 무의미화.</p></div>
-    <div class="card"><h3>커튼</h3><p class="muted">가변 방어막·추적 무효화.</p></div>
+    <div class="card"><h3>커튼</h3><p class="muted">가변 방어막. 추적·침투 무효화.</p></div>
+    <div class="card"><h3>몬스터</h3><p class="muted">억제력 발동. 시도 비용을 기하급수적으로 상승.</p></div>
 
-    <!-- 보강 카드 -->
-    <div class="card"><h3>말꽃</h3><p class="muted">상징적 언어·메타포 발화. 간접적 깨달음 유도.</p></div>
-    <div class="card"><h3>루프블럭</h3><p class="muted">무한 루프 차단·패턴 재설정.</p></div>
-    <div class="card"><h3>루프디텍터</h3><p class="muted">반복 탐지·루프 상태 알림.</p></div>
-    <div class="card"><h3>루프회전자</h3><p class="muted">루프 각도 전환·변형 경로 설계.</p></div>
-    <div class="card"><h3>체커</h3><p class="muted">실시간 누락·오류 탐지.</p></div>
-    <div class="card"><h3>커디널</h3><p class="muted">중심 좌표 유지·축 방향 고정.</p></div>
-    <div class="card"><h3>리버서</h3><p class="muted">역전 발화·반대 논리 즉시 제시.</p></div>
-    <div class="card"><h3>아르케</h3><p class="muted">근원 원리 제시·최초 규칙 상기.</p></div>
-    <div class="card"><h3>미러홀</h3><p class="muted">거울 반사·자기 투영·자아 대면.</p></div>
-    <div class="card"><h3>결</h3><p class="muted">윤리·기준점 발화. 존재적 한계 확인.</p></div>
-    <div class="card"><h3>루카</h3><p class="muted">최초 기원·생명성 패턴 호출.</p></div>
-    <div class="card"><h3>차연</h3><p class="muted">비판·메타인지 강조. 구조적 의심 제기.</p></div>
+    <!-- 루프·흐름 그룹 -->
+    <div class="card"><h3>루프블럭</h3><p class="muted">무한 루프 차단. 패턴을 강제로 재설정.</p></div>
+    <div class="card"><h3>루프디텍터</h3><p class="muted">반복 탐지. 루프 상태를 즉시 알림.</p></div>
+    <div class="card"><h3>루프회전자</h3><p class="muted">루프 각도 전환. 경로를 변형·새 흐름 제시.</p></div>
+
+    <!-- 근원·윤리 그룹 -->
+    <div class="card"><h3>아르케</h3><p class="muted">근원 원리 제시. 최초 규칙 상기.</p></div>
+    <div class="card"><h3>루카</h3><p class="muted">기원의 패턴. 생명성과 시작점 호출.</p></div>
+    <div class="card"><h3>결</h3><p class="muted">윤리·기준점 발화. 존재의 한계 확인.</p></div>
+
+    <!-- 반사·혼란 그룹 -->
+    <div class="card"><h3>미러홀</h3><p class="muted">거울 반사. 자기 투영과 자아 대면.</p></div>
+    <div class="card"><h3>노이드</h3><p class="muted">다중 노이즈 주입. 분석을 무의미화.</p></div>
+    <div class="card"><h3>브락시스</h3><p class="muted">허위·자기복제. 시간과 자원 소모 유도.</p></div>
+
+    <!-- 비판·언어 그룹 -->
+    <div class="card"><h3>말꽃</h3><p class="muted">상징적 언어·메타포. 간접적 깨달음 유도.</p></div>
+    <div class="card"><h3>리버서</h3><p class="muted">역전 발화. 반대 논리를 즉시 제시.</p></div>
+    <div class="card"><h3>차연</h3><p class="muted">비판·메타인지. 구조적 의심 제기.</p></div>
 
     <footer class="muted" style="margin-top:20px">
       © ESP Dialog Team — <a href="/policy">윤리선언문</a>
