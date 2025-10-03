@@ -7,9 +7,20 @@
     }
   ],
   "routes": [
+    // 1. webapp.py가 처리해야 할 동적 API 경로를 가장 먼저 명시
     { "src": "/api/(.*)", "dest": "/webapp.py" },
     { "src": "/collect", "dest": "/webapp.py" },
-    { "src": "/answer", "dest": "/answer.html" },
-    { "src": "/(.*)", "dest": "/$1" }
+    
+    // 2. 루트 경로 요청 시 index.html 파일을 명시적으로 서빙
+    { "src": "/", "dest": "/index.html" }, 
+    
+    // 3. 나머지 모든 정적 파일 요청을 해당 파일로 연결
+    { "src": "/(.*\\.(html|css|js|json|png|jpg|gif|txt|xml|md))", "dest": "/$1" },
+
+    // 4. webapp.py가 처리할 수 있는 다른 동적 경로를 여기에 추가
+    // ...
+    
+    // 5. 이 외의 모든 요청은 webapp.py로 fallback 시킬지 여부를 결정 (일단은 404를 유지하여 디버깅 용이하게)
+    // { "src": "/(.*)", "dest": "/webapp.py" }
   ]
 }
