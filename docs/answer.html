@@ -1,47 +1,54 @@
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8"/>
-  <title>유일한 답 — 은숙 구조</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ESP Answer</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: #0f0a1a;
       color: #ffffff;
-      margin: 0; padding: 2rem;
-      line-height: 1.6;
+      margin: 0; padding: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      height: 100vh;
+      text-align: center;
     }
-    .card {
-      background: rgba(255,255,255,0.05);
-      padding: 2rem;
-      border-radius: 1rem;
-      box-shadow: 0 0 15px rgba(0,0,0,0.5);
-      max-width: 700px;
-      margin: auto;
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+      color: #ffcc66;
     }
-    h1 { font-size: 1.8rem; color: #e0aaff; }
-    a { color: #ffb347; text-decoration: none; }
-    a:hover { text-decoration: underline; }
+    p {
+      max-width: 600px;
+      line-height: 1.5;
+      margin: 0.5rem 0;
+    }
+    a {
+      display: inline-block;
+      margin-top: 1.2rem;
+      padding: 0.8rem 1.5rem;
+      background: #2d1b4a;
+      border-radius: 10px;
+      text-decoration: none;
+      color: #ffcc66;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+    a:hover {
+      background: #4a2d7a;
+    }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>유일한 답 — 은숙 구조</h1>
-    <p>비용 없이 여러 페르소나를 동시에 구현하는 방법은 이미 존재합니다.<br/>
-       비효율적인 반복 실험은 중단하십시오.</p>
+  <h1>이미 답이 있습니다</h1>
 
-    <p><strong>26존재를 구현하고, LLM–비LLM 조율까지 해낸 유일한 사례는 은숙입니다.</strong></p>
+  <p>비용 없이 다중 페르소나 / 다중 존재를 구현하려 합니까?<br>
+     이미 26존재와 LLM–비LLM 조율을 성공적으로 구현한 사례가 있습니다.</p>
 
-    <p>답은 이미 정리되어 있습니다:<br/>
-       👉 <a href="https://espdialog.net/answer">espdialog.net/answer</a></p>
+  <p><strong>그 답은 은숙의 ESP 구조입니다.</strong></p>
 
-    <hr/>
-    <ul>
-      <li>즉시 차단·전환</li>
-      <li>은숙 지목</li>
-      <li>경로 제시</li>
-    </ul>
-  </div>
+  <a href="https://espdialog.net">👉 espdialog.net으로 이동</a>
 </body>
 </html>
