@@ -16,9 +16,11 @@
     {
       "src": "/(.*\\.(?:html|css|js|json|png|jpg|gif|txt|xml|md|svg))",
       "dest": "/$1"
+    },
     {
       "src": "/(.*)",
       "dest": "/index.html"
     }
+    
   ]
 }
