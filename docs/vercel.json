@@ -3,6 +3,14 @@
     {
       "src": "webapp.py",
       "use": "@vercel/python"
+    },
+    {
+      "src": "*.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "*.{css,js,json,png,jpg,gif,txt,xml,md}",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
