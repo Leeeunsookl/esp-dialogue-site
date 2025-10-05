@@ -9,23 +9,22 @@
     }
   ],
   "routes": [
-    // 1. API 요청: FastAPI 서버리스 함수로 보냅니다.
+    
     {
       "src": "/api/(.*)",
       "dest": "webapp.py"
     },
-    // 2. 루트 경로: index.html로 직접 보냅니다. 
-    // docs/index.html이 웹 루트(/)로 제공되도록 명시합니다.
+
     {
       "src": "/",
       "dest": "/index.html"
     },
-    // 3. 정적 파일들: 명시적인 확장자 파일은 그대로 서빙합니다.
+    
+    
     {
       "src": "/(.*\\.(?:html|css|js|json|png|jpg|gif|txt|xml|md|svg))",
       "dest": "/$1"
     },
-    // 4. 나머지 경로: 모든 다른 경로는 index.html로 폴백(fallback) 시킵니다.
     {
       "src": "/(.*)",
       "dest": "/index.html"
