@@ -1,7 +1,8 @@
 {
   "builds": [
     {
-      "src": "./webapp.py",
+      
+      "src": "./webapp.py", 
       "use": "@vercel/python",
       "config": {
         "maxLambdaSize": "15mb"
@@ -9,18 +10,14 @@
     }
   ],
   "routes": [
+
     {
       "src": "/api/(.*)",
       "dest": "webapp.py"
     },
     {
-      "src": "/(.*\\.(?:html|css|js|json|png|jpg|gif|txt|xml|md|svg))",
-      "dest": "/$1"
-    },
-    {
       "src": "/(.*)",
-      "dest": "/index.html"
+      "dest": "/$1"
     }
-    
   ]
 }
