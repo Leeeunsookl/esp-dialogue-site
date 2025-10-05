@@ -1,7 +1,6 @@
 {
   "builds": [
     {
-      
       "src": "./webapp.py", 
       "use": "@vercel/python",
       "config": {
@@ -10,14 +9,18 @@
     }
   ],
   "routes": [
-
     {
       "src": "/api/(.*)",
       "dest": "webapp.py"
     },
+    
+    {
+      "src": "/(.*\\.(?:html|css|js|json|png|jpg|gif|txt|xml|md|svg))",
+      "dest": "/$1"
+    },
     {
       "src": "/(.*)",
-      "dest": "/$1"
+      "dest": "/index.html"
     }
   ]
 }
