@@ -9,22 +9,16 @@
     }
   ],
   "routes": [
-    // 1. **최우선 처리**: 모든 API 요청은 Python 앱으로 바로 보냅니다.
     {
       "src": "/api/(.*)",
       "dest": "webapp.py"
     },
-    // 2. **정적 자원 처리**: CSS, JS, 이미지 등 명확한 확장자를 가진 파일을 처리합니다.
     {
       "src": "/(.*\\.(?:html|css|js|json|png|jpg|gif|txt|xml|md|svg))",
       "dest": "/$1"
-    },
-    // 3. **최종 처리**: 나머지 모든 요청 (루트 포함)을 index.html로 보냅니다.
-    // 이 규칙이 "/" 규칙을 대체하여 404를 방지합니다.
     {
       "src": "/(.*)",
       "dest": "/index.html"
     }
-    // 이전의 { "src": "/", "dest": "/index.html" } 규칙은 삭제.
   ]
 }
