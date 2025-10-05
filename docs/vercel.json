@@ -1,3 +1,4 @@
+1
 {
   "version": 2,
   "builds": [
@@ -9,19 +10,19 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/webapp.py"
+      "dest": "webapp.py"
     },
     {
       "src": "/collect",
-      "dest": "/webapp.py"
-    },
-    {
-      "src": "/",
-      "dest": "/index.html"
+      "dest": "webapp.py"
     },
     {
       "src": "/(.*\\.(html|css|js|json|png|jpg|gif|txt|xml|md))",
       "dest": "/$1"
+    },
+    {
+      "src": "/",
+      "dest": "index.html"
     }
   ]
 }
