@@ -11,12 +11,12 @@
       "dest": "webapp.py"
     },
     {
-      "src": "/(.*\\.(html|css|js|json|png|jpg|gif|txt|xml|md))",
-      "dest": "/$1"
-    },
-    {
       "src": "/",
       "dest": "index.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
     }
   ]
 }
