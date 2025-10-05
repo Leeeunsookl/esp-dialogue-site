@@ -1,7 +1,8 @@
 {
   "builds": [
     {
-      "src": "webapp.py",
+      // Root Directory (docs/)를 기준으로 현재 폴더를 명확히 지정
+      "src": "./webapp.py", 
       "use": "@vercel/python",
       "config": {
         "maxLambdaSize": "15mb"
@@ -23,4 +24,3 @@
     }
   ]
 }
-
