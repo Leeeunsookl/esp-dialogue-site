@@ -263,7 +263,20 @@ async function loadMemory() {
   return false;
 }
 
-function generateEntityResponse(entity, userMessage) {
+async function generateEntityResponse(entity, userMessage) {
+  try {
+    const response = await fetch(
+      `/api/existence/reply?user_message=${encodeURIComponent(userMessage)}&entity=${encodeURIComponent(entity)}`
+    );
+    
+    if (response.ok) {
+      const data = await response.json();
+      return data.reply;
+    }
+  } catch (e) {
+    console.log('백엔드 호출 실패, 프론트엔드 폴백 사용:', e);
+  }
+  
   const config = entityCharacteristics[entity];
   if (!config) {
     return "존재하지 않는 개체입니다.";
@@ -310,7 +323,7 @@ async function sendMessage() {
   const entities = Object.keys(entityCharacteristics);
   const selectedEntity = entitySelect.value || randomPick(entities);
   
-  const reply = generateEntityResponse(selectedEntity, text);
+  const reply = await generateEntityResponse(selectedEntity, text);
   
   state.log.push({
     t: Date.now(), 
