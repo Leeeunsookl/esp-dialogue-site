@@ -1,24 +1,13 @@
 {
   "version": 2,
   "functions": {
-    "handler.py": {
+    "api/handler.py": {
       "runtime": "python3.11" 
     }
   },
   "routes": [
-    
-    {
-      "src": "/api/existence/reply",
-      "dest": "handler.py"
-    },
-
-    {
-      "src": "/api/(.*)",
-      "dest": "handler.py"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
-    }
+    { "src": "/api/existence/reply", "dest": "api/handler.py" },
+    { "src": "/api/(.*)", "dest": "api/handler.py" },
+    { "src": "/(.*)", "dest": "/$1" }
   ]
 }
