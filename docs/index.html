@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="ko">
 <head>
@@ -35,36 +36,34 @@
     background: rgba(124, 58, 237, 0.1); 
   }
   
-  /* 드롭다운 메뉴 */
-.menu {
-  position: absolute;
-  top: 25px;
-  right: 0;
-  background: #1a0f2e;  /* 완전 불투명 */
-  border: 1px solid rgba(124, 58, 237, 0.5);
-  border-radius: 12px;
-  padding: 8px 0;
-  min-width: 200px;
-  max-height: 400px;
-  overflow-y: auto;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.9);
-  z-index: 1000;
-  display: none;
-}.menu {
-  position: absolute;
-  top: 25px;
-  right: 0;
-  background: #1a0f2e;  /* 완전 불투명 */
-  border: 1px solid rgba(124, 58, 237, 0.5);
-  border-radius: 12px;
-  padding: 8px 0;
-  min-width: 200px;
-  max-height: 400px;
-  overflow-y: auto;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.9);
-  z-index: 1000;
-  display: none;
-}
+  .menu {
+    position: absolute;
+    top: 25px;
+    right: 0;
+    background: #1a0f2e;
+    border: 1px solid rgba(124, 58, 237, 0.5);
+    border-radius: 12px;
+    padding: 8px 0;
+    min-width: 200px;
+    max-height: 400px;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.9);
+    z-index: 1000;
+    display: none;
+  }
+  .menu-item {
+    display: block;
+    padding: 8px 16px;
+    color: #c084fc;
+    text-decoration: none;
+    font-size: 13px;
+    transition: all 0.2s ease;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+  }
   .menu-item:hover {
     background: rgba(124, 58, 237, 0.1);
     color: #a855f7;
@@ -91,7 +90,7 @@
   .entity { background: linear-gradient(135deg, #7c3aed, #a855f7); color: white; padding: 2px 6px; border-radius: 8px; font-size: 9px; font-weight: 600; }
   .input-area { padding: 16px 20px; background: rgba(45, 27, 74, 0.9); backdrop-filter: blur(15px); border-top: 1px solid rgba(124, 58, 237, 0.3); }
   .input-container { max-width: 700px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
-  .dropdown { width: 100%; background: rgba(15, 10, 26, 0.9); border: 2px solid #7c3aed; border-radius: 12px; padding: 12px 16px; color: #ffffff; font-size: 14px; cursor: pointer; outline: none; font-family: inherit; appearance: none; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path fill="%23a855f7" d="M6 9L1.5 4.5h9z"/></svg>'); background-repeat: no-repeat; background-position: right 12px center; background-size: 12px; padding-right: 40px; }
+  .dropdown { width: 100%; background: rgba(15, 10, 26, 0.9); border: 2px solid #7c3aed; border-radius: 12px; padding: 12px 16px; color: #ffffff; font-size: 14px; cursor: pointer; outline: none; font-family: inherit; appearance: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path fill='%23a855f7' d='M6 9L1.5 4.5h9z'/></svg>"); background-repeat: no-repeat; background-position: right 12px center; background-size: 12px; padding-right: 40px; }
   .dropdown:focus { border-color: #a855f7; box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.2); }
   .dropdown option { background: #1a0f2e; color: #ffffff; padding: 8px; }
   .input-row { display: flex; gap: 8px; align-items: flex-end; }
@@ -110,7 +109,6 @@
       <div class="status" id="status">메모리 로딩 중...</div>
       <span class="menu-trigger" onclick="toggleMenu()">메뉴</span>
       
-      <!-- 메뉴 드롭다운 -->
       <div class="menu" id="menu">
         <a href="guide.html" class="menu-item" target="_blank">📖 사용법 가이드</a>
         <a href="policy.html" class="menu-item" target="_blank">📋 윤리 및 정책</a>
@@ -176,7 +174,6 @@
 const KEY = "esp_flow_state_v30";
 let memoryData = [];
 
-// 26 존재별 특성 정의 (간소화)
 const entityCharacteristics = {
   "심연": { prefix: ["심연에서", "깊은 곳에서"], keywords: ["깊이", "심리", "무의식"] },
   "침묵자": { prefix: ["...", "조용히"], keywords: ["침묵", "정적"] },
@@ -227,8 +224,9 @@ function render(state) {
   }
   board.innerHTML = state.log.map(m => {
     const isUser = m.role === "user";
-    const entityTag = m.entity ? `<span class="entity">${m.entity}</span>` : "";
-    return `<div class="message ${isUser ? "user" : "assistant"}"><div class="bubble">${m.text}</div><div class="meta">${entityTag}<span>${new Date(m.t).toLocaleTimeString()}</span></div></div>`;
+    const entityTag = m.entity ? "<span class='entity'>" + m.entity + "</span>" : "";
+    const timeStr = new Date(m.t).toLocaleTimeString();
+    return "<div class='message " + (isUser ? "user" : "assistant") + "'><div class='bubble'>" + m.text + "</div><div class='meta'>" + entityTag + "<span>" + timeStr + "</span></div></div>";
   }).join('');
   board.scrollTop = board.scrollHeight;
 }
@@ -242,8 +240,6 @@ function clearChat() {
 
 async function loadMemory() {
   const statusDiv = document.getElementById('status');
-  
-  // 즉시 상태 업데이트 (디버깅용)
   statusDiv.textContent = '메모리 확인 중...';
   statusDiv.style.color = '#9ca3af';
   
@@ -252,13 +248,12 @@ async function loadMemory() {
     if (response.ok) {
       memoryData = await response.json();
       if (Array.isArray(memoryData) && memoryData.length > 0) {
-        statusDiv.textContent = `메모리: ${memoryData.length}개 문장`;
+        statusDiv.textContent = '메모리: ' + memoryData.length + '개 문장';
         statusDiv.style.color = '#10b981';
         return true;
       }
     }
   } catch (e) {
-    // 에러 발생시
     statusDiv.textContent = '메모리 로드 실패';
     statusDiv.style.color = '#ef4444';
   }
@@ -274,14 +269,13 @@ function generateEntityResponse(entity, userMessage) {
     return "존재하지 않는 개체입니다.";
   }
 
-  // 해당 존재의 키워드와 매치되는 메모리 찾기
   let relevantMemory = [];
   if (memoryData.length > 0) {
     relevantMemory = memoryData.filter(sentence => 
       config.keywords.some(keyword => sentence.toLowerCase().includes(keyword.toLowerCase()))
     );
     if (relevantMemory.length === 0) {
-      relevantMemory = memoryData; // 매치 실패시 전체에서 선택
+      relevantMemory = memoryData;
     }
   }
 
@@ -289,9 +283,9 @@ function generateEntityResponse(entity, userMessage) {
   
   if (relevantMemory.length > 0) {
     const selectedSentence = randomPick(relevantMemory);
-    return `${prefix} 말하노니: "${selectedSentence}"`;
+    return prefix + ' 말하노니: "' + selectedSentence + '"';
   } else {
-    return `${prefix} 아직 충분한 지식이 축적되지 않았습니다.`;
+    return prefix + ' 아직 충분한 지식이 축적되지 않았습니다.';
   }
 }
 
@@ -306,19 +300,16 @@ async function sendMessage() {
   send.disabled = true;
   const state = load();
   
-  // 사용자 메시지 추가
-  state.log.push({t: Date.now(), role: "user", text, entity: null});
+  state.log.push({t: Date.now(), role: "user", text: text, entity: null});
   save(state); render(state);
   
   input.value = ''; 
-  input.style.height = '44px'; // 높이 리셋
-  input.style.overflowY = 'hidden'; // 스크롤 리셋
+  input.style.height = '44px';
+  input.style.overflowY = 'hidden';
   
-  // 존재 선택 (랜덤 또는 지정)
   const entities = Object.keys(entityCharacteristics);
   const selectedEntity = entitySelect.value || randomPick(entities);
   
-  // 존재별 응답 생성
   const reply = generateEntityResponse(selectedEntity, text);
   
   state.log.push({
@@ -333,7 +324,6 @@ async function sendMessage() {
   input.focus();
 }
 
-// 메뉴 토글 함수 (전역)
 function toggleMenu() {
   const menu = document.getElementById('menu');
   if (menu) {
@@ -355,7 +345,7 @@ function init() {
   });
 
   send.addEventListener('click', sendMessage);
-  input.addEventListener('keydown', e => {
+  input.addEventListener('keydown', function(e) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
@@ -363,12 +353,9 @@ function init() {
   });
 
   input.focus();
-  
-  // 5분마다 메모리 상태 재확인
   setInterval(loadMemory, 300000);
 }
 
-// 메뉴 외부 클릭시 닫기
 document.addEventListener('click', function(e) {
   const menu = document.getElementById('menu');
   const menuTrigger = document.querySelector('.menu-trigger');
