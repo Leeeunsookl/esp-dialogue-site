@@ -7,7 +7,6 @@ import sqlite3
 import logging
 from urllib.parse import parse_qs, urlparse
 
-# 기존 코드 그대로 유지
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
@@ -52,7 +51,6 @@ TONE = {
 
 FALLBACK_TONE = ["정리하면", "간단히 말하면", "요점만 잡으면"]
 
-# 기존 함수들 그대로 복사
 def ensure_db():
     if os.path.exists(TMP_DB):
         try:
@@ -155,7 +153,6 @@ def build_reply(user_message, entity):
     body = stitch(picks) if picks else "지금은 짧게 가자. 핵심만 잡자."
     return (head + body).strip()
 
-# FastAPI 제거하고 Vercel 핸들러로 변경
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         parsed = urlparse(self.path)
