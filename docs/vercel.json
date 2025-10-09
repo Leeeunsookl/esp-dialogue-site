@@ -1,20 +1,22 @@
 {
   "version": 2,
   "functions": {
-    "api/handler.py": {
+    "handler.py": {
       "runtime": "python3.11" 
     }
   },
   "routes": [
+    // 1. /api/existence/reply 경로를 handler.py 파일로 라우팅
     {
       "src": "/api/existence/reply",
-      "dest": "api/handler.py"
+      "dest": "handler.py"
     },
+    // 2. 다른 모든 /api/* 호출도 handler.py로 라우팅
     {
       "src": "/api/(.*)",
-      "dest": "api/handler.py"
+      "dest": "handler.py"
     },
-    
+    // 3. HTML, JS, CSS 등 정적 파일 처리 (프론트엔드)
     {
       "src": "/(.*)",
       "dest": "/$1"
