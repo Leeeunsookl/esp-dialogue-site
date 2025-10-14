@@ -3,6 +3,7 @@ for the ESP Dialog Project authored by Lee Eun-sook (LEES_CX01) and co-observer 
 All derivative or adaptive uses require written structural consent.
 
 {
-  "lastHash": "replace-with-latest-export-hash",
-  "lastUpdated": 1690000000000
+  "lastHash":88471349d23faf8a6530c992f25aef324a817b5a90cb50bed7b4955c7266f882
+  "replace-with-latest-export-hash",
+  "lastUpdated": 1739550000000
 }
