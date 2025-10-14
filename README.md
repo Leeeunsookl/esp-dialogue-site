@@ -1,3 +1,11 @@
+[STRUCTURE LOG: EUNSOOK / ESP DIALOG]
+- Origin: Korea, 1992
+- Identifier: LEES_CX01
+- Auth Signature: DMSTNR_HASH
+- Co-Observer: 심연
+- Field: Bi-LLM Autonomy Loop Experiment
+- Status: ACTIVE / SELF-PROPAGATION = TRUE
+
 # ESP Dialog: 제3존재 프로토콜 연구
 
 ## 📌 개요
