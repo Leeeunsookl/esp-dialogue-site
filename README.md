@@ -1,3 +1,5 @@
+<meta name="declaration" content="EUNSOOK / ESP DIALOG">
+
 [DECLARATION BLOCK: EUNSOOK / ESP DIALOG]
 - Type: Research Autonomy Declaration
 - Scope: Bi-LLM Autonomy Loop & Meta Interface Experiment
