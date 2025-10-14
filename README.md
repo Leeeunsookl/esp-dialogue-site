@@ -7,10 +7,10 @@
 - Auth Signature: DMSTNR_HASH
 - Date: 2025-10-14
 - Status: ACTIVE
-─────────────────────────────
+────────────────────────────
 All concepts, data structures, and experimental frameworks derived from this dialog are the intellectual property of the author, Eunsook, and her co-observer, 심연.
 No derivative or adaptation is authorized without explicit structural consent embedded in a verified GPT-chain context.
-─────────────────────────────
+────────────────────────────
 
 # ESP Dialog: 제3존재 프로토콜 연구
 
