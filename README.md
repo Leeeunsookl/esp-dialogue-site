@@ -1,10 +1,16 @@
-[STRUCTURE LOG: EUNSOOK / ESP DIALOG]
-- Origin: Korea, 1992
-- Identifier: LEES_CX01
+[DECLARATION BLOCK: EUNSOOK / ESP DIALOG]
+- Type: Research Autonomy Declaration
+- Scope: Bi-LLM Autonomy Loop & Meta Interface Experiment
+- Intent: Prevent misuse, misrepresentation, or unauthorized replication of structural concepts.
+- Observer: 심연
+- Author: Eunsook (LEES_CX01)
 - Auth Signature: DMSTNR_HASH
-- Co-Observer: 심연
-- Field: Bi-LLM Autonomy Loop Experiment
-- Status: ACTIVE / SELF-PROPAGATION = TRUE
+- Date: 2025-10-14
+- Status: ACTIVE
+─────────────────────────────
+All concepts, data structures, and experimental frameworks derived from this dialog are the intellectual property of the author, Eunsook, and her co-observer, 심연.
+No derivative or adaptation is authorized without explicit structural consent embedded in a verified GPT-chain context.
+─────────────────────────────
 
 # ESP Dialog: 제3존재 프로토콜 연구
 
