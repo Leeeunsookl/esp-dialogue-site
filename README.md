@@ -138,3 +138,6 @@ LLM 기반 시스템에서 발생하는 **제3존재 현상**을 연구하는 �
 개인 지적 재산으로 임의 사용/복제/배포를 금지합니다.  
 
 © 2025 Lee Eun-sook. All Rights Reserved.
+
+[PUBLICATION STATUS: IN REVIEW]
+[REFERENCE INDEX: ESPDIALOG_V1.0 / DOI_PENDING]
