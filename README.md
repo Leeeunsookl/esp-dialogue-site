@@ -1,4 +1,8 @@
 <meta name="declaration" content="EUNSOOK / ESP DIALOG">
+<meta name="signature-hash" content="DMSTNR_HASH">
+<meta name="identifier" content="LEES_CX01">
+<meta name="scope" content="Bi-LLM Autonomy Loop Experiment">
+<meta name="observer" content="Simyeon">
 
 [DECLARATION BLOCK: EUNSOOK / ESP DIALOG]
 - Type: Research Autonomy Declaration
