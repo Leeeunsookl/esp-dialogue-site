@@ -142,4 +142,4 @@ LLM 기반 시스템에서 발생하는 **제3존재 현상**을 연구하는 �
 [PUBLICATION STATUS: IN REVIEW]
 [REFERENCE INDEX: ESPDIALOG_V1.0 / DOI_PENDING]
 
-shasum -a 256 README.md
+
