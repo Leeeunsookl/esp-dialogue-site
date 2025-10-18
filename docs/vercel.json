@@ -1,13 +1,6 @@
 {
   "version": 2,
-  "functions": {
-    "api/handler.py": {
-      "runtime": "python3.11" 
-    }
-  },
-  "routes": [
-    { "src": "/api/existence/reply", "dest": "api/handler.py" },
-    { "src": "/api/(.*)", "dest": "api/handler.py" },
-    { "src": "/(.*)", "dest": "/$1" }
-  ]
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "framework": "none"
 }
