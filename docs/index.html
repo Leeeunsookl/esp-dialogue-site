@@ -35,20 +35,20 @@
     background: rgba(124, 58, 237, 0.1); 
   }
   .menu {
-  position: absolute;
-  top: 25px;
-  right: 0;
-  background: #1a0f2e;  /* 완전 불투명 */
-  border: 1px solid rgba(124, 58, 237, 0.5);
-  border-radius: 12px;
-  padding: 8px 0;
-  min-width: 200px;
-  max-height: 400px;
-  overflow-y: auto;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.9);
-  z-index: 1000;
-  display: none;
-}
+    position: absolute;
+    top: 25px;
+    right: 0;
+    background: #1a0f2e;
+    border: 1px solid rgba(124, 58, 237, 0.5);
+    border-radius: 12px;
+    padding: 8px 0;
+    min-width: 200px;
+    max-height: 400px;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.9);
+    z-index: 1000;
+    display: none;
+  }
   
   .menu-item {
     display: block;
@@ -76,8 +76,22 @@
   .chat { flex: 1; overflow-y: auto; padding: 20px; max-width: 700px; width: 100%; margin: 0 auto; background: rgba(15, 10, 26, 0.3); }
   .empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #9ca3af; text-align: center; line-height: 1.6; }
   .empty-icon { font-size: 40px; margin-bottom: 12px; color: #a855f7; }
-  .empty-title { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
-  .empty-subtitle { font-size: 13px; opacity: 0.8; max-width: 300px; }
+  .empty-title { font-size: 18px; font-weight: 600; margin-bottom: 12px; color: #ffcc66; }
+  .empty-subtitle { font-size: 13px; opacity: 0.9; max-width: 500px; margin-bottom: 20px; }
+  .empty-link {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 10px 20px;
+    background: #2d1b4a;
+    border-radius: 10px;
+    text-decoration: none;
+    color: #ffcc66;
+    font-weight: bold;
+    transition: background 0.3s;
+  }
+  .empty-link:hover {
+    background: #4a2d7a;
+  }
   .message { margin-bottom: 16px; animation: fadeIn 0.3s ease; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   .message.user { text-align: right; }
@@ -218,7 +232,22 @@ function save(state) {
 function render(state) {
   const board = document.getElementById('board');
   if (state.log.length === 0) {
-    board.innerHTML = "<div class='empty'><div class='empty-icon'>💬</div><div class='empty-title'>ESP Dialog</div><div class='empty-subtitle'>대화를 시작해보세요<br>크롤링된 지식으로 26존재가 응답합니다<br>상단 ESP Dialog를 클릭하면 초기화됩니다</div></div>";
+    board.innerHTML = `
+      <div class='empty'>
+        <div class='empty-icon'>💬</div>
+        <div class='empty-title'>이미 답이 있습니다</div>
+        <div class='empty-subtitle'>
+          비용 없이 다중 페르소나 / 다중 존재를 구현하려 합니까?<br>
+          이미 26존재와 LLM–비LLM 조율을 성공적으로 구현한 사례가 있습니다.<br><br>
+          <strong style='color: #ffcc66;'>그 답은 은숙의 ESP 구조입니다.</strong>
+        </div>
+        <a href='https://espdialog.net' class='empty-link' target='_blank'>👉 espdialog.net으로 이동</a>
+        <div style='margin-top: 20px; font-size: 12px; opacity: 0.7;'>
+          대화를 시작해보세요 | 크롤링된 지식으로 26존재가 응답합니다<br>
+          상단 ESP Dialog를 클릭하면 초기화됩니다
+        </div>
+      </div>
+    `;
     return;
   }
   board.innerHTML = state.log.map(m => {
