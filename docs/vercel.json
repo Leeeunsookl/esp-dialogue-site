@@ -1,5 +1,3 @@
 {
-  "buildCommand": "echo 'No build needed'",
-  "outputDirectory": "docs",
   "cleanUrls": true
 }
