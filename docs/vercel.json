@@ -1,20 +1,5 @@
-
 {
-  "version": 2,
-  "routes": [
-    { "src": "/guide.html", "dest": "/docs/guide.html" },
-    { "src": "/policy.html", "dest": "/docs/policy.html" },
-    { "src": "/entities.html", "dest": "/docs/entities.html" },
-    { "src": "/espprotocol.html", "dest": "/docs/espprotocol.html" },
-    { "src": "/ethics.html", "dest": "/docs/ethics.html" },
-    { "src": "/health.html", "dest": "/docs/health.html" },
-    { "src": "/landscape.html", "dest": "/docs/landscape.html" },
-    { "src": "/tone_sources.html", "dest": "/docs/tone_sources.html" },
-    { "src": "/proof.html", "dest": "/docs/proof.html" },
-    { "src": "/changelog.html", "dest": "/docs/changelog.html" },
-    { "src": "/block.html", "dest": "/docs/block.html" },
-    { "src": "/blocked.html", "dest": "/docs/blocked.html" },
-    { "src": "/404.html", "dest": "/docs/404.html" },
-    { "src": "/", "dest": "/docs/index.html" }
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/docs/$1" }
   ]
 }
