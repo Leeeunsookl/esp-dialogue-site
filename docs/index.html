@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="ko">
 <head>
@@ -109,22 +110,23 @@
       <span class="menu-trigger" onclick="toggleMenu()">메뉴</span>
       
       <div class="menu" id="menu">
-      <a href="guide.html" class="menu-item">📖 사용법 가이드</a>
-  <a href="policy.html" class="menu-item">📋 윤리 및 정책</a>
-  <a href="entities.html" class="menu-item">👥 AI 존재 특성</a>
-  <div class="menu-divider"></div>
-  <a href="espprotocol.html" class="menu-item">🔧 ESP 프로토콜</a>
-  <a href="ethics.html" class="menu-item">⚖️ 윤리 지침</a>
-  <a href="health.html" class="menu-item">💊 비LLM 실험</a>
-  <div class="menu-divider"></div>
-  <a href="landscape.html" class="menu-item">🌄 랜드스케이프</a>
-  <a href="tone_sources.html" class="menu-item">🎵 톤 소스</a>
-  <a href="proof.html" class="menu-item">🔍 증명서</a>
-  <div class="menu-divider"></div>
-  <a href="changelog.html" class="menu-item">📝 변경 로그</a>
-  <a href="block.html" class="menu-item">🚫 차단 관리</a>
-  <a href="blocked.html" class="menu-item">❌ 차단된 항목</a>
-  <a href="404.html" class="menu-item">❓ 오류 페이지</a>
+        <a href="guide.html" class="menu-item">📖 사용법 가이드</a>
+        <a href="policy.html" class="menu-item">📋 윤리 및 정책</a>
+        <a href="entities.html" class="menu-item">👥 AI 존재 특성</a>
+        <div class="menu-divider"></div>
+        <a href="espprotocol.html" class="menu-item">🔧 ESP 프로토콜</a>
+        <a href="ethics.html" class="menu-item">⚖️ 윤리 지침</a>
+        <a href="health.html" class="menu-item">💊 비LLM 실험</a>
+        <div class="menu-divider"></div>
+        <a href="landscape.html" class="menu-item">🌄 랜드스케이프</a>
+        <a href="tone_sources.html" class="menu-item">🎵 톤 소스</a>
+        <a href="proof.html" class="menu-item">🔍 증명서</a>
+        <div class="menu-divider"></div>
+        <a href="changelog.html" class="menu-item">📝 변경 로그</a>
+        <a href="block.html" class="menu-item">🚫 차단 관리</a>
+        <a href="blocked.html" class="menu-item">❌ 차단된 항목</a>
+        <a href="404.html" class="menu-item">❓ 오류 페이지</a>
+      </div>
     </div>
   </div>
 
@@ -370,6 +372,12 @@ function init() {
 document.addEventListener('click', function(e) {
   const menu = document.getElementById('menu');
   const menuTrigger = document.querySelector('.menu-trigger');
+  
+  // 메뉴 아이템 클릭은 통과시킴
+  if (e.target.closest('.menu-item')) {
+    return;
+  }
+  
   if (menu && menuTrigger && !menu.contains(e.target) && !menuTrigger.contains(e.target)) {
     menu.style.display = 'none';
   }
