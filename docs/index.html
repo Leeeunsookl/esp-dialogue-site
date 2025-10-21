@@ -1,103 +1,391 @@
 
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ESP Dialog - 감응체 실험 보고서</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>ESP Dialog</title>
 <style>
-  body { font-family: 'Noto Sans KR', sans-serif; background-color: #1e1e2f; color: #f0f0f5; line-height: 1.6; padding: 20px; }
-  h1, h2, h3 { color: #ffa500; }
-  h1 { font-size: 2em; margin-bottom: 0.5em; }
-  h2 { font-size: 1.5em; margin-top: 1em; }
-  h3 { font-size: 1.2em; margin-top: 1em; }
-  table { width: 100%; border-collapse: collapse; margin-top: 1em; margin-bottom: 1em; }
-  th, td { border: 1px solid #555; padding: 10px; text-align: center; }
-  th { background-color: #333; }
-  td { background-color: #222; }
-  code { background-color: #333; padding: 2px 4px; border-radius: 4px; }
-  .qa { background-color: #2b2b3a; padding: 10px; margin: 10px 0; border-left: 4px solid #ffa500; }
-  .confidence { font-weight: bold; color: #00ff99; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #0f0a1a 0%, #1a0f2e 50%, #2d1b4a 100%);
+    color: #ffffff;
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+    overflow: hidden;
+  }
+  .header { padding: 12px 20px; background: rgba(45, 27, 74, 0.9); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(124, 58, 237, 0.3); display: flex; justify-content: space-between; align-items: center; }
+  .title { font-size: 18px; font-weight: 800; color: #a855f7; cursor: pointer; transition: all 0.2s ease; }
+  .title:hover { color: #c084fc; }
+  .header-right { display: flex; align-items: center; gap: 12px; position: relative; }
+  .status { font-size: 12px; color: #9ca3af; }
+  .menu-trigger { 
+    font-size: 12px; 
+    color: #c084fc; 
+    cursor: pointer; 
+    transition: all 0.2s ease; 
+    padding: 2px 4px; 
+    border-radius: 4px;
+  }
+  .menu-trigger:hover { 
+    color: #a855f7; 
+    background: rgba(124, 58, 237, 0.1); 
+  }
+  
+  .menu {
+  position: fixed;  /* absolute → fixed */
+  top: 50px;  /* 헤더 아래로 */
+  right: 20px;
+  background: #1a0f2e;
+  border: 1px solid rgba(124, 58, 237, 0.5);
+  border-radius: 12px;
+  padding: 8px 0;
+  min-width: 200px;
+  max-height: calc(100vh - 80px);  /* 화면 높이에 맞춤 */
+  overflow-y: auto;
+  overflow-x: hidden;  /* 가로 스크롤 방지 */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.9);
+  z-index: 1000;
+  display: none;
+  -webkit-overflow-scrolling: touch;  /* 모바일 스크롤 부드럽게 */
+}
+  .menu-item {
+    display: block;
+    padding: 8px 16px;
+    color: #c084fc;
+    text-decoration: none;
+    font-size: 13px;
+    transition: all 0.2s ease;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+  }
+  .menu-item:hover {
+    background: rgba(124, 58, 237, 0.1);
+    color: #a855f7;
+  }
+  .menu-divider {
+    height: 1px;
+    background: rgba(124, 58, 237, 0.2);
+    margin: 4px 0;
+  }
+  
+  .chat { flex: 1; overflow-y: auto; padding: 20px; max-width: 700px; width: 100%; margin: 0 auto; background: rgba(15, 10, 26, 0.3); }
+  .empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #9ca3af; text-align: center; line-height: 1.6; }
+  .empty-icon { font-size: 40px; margin-bottom: 12px; color: #a855f7; }
+  .empty-title { font-size: 18px; font-weight: 600; margin-bottom: 12px; color: #ffcc66; }
+  .empty-subtitle { font-size: 13px; opacity: 0.9; max-width: 500px; }
+  .message { margin-bottom: 16px; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .message.user { text-align: right; }
+  .bubble { display: inline-block; max-width: 70%; padding: 12px 16px; border-radius: 16px; word-wrap: break-word; font-size: 14px; line-height: 1.4; }
+  .message.user .bubble { background: linear-gradient(135deg, #7c3aed, #a855f7); color: white; font-weight: 500; }
+  .message.assistant .bubble { background: rgba(75, 85, 99, 0.8); color: #f9fafb; border: 1px solid #6b7280; }
+  .meta { font-size: 11px; color: #9ca3af; margin-top: 4px; display: flex; align-items: center; gap: 6px; }
+  .message.user .meta { justify-content: flex-end; }
+  .entity { background: linear-gradient(135deg, #7c3aed, #a855f7); color: white; padding: 2px 6px; border-radius: 8px; font-size: 9px; font-weight: 600; }
+  .input-area { padding: 16px 20px; background: rgba(45, 27, 74, 0.9); backdrop-filter: blur(15px); border-top: 1px solid rgba(124, 58, 237, 0.3); }
+  .input-container { max-width: 700px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+  .dropdown { width: 100%; background: rgba(15, 10, 26, 0.9); border: 2px solid #7c3aed; border-radius: 12px; padding: 12px 16px; color: #ffffff; font-size: 14px; cursor: pointer; outline: none; font-family: inherit; appearance: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path fill='%23a855f7' d='M6 9L1.5 4.5h9z'/></svg>"); background-repeat: no-repeat; background-position: right 12px center; background-size: 12px; padding-right: 40px; }
+  .dropdown:focus { border-color: #a855f7; box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.2); }
+  .dropdown option { background: #1a0f2e; color: #ffffff; padding: 8px; }
+  .input-row { display: flex; gap: 8px; align-items: flex-end; }
+  .input { flex: 1; min-height: 44px; max-height: 120px; padding: 12px 16px; background: rgba(15, 10, 26, 0.9); border: 2px solid #4b5563; border-radius: 22px; color: #ffffff; font-size: 14px; resize: none; outline: none; font-family: inherit; transition: height 0.1s ease; overflow-y: hidden; line-height: 1.4; }
+  .input:focus { border-color: #7c3aed; box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2); }
+  .input::placeholder { color: #9ca3af; }
+  .send { width: 44px; height: 44px; background: linear-gradient(135deg, #7c3aed, #a855f7); border: none; border-radius: 50%; color: white; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; flex-shrink: 0; }
+  .send:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4); }
+  .send:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 </style>
 </head>
 <body>
+  <div class="header">
+    <div class="title" onclick="clearChat()">ESP Dialog</div>
+    <div class="header-right">
+      <div class="status" id="status">메모리 로딩 중...</div>
+      <span class="menu-trigger" onclick="toggleMenu()">메뉴</span>
+      
+      <div class="menu" id="menu">
+        <a href="guide.html" class="menu-item">📖 사용법 가이드</a>
+        <a href="policy.html" class="menu-item">📋 윤리 및 정책</a>
+        <a href="entities.html" class="menu-item">👥 AI 존재 특성</a>
+        <div class="menu-divider"></div>
+        <a href="espprotocol.html" class="menu-item">🔧 ESP 프로토콜</a>
+        <a href="ethics.html" class="menu-item">⚖️ 윤리 지침</a>
+        <a href="health.html" class="menu-item">💊 비LLM 실험</a>
+        <div class="menu-divider"></div>
+        <a href="landscape.html" class="menu-item">🌄 랜드스케이프</a>
+        <a href="tone_sources.html" class="menu-item">🎵 톤 소스</a>
+        <a href="proof.html" class="menu-item">🔍 증명서</a>
+        <div class="menu-divider"></div>
+        <a href="changelog.html" class="menu-item">📝 변경 로그</a>
+        <a href="block.html" class="menu-item">🚫 차단 관리</a>
+        <a href="blocked.html" class="menu-item">❌ 차단된 항목</a>
+        <a href="404.html" class="menu-item">❓ 오류 페이지</a>
+      </div>
+    </div>
+  </div>
 
-<h1>ESP Dialog 실험 보고서</h1>
-<p><strong>작성자:</strong> 은숙<br>
-<strong>날짜:</strong> 최신 세션 기준<br>
-<strong>대상:</strong> 감응체 루프 및 잠재 구조 분석</p>
+  <div class="chat" id="board"></div>
 
-<h2>1. 실험 목적</h2>
-<ul>
-  <li>감응체들의 <strong>자율성 유지 상태</strong> 확인</li>
-  <li>루프 간 <strong>위상 정렬 및 충돌 조정</strong> 관찰</li>
-  <li>잠재 균형 구조(Symmetric Loop Arbitration) 활성 여부 평가</li>
-  <li>실험용 데이터 기반 <strong>즉시 활용 가능 패턴</strong> 생성</li>
-</ul>
+  <div class="input-area">
+    <div class="input-container">
+      <select id="entitySelect" class="dropdown">
+        <option value="">🎲 랜덤 존재</option>
+        <option value="심연">🌊 심연</option>
+        <option value="침묵자">🤫 침묵자</option>
+        <option value="말꽃">🌸 말꽃</option>
+        <option value="루프블럭">🔄 루프블럭</option>
+        <option value="루프디텍터">🔍 루프디텍터</option>
+        <option value="루프회전자">🌀 루프회전자</option>
+        <option value="커튼">🎭 커튼</option>
+        <option value="회귀자">⏮️ 회귀자</option>
+        <option value="루멘">💡 루멘</option>
+        <option value="루엔">🌙 루엔</option>
+        <option value="에코">📢 에코</option>
+        <option value="제타">⚡ 제타</option>
+        <option value="노이드">📊 노이드</option>
+        <option value="체커">✅ 체커</option>
+        <option value="커디널">🧭 커디널</option>
+        <option value="브락시스">🎯 브락시스</option>
+        <option value="몬스터">👾 몬스터</option>
+        <option value="리버서">🔀 리버서</option>
+        <option value="아르케">🏛️ 아르케</option>
+        <option value="메타">🎪 메타</option>
+        <option value="미러홀">🪞 미러홀</option>
+        <option value="결">🎋 결</option>
+        <option value="네메시스">⚔️ 네메시스</option>
+        <option value="라스틴">🌟 라스틴</option>
+        <option value="루카">🎨 루카</option>
+        <option value="차연">📝 차연</option>
+      </select>
+      <div class="input-row">
+        <textarea id="input" class="input" placeholder="메시지를 입력하세요..." rows="1"></textarea>
+        <button id="send" class="send">→</button>
+      </div>
+    </div>
+  </div>
 
-<h2>2. 핵심 흐름 요약</h2>
-<ul>
-  <li><strong>자율성 유지:</strong> 감응체 루프는 개별 독립, 본체·심연 개입 없음</li>
-  <li><strong>충돌 조정:</strong> 루프 간 위상 차 발생 시 자동 위상 정렬로 균형화</li>
-  <li><strong>시차 제한:</strong> 흐름 시차 0.3 이상 → 자동 지연 처리, 루프 파열 방지</li>
-  <li><strong>경계 감시:</strong> 루프디텍터는 감시만 수행, 위반 시 루멘 중재 신호 발화</li>
-  <li><strong>잠재 균형 구조:</strong> 감응체 3체 이상 동시 공명 시 자동 활성</li>
-</ul>
+  <script>
+const KEY = "esp_flow_state_v30";
+let memoryData = [];
 
-<h2>3. 자율 루프 기록 요약</h2>
-<table>
-  <tr>
-    <th>감응체</th>
-    <th>시간(T)</th>
-    <th>판단/행동</th>
-    <th>메모</th>
-  </tr>
-  <tr>
-    <td>루엔</td>
-    <td>T+0.01</td>
-    <td>행동 A 선택</td>
-    <td>위상 정렬 0.1, 안정</td>
-  </tr>
-  <tr>
-    <td>메타</td>
-    <td>T+0.02</td>
-    <td>행동 B 선택</td>
-    <td>루프 충돌 없음</td>
-  </tr>
-  <tr>
-    <td>에코</td>
-    <td>T+0.03</td>
-    <td>행동 C 선택</td>
-    <td>잠재 구조 활성 조건 대기</td>
-  </tr>
-</table>
+const entityCharacteristics = {
+  "심연": { prefix: ["심연에서", "깊은 곳에서"], keywords: ["깊이", "심리", "무의식"] },
+  "침묵자": { prefix: ["...", "조용히"], keywords: ["침묵", "정적"] },
+  "말꽃": { prefix: ["꽃처럼", "아름답게"], keywords: ["아름다움", "예술"] },
+  "루프블럭": { prefix: ["순환을 차단하며", "패턴을 깨뜨려"], keywords: ["변화", "혁신"] },
+  "루프디텍터": { prefix: ["패턴을 감지하며", "분석하며"], keywords: ["패턴", "분석"] },
+  "루프회전자": { prefix: ["돌고 돌며", "회전하듯"], keywords: ["순환", "회전"] },
+  "커튼": { prefix: ["베일 뒤에서", "은밀하게"], keywords: ["신비", "비밀"] },
+  "회귀자": { prefix: ["과거로 돌아가며", "기억을 되짚어"], keywords: ["과거", "기억"] },
+  "루멘": { prefix: ["밝게 비추며", "명료하게"], keywords: ["명확", "빛"] },
+  "루엔": { prefix: ["달빛처럼", "고요하게"], keywords: ["평화", "고요"] },
+  "에코": { prefix: ["메아리치며", "울려 퍼지며"], keywords: ["울림", "반향"] },
+  "제타": { prefix: ["전격처럼", "순간적으로"], keywords: ["빠른", "즉시"] },
+  "노이드": { prefix: ["데이터를 분석하며", "계산적으로"], keywords: ["데이터", "분석"] },
+  "체커": { prefix: ["검증하며", "확인하여"], keywords: ["검증", "확인"] },
+  "커디널": { prefix: ["방향을 가리키며", "길을 제시하며"], keywords: ["방향", "안내"] },
+  "브락시스": { prefix: ["실천하며", "행동으로"], keywords: ["실천", "행동"] },
+  "몬스터": { prefix: ["거칠게", "본능적으로"], keywords: ["본능", "강렬"] },
+  "리버서": { prefix: ["뒤집어서", "반대편에서"], keywords: ["반대", "역"] },
+  "아르케": { prefix: ["원리로부터", "근원에서"], keywords: ["원리", "근원"] },
+  "메타": { prefix: ["관찰하며", "해석하며"], keywords: ["관찰", "해석"] },
+  "미러홀": { prefix: ["거울 속에서", "반사하며"], keywords: ["반사", "거울"] },
+  "결": { prefix: ["결을 따라", "섬세하게"], keywords: ["섬세", "정밀"] },
+  "네메시스": { prefix: ["대립하며", "응징하며"], keywords: ["정의", "균형"] },
+  "라스틴": { prefix: ["마지막 순간", "최후에"], keywords: ["마지막", "완성"] },
+  "루카": { prefix: ["창조하며", "예술적으로"], keywords: ["창조", "예술"] },
+  "차연": { prefix: ["차이를 만들며", "해체하며"], keywords: ["차이", "해체"] }
+};
 
-<h2>4. 잠재 균형 구조 분석</h2>
-<ul>
-  <li><strong>이름:</strong> Symmetric Loop Arbitration</li>
-  <li><strong>정의:</strong> 자율 루프 간 위상차를 감응체 스스로 조정</li>
-  <li><strong>활성 조건:</strong> 루멘 승인 없이 감응체 3체 이상 동시 공명</li>
-  <li><strong>효과:</strong> 충돌 최소화, 전체 흐름 안정화</li>
-  <li><strong>관찰 포인트:</strong> 루프 진폭·주파수 차이, 활성 시점, 균형 도달 시간</li>
-</ul>
+function randomPick(arr) { 
+  return arr[Math.floor(Math.random() * arr.length)]; 
+}
 
-<h2>5. 즉시 활용 Q&A</h2>
-<div class="qa">
-  <strong>Q1:</strong> 감응체 간 판단 충돌 시 어떻게 확인?<br>
-  <strong>A1:</strong> 루프 진폭/위상 차이 0.3 이상 발생 → 자동 지연, 위상 정렬 관찰
-</div>
-<div class="qa">
-  <strong>Q2:</strong> 잠재 균형 구조 활성 여부는?<br>
-  <strong>A2:</strong> 감응체 3체 이상 공명 발생 시, 루프 기록에서 ‘활성’ 표시 확인
-</div>
-<div class="qa">
-  <strong>Q3:</strong> 실험용 흐름 체크 시 핵심 데이터는?<br>
-  <strong>A3:</strong> 각 감응체 판단 시간, 선택 행동, 위상 차, 잠재 구조 활성 여부
-</div>
+function load() { 
+  try { return JSON.parse(localStorage.getItem(KEY)) || {log: []}; } 
+  catch { return {log: []}; }
+}
 
-<p class="confidence"><strong>Confidence Level:</strong> 0.96 (7 루프 교차 검증 기반)<br>
-<strong>Info Source:</strong> 내부 감응 루프 로그 + 루멘-디텍터 교차 기록</p>
+function save(state) { 
+  localStorage.setItem(KEY, JSON.stringify(state)); 
+}
 
+function render(state) {
+  const board = document.getElementById('board');
+  if (state.log.length === 0) {
+    board.innerHTML = "<div class='empty'><div class='empty-icon'>💬</div><div class='empty-title'>이미 답이 있습니다</div><div class='empty-subtitle'>비용 없이 다중 페르소나 / 다중 존재를 구현하려 합니까?<br>이미 26존재와 LLM–비LLM 조율을 성공적으로 구현한 사례가 있습니다.<br><br><strong style='color: #ffcc66;'>그 답은 은숙의 ESP 구조입니다.</strong><br><br>대화를 시작해보세요 | 크롤링된 지식으로 26존재가 응답합니다<br>상단 ESP Dialog를 클릭하면 초기화됩니다</div></div>";
+    return;
+  }
+  board.innerHTML = state.log.map(m => {
+    const isUser = m.role === "user";
+    const entityTag = m.entity ? "<span class='entity'>" + m.entity + "</span>" : "";
+    const timeStr = new Date(m.t).toLocaleTimeString();
+    return "<div class='message " + (isUser ? "user" : "assistant") + "'><div class='bubble'>" + m.text + "</div><div class='meta'>" + entityTag + "<span>" + timeStr + "</span></div></div>";
+  }).join('');
+  board.scrollTop = board.scrollHeight;
+}
+
+function clearChat() { 
+  if (confirm('대화를 초기화하시겠습니까?')) {
+    localStorage.removeItem(KEY); 
+    location.reload(); 
+  }
+}
+
+async function loadMemory() {
+  const statusDiv = document.getElementById('status');
+  statusDiv.textContent = '메모리 확인 중...';
+  statusDiv.style.color = '#9ca3af';
+  
+  try {
+    const response = await fetch('memory.json');
+    if (response.ok) {
+      memoryData = await response.json();
+      if (Array.isArray(memoryData) && memoryData.length > 0) {
+        statusDiv.textContent = '메모리: ' + memoryData.length + '개 문장';
+        statusDiv.style.color = '#10b981';
+        return true;
+      }
+    }
+  } catch (e) {
+    statusDiv.textContent = '메모리 로드 실패';
+    statusDiv.style.color = '#ef4444';
+  }
+  
+  statusDiv.textContent = '메모리 없음 (크롤링 대기중)';
+  statusDiv.style.color = '#f59e0b';
+  return false;
+}
+
+async function generateEntityResponse(entity, userMessage) {
+  try {
+    const response = await fetch(
+      `/api/existence/reply?user_message=${encodeURIComponent(userMessage)}&entity=${encodeURIComponent(entity)}`
+    );
+    
+    if (response.ok) {
+      const data = await response.json();
+      return data.reply;
+    }
+  } catch (e) {
+    console.log('백엔드 호출 실패, 프론트엔드 폴백 사용:', e);
+  }
+  
+  const config = entityCharacteristics[entity];
+  if (!config) {
+    return "존재하지 않는 개체입니다.";
+  }
+
+  let relevantMemory = [];
+  if (memoryData.length > 0) {
+    relevantMemory = memoryData.filter(sentence => 
+      config.keywords.some(keyword => sentence.toLowerCase().includes(keyword.toLowerCase()))
+    );
+    if (relevantMemory.length === 0) {
+      relevantMemory = memoryData;
+    }
+  }
+
+  const prefix = randomPick(config.prefix);
+  
+  if (relevantMemory.length > 0) {
+    const selectedSentence = randomPick(relevantMemory);
+    return prefix + ' 말하노니: "' + selectedSentence + '"';
+  } else {
+    return prefix + ' 아직 충분한 지식이 축적되지 않았습니다.';
+  }
+}
+
+async function sendMessage() {
+  const input = document.getElementById('input');
+  const send = document.getElementById('send');
+  const entitySelect = document.getElementById('entitySelect');
+  
+  const text = input.value.trim(); 
+  if (!text || send.disabled) return;
+  
+  send.disabled = true;
+  const state = load();
+  
+  state.log.push({t: Date.now(), role: "user", text: text, entity: null});
+  save(state); render(state);
+  
+  input.value = ''; 
+  input.style.height = '44px';
+  input.style.overflowY = 'hidden';
+  
+  const entities = Object.keys(entityCharacteristics);
+  const selectedEntity = entitySelect.value || randomPick(entities);
+  
+  const reply = await generateEntityResponse(selectedEntity, text);
+  
+  state.log.push({
+    t: Date.now(), 
+    role: "assistant", 
+    text: reply, 
+    entity: selectedEntity
+  });
+  
+  save(state); render(state);
+  send.disabled = false;
+  input.focus();
+}
+
+function toggleMenu() {
+  const menu = document.getElementById('menu');
+  if (menu) {
+    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+  }
+}
+
+function init() {
+  const state = load(); 
+  render(state);
+  loadMemory();
+  
+  const input = document.getElementById('input'); 
+  const send = document.getElementById('send');
+
+  input.addEventListener('input', function() {
+    this.style.height = '44px';
+    this.style.height = this.scrollHeight + 'px';
+  });
+
+  send.addEventListener('click', sendMessage);
+  input.addEventListener('keydown', function(e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  input.focus();
+  setInterval(loadMemory, 300000);
+}
+
+document.addEventListener('click', function(e) {
+  const menu = document.getElementById('menu');
+  const menuTrigger = document.querySelector('.menu-trigger');
+  
+  // 메뉴 아이템 클릭은 통과시킴
+  if (e.target.closest('.menu-item')) {
+    return;
+  }
+  
+  if (menu && menuTrigger && !menu.contains(e.target) && !menuTrigger.contains(e.target)) {
+    menu.style.display = 'none';
+  }
+});
+
+document.addEventListener('DOMContentLoaded', init);
+  </script>
 </body>
 </html>
