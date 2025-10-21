@@ -37,35 +37,38 @@
   }
   
   .menu {
-  position: fixed;  /* absolute → fixed */
-  top: 50px;  /* 헤더 아래로 */
+  .menu {
+  position: fixed;
+  top: 60px;
   right: 20px;
-  background: #1a0f2e;
+  background: #0f0a1a;  /* 완전 불투명 */
   border: 1px solid rgba(124, 58, 237, 0.5);
   border-radius: 12px;
   padding: 8px 0;
-  min-width: 200px;
-  max-height: calc(100vh - 80px);  /* 화면 높이에 맞춤 */
+  width: 220px;
+  max-height: calc(100vh - 100px);
   overflow-y: auto;
-  overflow-x: hidden;  /* 가로 스크롤 방지 */
+  overflow-x: hidden;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.9);
-  z-index: 1000;
+  z-index: 9999;
   display: none;
-  -webkit-overflow-scrolling: touch;  /* 모바일 스크롤 부드럽게 */
+  -webkit-overflow-scrolling: touch;
 }
-  .menu-item {
-    display: block;
-    padding: 8px 16px;
-    color: #c084fc;
-    text-decoration: none;
-    font-size: 13px;
-    transition: all 0.2s ease;
-    border: none;
-    background: none;
-    width: 100%;
-    text-align: left;
-    cursor: pointer;
-  }
+
+.menu-item {
+  display: block;
+  padding: 10px 16px;
+  color: #c084fc;
+  text-decoration: none;
+  font-size: 13px;
+  transition: all 0.2s ease;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+}
   .menu-item:hover {
     background: rgba(124, 58, 237, 0.1);
     color: #a855f7;
